@@ -2,7 +2,7 @@ package isocline.reflow.examples.flow;
 
 import isocline.reflow.TestUtil;
 import isocline.reflow.WorkEvent;
-import isocline.reflow.WorkProcessor;
+import isocline.reflow.FlowProcessor;
 import isocline.reflow.log.XLogger;
 import org.junit.Test;
 
@@ -37,7 +37,7 @@ public class MultiAsync2 {
     @Test
     public void test() throws InterruptedException {
 
-        WorkProcessor.main().reflow(
+        FlowProcessor.main().reflow(
                 flow -> {
                     flow.runAsync(this::asyncMulti, 5)
                             .waitAll()

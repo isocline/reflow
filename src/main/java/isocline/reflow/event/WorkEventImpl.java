@@ -148,7 +148,7 @@ public class WorkEventImpl implements WorkEvent {
     /**
      * Creates a new {@link WorkEvent} that has parent property information.
      *
-     * @param eventName the name of the event to create; may not be empty
+     * @param eventName the name of the event to createOrigin; may not be empty
      * @return the newly created WorkEvent
      */
     public WorkEvent createChild(String eventName) {

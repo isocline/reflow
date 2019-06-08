@@ -17,7 +17,7 @@ package isocline.reflow.descriptor;
 
 import isocline.reflow.Clock;
 import isocline.reflow.ExecuteEventChecker;
-import isocline.reflow.ScheduleDescriptor;
+import isocline.reflow.PlanDescriptor;
 import isocline.reflow.Plan;
 
 import java.util.ArrayList;
@@ -30,7 +30,7 @@ import java.util.List;
  *
  * @author Richard D. Kim
  */
-public class CronDescriptor implements ScheduleDescriptor {
+public class CronDescriptor implements PlanDescriptor {
 
     private CrontabEventChecker checker;
 

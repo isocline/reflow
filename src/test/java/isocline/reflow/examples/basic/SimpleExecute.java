@@ -1,9 +1,9 @@
 package isocline.reflow.examples.basic;
 
+import isocline.reflow.FlowProcessor;
+import isocline.reflow.FlowProcessorFactory;
 import isocline.reflow.Work;
 import isocline.reflow.WorkEvent;
-import isocline.reflow.WorkProcessor;
-import isocline.reflow.WorkProcessorFactory;
 import isocline.reflow.examples.TestConfiguration;
 import isocline.reflow.log.XLogger;
 import org.junit.Test;
@@ -26,7 +26,7 @@ public class SimpleExecute implements Work {
     @Test
     public void case1() throws Exception {
 
-        WorkProcessor processor = WorkProcessorFactory.getProcessor();
+        FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
 

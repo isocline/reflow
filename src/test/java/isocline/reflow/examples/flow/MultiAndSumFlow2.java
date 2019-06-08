@@ -69,7 +69,7 @@ public class MultiAndSumFlow2 implements FlowableWork {
 
         schedule.block();
 
-        WorkProcessorFactory.getProcessor().awaitShutdown();
+        FlowProcessorFactory.getProcessor().awaitShutdown();
 
 
     }

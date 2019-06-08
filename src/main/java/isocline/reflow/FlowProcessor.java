@@ -36,9 +36,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @see isocline.reflow.FlowableWork
  * @see Plan
  */
-public class WorkProcessor extends ThreadGroup {
+public class FlowProcessor extends ThreadGroup {
 
-    protected static XLogger logger = XLogger.getLogger(WorkProcessor.class);
+    protected static XLogger logger = XLogger.getLogger(FlowProcessor.class);
 
 
     private String name;
@@ -64,19 +64,19 @@ public class WorkProcessor extends ThreadGroup {
     AtomicInteger managedWorkCount = new AtomicInteger(0);
 
 
-    private static WorkProcessor defaultWorkProcessor;
+    private static FlowProcessor defaultFlowProcessor;
 
-    private static Map<String, WorkProcessor> processorMap = new HashMap<String, WorkProcessor>();
-
-
-    public static WorkProcessor main() {
+    private static Map<String, FlowProcessor> processorMap = new HashMap<String, FlowProcessor>();
 
 
-        if (defaultWorkProcessor == null || !defaultWorkProcessor.isWorking()) {
-            defaultWorkProcessor = new WorkProcessor("default", getDefaultConfiguration());
+    public static FlowProcessor main() {
+
+
+        if (defaultFlowProcessor == null || !defaultFlowProcessor.isWorking()) {
+            defaultFlowProcessor = new FlowProcessor("default", getDefaultConfiguration());
         }
 
-        return defaultWorkProcessor;
+        return defaultFlowProcessor;
     }
 
     private static Configuration getDefaultConfiguration() {
@@ -95,15 +95,15 @@ public class WorkProcessor extends ThreadGroup {
 
 
     /**
-     * Create a WorkProcessor object which provice services for Plan
+     * Create a FlowProcessor object which provice services for Plan
      *
      * @param name   ClockerWorker name
-     * @param config configuration for WorkProcessor
+     * @param config configuration for FlowProcessor
      */
-    WorkProcessor(String name, Configuration config) {
-        super("WorkProcessor");
+    FlowProcessor(String name, Configuration config) {
+        super("FlowProcessor");
 
-        this.name = "WorkProcessor[" + name + "]";
+        this.name = "FlowProcessor[" + name + "]";
 
         this.configuration = config.lock();
         this.checkpointWorkQueueSize = config.getMaxWorkQueueSize() / 1000;
@@ -140,7 +140,7 @@ public class WorkProcessor extends ThreadGroup {
      * @param eventNames an event names
      * @return an new instance of Plan
      */
-    public Plan newPlan(Work work, String... eventNames) {
+    public Plan reflow(Work work, String... eventNames) {
         Plan plan = new Plan(this, work);
         plan.setSleepMode();
         plan.bindEvent(eventNames);
@@ -181,7 +181,7 @@ public class WorkProcessor extends ThreadGroup {
      *
      * @return a new instance of Plan
      */
-    public Plan newPlan() {
+    public Plan reflow() {
         return new Plan(this, null);
     }
 
@@ -192,15 +192,15 @@ public class WorkProcessor extends ThreadGroup {
      * @param work Work implement class object
      * @return new instance of Plan
      */
-    public Plan newPlan(Work work) {
-        return newPlan(null, work);
+    public Plan reflow(Work work) {
+        return reflow(null, work);
     }
 
 
-    public Plan newPlan(ScheduleDescriptor config, Work work) {
+    public Plan reflow(PlanDescriptor config, Work work) {
         Plan plan = new Plan(this, work);
         if (config != null) {
-            plan.scheduleDescriptor(config);
+            plan.describe(config);
         }
 
         return plan;
@@ -215,8 +215,8 @@ public class WorkProcessor extends ThreadGroup {
      * @throws InstantiationException InstantiationException
      * @throws IllegalAccessException IllegalAccessException
      */
-    public Plan newPlan(Class workClass) throws InstantiationException, IllegalAccessException {
-        return newPlan((Work) workClass.newInstance());
+    public Plan reflow(Class workClass) throws InstantiationException, IllegalAccessException {
+        return reflow((Work) workClass.newInstance());
     }
 
 
@@ -229,8 +229,8 @@ public class WorkProcessor extends ThreadGroup {
      * @throws InstantiationException InstantiationException
      * @throws IllegalAccessException IllegalAccessException
      */
-    public Plan newPlan(ScheduleDescriptor descriptor, Class workClass) throws InstantiationException, IllegalAccessException {
-        return newPlan(descriptor, (Work) workClass.newInstance());
+    public Plan reflow(PlanDescriptor descriptor, Class workClass) throws InstantiationException, IllegalAccessException {
+        return reflow(descriptor, (Work) workClass.newInstance());
     }
 
 
@@ -243,7 +243,7 @@ public class WorkProcessor extends ThreadGroup {
      * @throws InstantiationException if this Class represents an abstract class, an interface, an array class, a primitive type, or void; or if the class has no nullary constructor; or if the instantiation fails for some other reason.
      * @throws IllegalAccessException if the class or its nullary constructor is not accessible.
      */
-    public Plan newPlan(String className) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+    public Plan reflow(String className) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
         return new Plan(this, (Work) Class.forName(className).newInstance());
     }
 
@@ -579,7 +579,7 @@ public class WorkProcessor extends ThreadGroup {
 
         WorkEvent workEvent = event;
         if (event == null) {
-            workEvent = WorkEventFactory.create();
+            workEvent = WorkEventFactory.createOrigin();
         }
 
         //if (workScheduleList != null)
@@ -673,7 +673,7 @@ public class WorkProcessor extends ThreadGroup {
      ****************************************/
     static final class ThreadWorker extends Thread {
 
-        private WorkProcessor workProcessor;
+        private FlowProcessor flowProcessor;
 
 
         private int timeoutCount = 0;
@@ -692,9 +692,9 @@ public class WorkProcessor extends ThreadGroup {
 
         private int maxWaitTime = 2000;
 
-        public ThreadWorker(WorkProcessor parent, int threadPriority) {
+        public ThreadWorker(FlowProcessor parent, int threadPriority) {
             super(parent, "Clockwork:ThreadWorker-" + parent.currentThreadWorkerCount);
-            this.workProcessor = parent;
+            this.flowProcessor = parent;
             this.setPriority(threadPriority);
 
             uuid = UUID.randomUUID().toString();
@@ -708,7 +708,7 @@ public class WorkProcessor extends ThreadGroup {
 
 
         private boolean isWorking() {
-            if (!this.workProcessor.isWorking) {
+            if (!this.flowProcessor.isWorking) {
                 return false;
             } else if (!isThreadRunning) {
                 return false;
@@ -720,7 +720,7 @@ public class WorkProcessor extends ThreadGroup {
 
         private boolean check(Plan plan, long time) throws InterruptedException {
 
-            if (!plan.isSubscribed()) {
+            if (!plan.isActivated()) {
                 return false;
             }
 
@@ -734,7 +734,7 @@ public class WorkProcessor extends ThreadGroup {
 
         public boolean isDelayExecute() {
 
-            long executeTimeout = workProcessor.configuration.getExecuteTimeout();
+            long executeTimeout = flowProcessor.configuration.getExecuteTimeout();
 
             if (this.lastWorkTime < 1 || executeTimeout < 0) {
                 return false;
@@ -762,7 +762,7 @@ public class WorkProcessor extends ThreadGroup {
 
                 try {
 
-                    final Plan.ExecuteContext ctx = this.workProcessor.workQueue.poll(maxWaitTime,
+                    final Plan.ExecuteContext ctx = this.flowProcessor.workQueue.poll(maxWaitTime,
                             TimeUnit.MILLISECONDS);
 
                     if (ctx == null) {
@@ -839,11 +839,11 @@ public class WorkProcessor extends ThreadGroup {
 
                                 plan.adjustDelayTime(delaytime);
 
-                                if (delaytime > this.workProcessor.configuration.getThresholdWaitTimeToReady()) {
-                                    this.workProcessor.workChecker
+                                if (delaytime > this.flowProcessor.configuration.getThresholdWaitTimeToReady()) {
+                                    this.flowProcessor.workChecker
                                             .addWorkStatusWrapper(plan);
                                 } else {
-                                    this.workProcessor.addWorkSchedule(plan);
+                                    this.flowProcessor.addWorkSchedule(plan);
                                 }
 
                             } else if (delaytime == Work.WAIT) {
@@ -857,11 +857,11 @@ public class WorkProcessor extends ThreadGroup {
                             timeoutCount++;
                             stoplessCount = 0;
 
-                            if (remainMilliTime > this.workProcessor.configuration.getThresholdWaitTimeToReady()) {
-                                this.workProcessor.workChecker
+                            if (remainMilliTime > this.flowProcessor.configuration.getThresholdWaitTimeToReady()) {
+                                this.flowProcessor.workChecker
                                         .addWorkStatusWrapper(plan);
                             } else {
-                                this.workProcessor
+                                this.flowProcessor
                                         .addWorkSchedule(plan);
                             }
 
@@ -870,15 +870,15 @@ public class WorkProcessor extends ThreadGroup {
                         }
 
                     } else {
-                        this.workProcessor.workQueue.put(plan.enterQueue(false));
+                        this.flowProcessor.workQueue.put(plan.enterQueue(false));
                     }
 
 
                     if (timeoutCount > 10) {
-                        this.workProcessor.removeThreadWorker();
+                        this.flowProcessor.removeThreadWorker();
                         timeoutCount = 0;
                     } else if (stoplessCount > 1000) {
-                        this.workProcessor.addThreadWorker();
+                        this.flowProcessor.addThreadWorker();
                         stoplessCount = 0;
                     }
 
@@ -901,7 +901,7 @@ public class WorkProcessor extends ThreadGroup {
                 }
             }
 
-            this.workProcessor.removeThreadWorker(this);
+            this.flowProcessor.removeThreadWorker(this);
 
         }
 
@@ -947,12 +947,12 @@ public class WorkProcessor extends ThreadGroup {
      */
     static final class WorkChecker extends Thread {
 
-        private WorkProcessor workProcessor;
+        private FlowProcessor flowProcessor;
 
         private BlockingQueue<WorkScheduleWrapper> statusWrappers = new LinkedBlockingQueue<WorkScheduleWrapper>();
 
-        WorkChecker(WorkProcessor workProcessor) {
-            this.workProcessor = workProcessor;
+        WorkChecker(FlowProcessor flowProcessor) {
+            this.flowProcessor = flowProcessor;
         }
 
 
@@ -967,8 +967,8 @@ public class WorkProcessor extends ThreadGroup {
         @Override
         public void run() {
 
-            long thresholdWaitTimeToReady = this.workProcessor.configuration.getThresholdWaitTimeToReady();
-            while (workProcessor.isWorking) {
+            long thresholdWaitTimeToReady = this.flowProcessor.configuration.getThresholdWaitTimeToReady();
+            while (flowProcessor.isWorking) {
 
                 try {
                     WorkScheduleWrapper workScheduleWrapper = statusWrappers.poll(5, TimeUnit.SECONDS);
@@ -992,9 +992,9 @@ public class WorkProcessor extends ThreadGroup {
                         if (gap >= 0) {
 
                             if (event != null) {
-                                workProcessor.addWorkSchedule(plan, event);
+                                flowProcessor.addWorkSchedule(plan, event);
                             } else {
-                                workProcessor.addWorkSchedule(plan);
+                                flowProcessor.addWorkSchedule(plan);
                             }
 
 

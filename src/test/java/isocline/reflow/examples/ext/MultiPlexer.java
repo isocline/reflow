@@ -64,7 +64,7 @@ public class MultiPlexer implements Work {
     }
 
     public static void main(String[] args) throws Exception {
-        WorkProcessor processor = WorkProcessorFactory.getProcessor("perform", Configuration.PERFORMANCE);
+        FlowProcessor processor = FlowProcessorFactory.getProcessor("perform", Configuration.PERFORMANCE);
 
         long startTime = Clock.nextSecond();
 
@@ -74,7 +74,7 @@ public class MultiPlexer implements Work {
 
 
         for(int i=0;i< 10;i++ ) {
-            Plan schedule = processor.newPlan(new MultiPlexer("A",i)).startTime(startTime+i*10)
+            Plan schedule = processor.reflow(new MultiPlexer("A",i)).startTime(startTime+i*10)
                     .setStrictMode();
             schedule.activate();
         }
@@ -84,7 +84,7 @@ public class MultiPlexer implements Work {
         /*
 
         for(int i=0;i<10;i++ ) {
-            Plan schedule = worker.newPlan(new MultiPlexer("B",i)).setStrictMode(true).setStartTime(startTime+i*100+50);
+            Plan schedule = worker.reflow(new MultiPlexer("B",i)).setStrictMode(true).setStartTime(startTime+i*100+50);
             schedule.activate();
         }
         */

@@ -15,8 +15,8 @@
  */
 package isocline.reflow.web;
 
-import isocline.reflow.WorkProcessor;
-import isocline.reflow.WorkProcessorFactory;
+import isocline.reflow.FlowProcessor;
+import isocline.reflow.FlowProcessorFactory;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.annotation.WebListener;
@@ -27,10 +27,10 @@ import javax.servlet.annotation.WebListener;
  *
  */
 @WebListener
-public class WorkProcessorServletContextListener implements
+public class ReflowServletContextListener implements
         javax.servlet.ServletContextListener {
 
-    private WorkProcessor processor;
+    private FlowProcessor processor;
 
     /**
      * Initialize a Context of Servlet
@@ -38,7 +38,7 @@ public class WorkProcessorServletContextListener implements
      * @param sce an instance of ServletContextEvent
      */
     public void contextInitialized(ServletContextEvent sce) {
-        processor = WorkProcessorFactory.getProcessor();
+        processor = FlowProcessorFactory.getProcessor();
 
     }
 

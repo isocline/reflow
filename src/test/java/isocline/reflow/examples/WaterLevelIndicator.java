@@ -64,10 +64,10 @@ public class WaterLevelIndicator implements Work {
     }
 
     public static void main(String[] args) throws Exception {
-        WorkProcessor processor = WorkProcessorFactory.getProcessor();
+        FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-        Plan schedule = processor.newPlan(WaterLevelIndicator.class).setStrictMode();
+        Plan schedule = processor.reflow(WaterLevelIndicator.class).setStrictMode();
         schedule.activate();
 
 

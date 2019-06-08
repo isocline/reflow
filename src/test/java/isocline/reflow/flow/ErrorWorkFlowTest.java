@@ -78,9 +78,9 @@ public class ErrorWorkFlowTest implements FlowableWork {
 
     @Test
     public void testStartByEvent() {
-        WorkProcessor processor = WorkProcessorFactory.getProcessor();
+        FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
-        processor.newPlan(this).activate();
+        processor.reflow(this).activate();
 
         processor.awaitShutdown();
 

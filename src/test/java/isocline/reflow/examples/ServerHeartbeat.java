@@ -62,10 +62,10 @@ public class ServerHeartbeat implements Work {
     }
 
     public static void main(String[] args) throws Exception {
-        WorkProcessor processor = WorkProcessorFactory.getProcessor();
+        FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-        Plan schedule = processor.newPlan(ServerHeartbeat.class).setStrictMode();
+        Plan schedule = processor.reflow(ServerHeartbeat.class).setStrictMode();
         schedule.activate();
 
 

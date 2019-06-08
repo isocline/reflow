@@ -78,7 +78,7 @@ public class Plan {
 
     private Object lockOwner = null;
 
-    private WorkProcessor workProcessor = null;
+    private FlowProcessor flowProcessor = null;
 
     private LinkedList<WorkEvent> eventList = new LinkedList<WorkEvent>();
 
@@ -91,8 +91,8 @@ public class Plan {
 
     private Consumer consumer = null;
 
-    Plan(WorkProcessor workProcessor, Work work) {
-        this.workProcessor = workProcessor;
+    Plan(FlowProcessor flowProcessor, Work work) {
+        this.flowProcessor = flowProcessor;
         this.work = work;
 
         this.workUUID = UUID.randomUUID().toString();
@@ -502,7 +502,7 @@ public class Plan {
 
     public void raiseLocalEvent(WorkEvent event) {
 
-        this.workProcessor.addWorkSchedule(this, event);
+        this.flowProcessor.addWorkSchedule(this, event);
 
     }
 
@@ -510,9 +510,9 @@ public class Plan {
     public void raiseLocalEvent(WorkEvent event, long delayTime) {
 
         if (delayTime > 0) {
-            //this.workProcessor.workChecker
+            //this.flowProcessor.workChecker
 
-            this.getWorkProcessor().addWorkSchedule(this, event, delayTime);
+            this.getFlowProcessor().addWorkSchedule(this, event, delayTime);
 
         } else {
             raiseLocalEvent(event);
@@ -528,7 +528,7 @@ public class Plan {
         for (String eventName : eventNames) {
             String[] subEventNames = eventRepository.setBindEventNames(eventName);
             for (String subEventName : subEventNames) {
-                this.workProcessor.bindEvent(this, subEventName);
+                this.flowProcessor.bindEvent(this, subEventName);
             }
         }
         this.isEventBindding = true;
@@ -562,25 +562,18 @@ public class Plan {
     }
 
 
-    public Plan run() {
-        Plan schedule = activate();
-
-        schedule.block();
-
-
-        Throwable error = schedule.getError();
-        if (error != null) {
-            RuntimeException runtimeException = new RuntimeException(error);
-            throw runtimeException;
-        }
-
-        return schedule;
-    }
-
-
     public Plan activate() {
         return activate(null);
     }
+
+
+
+
+    public Plan describe(PlanDescriptor descriptor) {
+        descriptor.build(this);
+        return this;
+    }
+
 
 
     /**
@@ -630,29 +623,48 @@ public class Plan {
 
         if (this.waitingTime != Work.WAIT) {
             if (this.isStrictMode || this.isDefinedStartTime || this.waitingTime > 1 || isEventBindding) {
-                this.workProcessor.addWorkSchedule(this, false);
+                this.flowProcessor.addWorkSchedule(this, false);
             } else {
-                this.workProcessor.addWorkSchedule(this, true);
+                this.flowProcessor.addWorkSchedule(this, true);
             }
 
         }
 
-        this.workProcessor.managedWorkCount.incrementAndGet();
+        this.flowProcessor.managedWorkCount.incrementAndGet();
 
         return this;
     }
 
-    public Plan scheduleDescriptor(ScheduleDescriptor descriptor) {
-        descriptor.build(this);
-        return this;
+
+
+    /**
+     *
+     *
+     * @return
+     */
+    public Plan run() {
+        Plan schedule = activate();
+
+        schedule.block();
+
+
+        Throwable error = schedule.getError();
+        if (error != null) {
+            RuntimeException runtimeException = new RuntimeException(error);
+            throw runtimeException;
+        }
+
+        return schedule;
     }
+
+
 
     /**
      * check activated
      *
      * @return True if Plan is activated
      */
-    public boolean isSubscribed() {
+    public boolean isActivated() {
         return isActivated;
     }
 
@@ -663,7 +675,7 @@ public class Plan {
     synchronized public void finish() {
         if (this.isActivated) {
             this.isActivated = false;
-            this.workProcessor.managedWorkCount.decrementAndGet();
+            this.flowProcessor.managedWorkCount.decrementAndGet();
         }
         if (this.consumer != null) {
             WorkEvent originEvent = this.getOriginWorkEvent();
@@ -710,8 +722,8 @@ public class Plan {
     }
 
 
-    public WorkProcessor getWorkProcessor() {
-        return workProcessor;
+    public FlowProcessor getFlowProcessor() {
+        return flowProcessor;
     }
 
 
@@ -752,7 +764,7 @@ public class Plan {
 
         if (inputWorkEvent == null) {
             if (originEvent == null) {
-                originEvent = WorkEventFactory.create();
+                originEvent = WorkEventFactory.createOrigin();
                 originEvent.setPlan(this);
             }
             event = originEvent;

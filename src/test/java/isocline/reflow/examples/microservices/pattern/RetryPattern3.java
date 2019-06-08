@@ -1,9 +1,9 @@
 package isocline.reflow.examples.microservices.pattern;
 
+import isocline.reflow.FlowProcessor;
 import isocline.reflow.TestUtil;
 import isocline.reflow.WorkEvent;
 import isocline.reflow.WorkFlow;
-import isocline.reflow.WorkProcessor;
 import isocline.reflow.log.XLogger;
 import org.junit.Test;
 
@@ -75,7 +75,7 @@ public class RetryPattern3 {
     @Test
     public void startTest() {
 
-        WorkProcessor.main().reflow(flow -> {
+        FlowProcessor.main().reflow(flow -> {
 
             flow.check(e -> {
                 if (e.count() == 4) return false;

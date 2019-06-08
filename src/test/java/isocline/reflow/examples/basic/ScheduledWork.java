@@ -22,10 +22,10 @@ public class ScheduledWork implements Work {
     @Test
     public void case1() throws Exception {
 
-        WorkProcessor processor = WorkProcessorFactory.getProcessor();
+        FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-        Plan schedule = processor.newPlan(new ScheduledWork())
+        Plan schedule = processor.reflow(new ScheduledWork())
                 .interval(1 * Clock.HOUR)
                 .startTime("2020-04-24T09:00:00Z")
                 .finishTime("2020-06-16T16:00:00Z")
@@ -42,11 +42,11 @@ public class ScheduledWork implements Work {
     @Test
     public void case2() throws Exception {
 
-        WorkProcessor manager = WorkProcessorFactory.getProcessor();
+        FlowProcessor manager = FlowProcessorFactory.getProcessor();
 
 
 
-        Plan schedule = manager.newPlan(ScheduledWork.class);
+        Plan schedule = manager.reflow(ScheduledWork.class);
 
         schedule.interval(1 * Clock.SECOND);
         schedule.activate();
@@ -58,11 +58,11 @@ public class ScheduledWork implements Work {
     @Test
     public void caseStrictMode() throws Exception {
 
-        WorkProcessor processor = WorkProcessorFactory.getProcessor();
+        FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
 
-        Plan schedule = processor.newPlan(ScheduledWork.class);
+        Plan schedule = processor.reflow(ScheduledWork.class);
 
         schedule.interval(1 * Clock.SECOND);
         schedule.setStrictMode();
@@ -75,11 +75,11 @@ public class ScheduledWork implements Work {
     @Test
     public void delayStart1() throws Exception {
 
-        WorkProcessor processor = WorkProcessorFactory.getProcessor();
+        FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
 
-        Plan schedule = processor.newPlan(ScheduledWork.class);
+        Plan schedule = processor.reflow(ScheduledWork.class);
 
         schedule.interval(1 * Clock.SECOND);
         schedule.startDelayTime(Clock.milliseconds(0,0,2));
@@ -93,11 +93,11 @@ public class ScheduledWork implements Work {
     @Test
     public void delayStart2() throws Exception {
 
-        WorkProcessor processor = WorkProcessorFactory.getProcessor();
+        FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
 
-        Plan schedule = processor.newPlan(ScheduledWork.class);
+        Plan schedule = processor.reflow(ScheduledWork.class);
 
         schedule.interval(1 * Clock.SECOND);
         schedule.startTime(Clock.nextSecond()+Clock.SECOND*2);

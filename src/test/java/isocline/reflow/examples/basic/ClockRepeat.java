@@ -19,8 +19,8 @@ public class ClockRepeat implements Work {
     @Test
     public void case1() throws Exception {
 
-        WorkProcessor processor = WorkProcessorFactory.getProcessor();
-        processor.newPlan(new CronDescriptor("49 1 * * *"), this).activate();
+        FlowProcessor processor = FlowProcessorFactory.getProcessor();
+        processor.reflow(new CronDescriptor("49 1 * * *"), this).activate();
 
         processor.shutdown(3000);
         //processor.awaitShutdown();

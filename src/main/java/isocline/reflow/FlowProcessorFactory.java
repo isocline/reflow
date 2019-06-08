@@ -20,40 +20,40 @@ import java.util.Map;
 
 
 /**
- * Creates and returns a default WorkProcessor implementation object.
- * WorkProcessor is the core engine of work execution, and WorkProcessorFactory determines,
- * manages and creates the characteristics of WorkProcessor.
+ * Creates and returns a default FlowProcessor implementation object.
+ * FlowProcessor is the core engine of work execution, and FlowProcessorFactory determines,
+ * manages and creates the characteristics of FlowProcessor.
  *
  * @author Richard D. Kim
  */
-public class WorkProcessorFactory {
+public class FlowProcessorFactory {
 
-    private static WorkProcessor workProcessor;
+    private static FlowProcessor flowProcessor;
 
-    private static Map<String, WorkProcessor> processorMap = new HashMap<String, WorkProcessor>();
+    private static Map<String, FlowProcessor> processorMap = new HashMap<String, FlowProcessor>();
 
 
     /**
-     * Returns the underlying WorkProcessor implementation object.
+     * Returns the underlying FlowProcessor implementation object.
      *
-     * @return WorkProcessor
+     * @return FlowProcessor
      */
-    public static WorkProcessor getProcessor() {
+    public static FlowProcessor getProcessor() {
 
 
-        if (workProcessor == null || !workProcessor.isWorking()) {
-            workProcessor = new WorkProcessor("default", getDefaultConfiguration());
+        if (flowProcessor == null || !flowProcessor.isWorking()) {
+            flowProcessor = new FlowProcessor("default", getDefaultConfiguration());
         }
 
-        return workProcessor;
+        return flowProcessor;
     }
 
     /**
      *
      * @deprecated
-     * @return an instance of WorkProcessor
+     * @return an instance of FlowProcessor
      */
-    public static WorkProcessor getDefaultProcessor() {
+    public static FlowProcessor getDefaultProcessor() {
         return getProcessor();
     }
 
@@ -73,16 +73,16 @@ public class WorkProcessorFactory {
 
 
     /**
-     * Returns a customized WorkProcessor implementation object.
+     * Returns a customized FlowProcessor implementation object.
      *
-     * @param id a unique ID for WorkProcessor
+     * @param id a unique ID for FlowProcessor
      * @param config an instance of Configuration
-     * @return a new instance of WorkProcessor
+     * @return a new instance of FlowProcessor
      */
-    public static synchronized WorkProcessor getProcessor(String id, Configuration config) {
-        WorkProcessor processor = processorMap.get(id);
+    public static synchronized FlowProcessor getProcessor(String id, Configuration config) {
+        FlowProcessor processor = processorMap.get(id);
         if (processor == null || !processor.isWorking()) {
-            processor = new WorkProcessor(id, config);
+            processor = new FlowProcessor(id, config);
             processorMap.put(id, processor);
         }
 

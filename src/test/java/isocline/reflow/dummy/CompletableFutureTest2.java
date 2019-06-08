@@ -2,7 +2,7 @@ package isocline.reflow.dummy;
 
 import isocline.reflow.WorkEvent;
 import isocline.reflow.WorkFlow;
-import isocline.reflow.WorkProcessor;
+import isocline.reflow.FlowProcessor;
 import org.junit.Test;
 
 import java.util.List;
@@ -20,7 +20,7 @@ public class CompletableFutureTest2 {
         Price price = new Price();
 
 
-        WorkProcessor.main().reflow((WorkFlow<Double> flow) -> {
+        FlowProcessor.main().reflow((WorkFlow<Double> flow) -> {
             flow
                     .next(price::print)
                     .applyAsync(e -> price.calculatePrice(1) )
@@ -37,7 +37,7 @@ public class CompletableFutureTest2 {
         }).activate(System.out::println).block();
 
 
-        WorkProcessor.main().shutdown();
+        FlowProcessor.main().shutdown();
 
     }
 

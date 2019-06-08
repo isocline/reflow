@@ -27,11 +27,11 @@ public class DynamicRepeater implements Work {
     @Test
     public void case1() throws Exception {
 
-        WorkProcessor processor = WorkProcessorFactory.getProcessor();
+        FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
 
-        Plan schedule = processor.newPlan(new DynamicRepeater());
+        Plan schedule = processor.reflow(new DynamicRepeater());
 
         schedule.activate();
 

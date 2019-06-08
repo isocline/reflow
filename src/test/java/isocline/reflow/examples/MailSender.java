@@ -61,14 +61,14 @@ public class MailSender implements Work {
    }
 
    public static void main(String[] args) throws Exception {
-       WorkProcessor processor = WorkProcessorFactory.getProcessor();
+       FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
        String[] emails = new String[] {"test@test.com","test2@test.com"};
        for(String email:emails) {
 
            MailSender checker = new MailSender( email, "Test", "test");
-           Plan schedule = processor.newPlan(checker);
+           Plan schedule = processor.reflow(checker);
            schedule.activate();
        }
 

@@ -1,9 +1,9 @@
 package isocline.reflow.examples.flow;
 
+import isocline.reflow.FlowProcessorFactory;
 import isocline.reflow.FlowableWork;
 import isocline.reflow.TestUtil;
 import isocline.reflow.WorkFlow;
-import isocline.reflow.WorkProcessorFactory;
 import isocline.reflow.log.XLogger;
 import org.junit.Test;
 
@@ -88,7 +88,7 @@ public class OrderProcess implements FlowableWork {
         OrderProcess process = new OrderProcess();
         process.start();
 
-        WorkProcessorFactory.getProcessor().shutdown(10000);
+        FlowProcessorFactory.getProcessor().shutdown(10000);
 
 
     }

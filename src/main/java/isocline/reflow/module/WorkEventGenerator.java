@@ -45,10 +45,10 @@ public class WorkEventGenerator implements Work {
         WorkEvent newEvent = event.createChild(eventName);
 
 
-        event.getPlan().getWorkProcessor().raiseEvent(eventName, newEvent);
+        event.getPlan().getFlowProcessor().raiseEvent(eventName, newEvent);
 
-        //event.getPlan().getWorkProcessor().raiseEvent(eventName, event);
-        //WorkProcessorFactory.getProcessor().raiseEvent(eventName, newEvent);
+        //event.getPlan().getFlowProcessor().raiseEvent(eventName, event);
+        //FlowProcessorFactory.getProcessor().raiseEvent(eventName, newEvent);
 
         System.out.println("fire event [" + eventName+"]");
 

@@ -9,7 +9,7 @@ public class Test {
     public static void main(String[] args) throws Exception {
 
 
-        WorkProcessor processor = WorkProcessorFactory.getProcessor();
+        FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
 
@@ -17,10 +17,10 @@ public class Test {
         for (int i = 0; i < 1; i++) {
 
             TestJob work = new TestJob(i);
-            //Plan schedule = processor.newPlan(work).bindEvent("fire").setStartDelay(1000);
-            //Plan schedule = processor.newPlan(work).bindEvent("fire").setStartDelay(Clock.milliseconds("2019-01-17T13:32:30+09:00"));
-            Plan schedule = processor.newPlan(work).bindEvent("fire").setStrictMode();
-            //Plan schedule = processor.newPlan(work).bindEvent("fire");
+            //Plan schedule = processor.reflow(work).bindEvent("fire").setStartDelay(1000);
+            //Plan schedule = processor.reflow(work).bindEvent("fire").setStartDelay(Clock.milliseconds("2019-01-17T13:32:30+09:00"));
+            Plan schedule = processor.reflow(work).bindEvent("fire").setStrictMode();
+            //Plan schedule = processor.reflow(work).bindEvent("fire");
 
             schedule.activate();
 

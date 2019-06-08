@@ -23,7 +23,7 @@ package isocline.reflow;
  * @see Plan
  * @see isocline.reflow.descriptor.CronDescriptor
  */
-public interface ScheduleDescriptor {
+public interface PlanDescriptor {
 
 
     /**

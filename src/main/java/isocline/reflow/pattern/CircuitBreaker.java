@@ -96,14 +96,19 @@ public class CircuitBreaker implements WorkFlowPattern {
 
 
     @Override
-    public void beforeFlow(WorkFlow flow) {
+    public void startFlow(WorkFlow flow) {
         System.err.println("1 ---"+this.timeoutEventName);
         flow.fireEvent("error::"+timeoutEventName, this.timeout)
                 .check(this::check);
     }
 
     @Override
-    public void afterFlow(WorkFlow flow) {
+    public void middleFlow(WorkFlow flow, int seq) {
+        return;
+    }
+
+    @Override
+    public void endFlow(WorkFlow flow) {
         System.err.println("2 ---"+this.timeoutEventName);
         String cursor = flow.cursor();
 

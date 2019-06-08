@@ -102,14 +102,14 @@ public class ServerUptimeChecker  implements Work {
    }
 
    public static void main(String[] args) throws Exception {
-       WorkProcessor processor = WorkProcessorFactory.getProcessor();
+       FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
        String[] urls = new String[] {"https://www.google.com","https://www.apple.com"};
        for(String url:urls) {
 
            ServerUptimeChecker checker = new ServerUptimeChecker( url);
-           Plan schedule = processor.newPlan(checker).bindEvent("connectTypeChange").jitter(200).setStrictMode();
+           Plan schedule = processor.reflow(checker).bindEvent("connectTypeChange").jitter(200).setStrictMode();
            schedule.activate();
        }
 

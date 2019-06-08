@@ -31,11 +31,11 @@ public class EventReceiver implements Work {
 
     public static void main(String[] args) throws Exception {
 
-        WorkProcessor processor = WorkProcessorFactory.getProcessor();
+        FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
         EventReceiver checker = new EventReceiver();
-        Plan schedule = processor.newPlan(checker).finishTimeFromNow(30 * Clock.SECOND).bindEvent("test").setSleepMode();
+        Plan schedule = processor.reflow(checker).finishTimeFromNow(30 * Clock.SECOND).bindEvent("test").setSleepMode();
         schedule.activate();
 
 
@@ -46,7 +46,7 @@ public class EventReceiver implements Work {
 
 
 
-        processor.newPlan(gen).finishTimeFromNow(30 * Clock.SECOND).setStrictMode().startTime
+        processor.reflow(gen).finishTimeFromNow(30 * Clock.SECOND).setStrictMode().startTime
                 (startTime).activate();
 
 

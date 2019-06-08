@@ -1,9 +1,8 @@
 package isocline.reflow.dummy;
 
-import isocline.reflow.Clock;
+import isocline.reflow.FlowProcessor;
 import isocline.reflow.FlowableWork;
 import isocline.reflow.WorkEvent;
-import isocline.reflow.WorkProcessor;
 import org.junit.Test;
 
 /**
@@ -25,16 +24,15 @@ public class CompletableFutureTest4 {
         };
 
 
-        WorkProcessor.main()
+        FlowProcessor.main()
                 .reflow(flow1)
-                .startDelayTime(2 * Clock.SECOND)
-                .finishTimeFromNow(5 * Clock.SECOND)
+                .setSleepMode()
                 .activate(System.out::println);
 
         System.out.println("---2");
 
 
-        WorkProcessor.main().awaitShutdown();
+        FlowProcessor.main().awaitShutdown();
 
     }
 

@@ -475,10 +475,16 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
 
 
     @Override
-    public WorkFlow pattern(WorkFlowPattern pattern, WorkFlowPatternFunction func) {
-        pattern.beforeFlow(this);
-        func.design();
-        pattern.afterFlow(this);
+    public WorkFlow pattern(WorkFlowPattern pattern, WorkFlowPatternFunction... funcs) {
+
+        pattern.startFlow(this);
+
+        for(int i=0;i<funcs.length;i++) {
+            funcs[i].design();
+            pattern.middleFlow(this, i);
+        }
+
+        pattern.endFlow(this);
         return this;
     }
 

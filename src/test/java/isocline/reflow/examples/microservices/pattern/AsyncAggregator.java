@@ -84,7 +84,7 @@ public class AsyncAggregator implements FlowableWork {
 
     @Test
     public void startTest() {
-        WorkProcessor processor = WorkProcessorFactory.getProcessor();
+        FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
         processor.execute(new AsyncAggregator());
 

@@ -2,7 +2,7 @@ package isocline.reflow.examples.microservices.pattern;
 
 import isocline.reflow.TestUtil;
 import isocline.reflow.WorkEvent;
-import isocline.reflow.WorkProcessor;
+import isocline.reflow.FlowProcessor;
 import isocline.reflow.Plan;
 import isocline.reflow.check.CircuitBreaker;
 import isocline.reflow.log.XLogger;
@@ -95,7 +95,7 @@ public class CircuitBreaker1 {
         circuitBreaker.setMaxFailCount(3);
 
         Plan schedule =
-                WorkProcessor.main()
+                FlowProcessor.main()
                         .reflow(flow -> {
 
 

@@ -66,7 +66,7 @@ public class ComplexWorkFlow implements FlowableWork {
 
         schedule.block();
 
-        WorkProcessorFactory.getProcessor().awaitShutdown();
+        FlowProcessorFactory.getProcessor().awaitShutdown();
 
 
     }

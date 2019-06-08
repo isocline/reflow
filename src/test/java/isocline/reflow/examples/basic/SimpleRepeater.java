@@ -25,14 +25,14 @@ public class SimpleRepeater implements Work {
     public void case1() throws Exception {
 
 
-        Plan plan = WorkProcessor.main()
-                .newPlan(new SimpleRepeater())
+        Plan plan = FlowProcessor.main()
+                .reflow(new SimpleRepeater())
                 .interval(1 * Clock.SECOND)
                 .finishTimeFromNow(5 * Clock.SECOND);
 
         plan.activate().block();
 
-        WorkProcessor.main().shutdown(TestConfiguration.TIMEOUT);
+        FlowProcessor.main().shutdown(TestConfiguration.TIMEOUT);
         //processor.awaitShutdown();
 
 
@@ -42,10 +42,10 @@ public class SimpleRepeater implements Work {
     @Test
     public void case2() throws Exception {
 
-        WorkProcessor processor = WorkProcessorFactory.getProcessor();
+        FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-        Plan schedule = processor.newPlan(SimpleRepeater.class);
+        Plan schedule = processor.reflow(SimpleRepeater.class);
 
         schedule.interval(1 * Clock.SECOND);
         schedule.activate();
@@ -57,10 +57,10 @@ public class SimpleRepeater implements Work {
     @Test
     public void caseStrictMode() throws Exception {
 
-        WorkProcessor processor = WorkProcessorFactory.getProcessor();
+        FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-        Plan schedule = processor.newPlan(SimpleRepeater.class);
+        Plan schedule = processor.reflow(SimpleRepeater.class);
 
         schedule.interval(1 * Clock.SECOND);
         schedule.setStrictMode();
@@ -73,10 +73,10 @@ public class SimpleRepeater implements Work {
     @Test
     public void delayStart1() throws Exception {
 
-        WorkProcessor processor = WorkProcessorFactory.getProcessor();
+        FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-        Plan schedule = processor.newPlan(SimpleRepeater.class);
+        Plan schedule = processor.reflow(SimpleRepeater.class);
 
         schedule.interval(1 * Clock.SECOND);
         schedule.startDelayTime(Clock.milliseconds(0, 0, 2));
@@ -90,10 +90,10 @@ public class SimpleRepeater implements Work {
     @Test
     public void delayStart2() throws Exception {
 
-        WorkProcessor processor = WorkProcessorFactory.getProcessor();
+        FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-        Plan schedule = processor.newPlan(SimpleRepeater.class);
+        Plan schedule = processor.reflow(SimpleRepeater.class);
 
         schedule.interval(1 * Clock.SECOND);
         schedule.startTime(Clock.nextSecond() + Clock.SECOND * 2);

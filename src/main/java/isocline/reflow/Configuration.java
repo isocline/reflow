@@ -17,27 +17,27 @@ package isocline.reflow;
 
 /**
  *
- * Configuration class for {@link WorkProcessor}
+ * Configuration class for {@link FlowProcessor}
  *
  * <p>
  * <strong>Example:</strong>
  * <blockquote>
  * <pre>
  * // for high-end environments
- * WorkProcessor processor = WorkProcessorFactory.getProcessor("perform", Configuration.PERFORMANCE);
+ * FlowProcessor processor = FlowProcessorFactory.getProcessor("perform", Configuration.PERFORMANCE);
  *
  * // for low-end environments
- * WorkProcessor processor = WorkProcessorFactory.getProcessor("echo", Configuration.ECHO);
+ * FlowProcessor processor = FlowProcessorFactory.getProcessor("echo", Configuration.ECHO);
  *
  *
  * // user reflow
- * Configuration config = Configuration.create()
+ * Configuration config = Configuration.createOrigin()
  *                          .setInitThreadWorkerSize(3)
  *                          .setMaxThreadWorkerSize(12)
  *                          .setThreadPriority(Thread.NORM_PRIORITY)
  *                          .lock();
  *
- * WorkProcessor processor = WorkProcessorFactory.getProcessor("user", config);
+ * FlowProcessor processor = FlowProcessorFactory.getProcessor("user", config);
  *
  * </pre>
  * </blockquote>
@@ -65,28 +65,28 @@ public class Configuration {
 
 
     /**
-     * Initialization settings related to thread settings for WorkProcessor initialization.
+     * Initialization settings related to thread settings for FlowProcessor initialization.
      * By default, the initial thread count is 6, the maximum thread count is 12, and the thread priority setting is Thread.NORM_PRIORITY state.
      *
      */
     public final static Configuration NOMAL = create().setInitThreadWorkerSize(6).setMaxThreadWorkerSize(12).setThreadPriority(Thread.NORM_PRIORITY).lock();
 
     /**
-     * Initialization settings related to thread settings for WorkProcessor initialization
+     * Initialization settings related to thread settings for FlowProcessor initialization
      * Preset for low-end environments, the initial thread count is 1, the maximum thread count is 3,
      * and the thread priority setting is Thread.NORM_PRIORITY state.
      */
     public final static Configuration ECHO = create().setInitThreadWorkerSize(1).setMaxThreadWorkerSize(3).setThreadPriority(Thread.MIN_PRIORITY).lock();
 
     /**
-     * Initialization settings related to thread settings for WorkProcessor initialization
+     * Initialization settings related to thread settings for FlowProcessor initialization
      * Preset for high-end environments, the initial thread count is 24, the maximum thread count is 36,
      * and the thread priority setting is Thread.MAX_PRIORITY state.
      */
     public final static Configuration PERFORMANCE = create().setInitThreadWorkerSize(24).setMaxThreadWorkerSize(36).setThreadPriority(Thread.MAX_PRIORITY).lock();
 
     /**
-     * Initialization settings related to thread settings for WorkProcessor initialization
+     * Initialization settings related to thread settings for FlowProcessor initialization
      * Preset for HYPER environments, the initial thread count is 64, the maximum thread count is 128,
      * and the thread priority setting is Thread.MAX_PRIORITY state.
      */

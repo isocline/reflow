@@ -34,7 +34,7 @@ public class WorkEventFactory {
      * @param eventName
      * @return
      */
-    public static WorkEvent create(String eventName) {
+    public static WorkEvent createOrigin(String eventName) {
         WorkEventImpl event = new WorkEventImpl(eventName);
 
         return event;
@@ -46,7 +46,7 @@ public class WorkEventFactory {
      *
      * @return
      */
-    public static WorkEvent create() {
+    public static WorkEvent createOrigin() {
         WorkEventImpl event = new WorkEventImpl();
 
 

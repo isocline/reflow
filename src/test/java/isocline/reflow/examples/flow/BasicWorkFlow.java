@@ -1,9 +1,9 @@
 package isocline.reflow.examples.flow;
 
+import isocline.reflow.FlowProcessor;
+import isocline.reflow.FlowProcessorFactory;
 import isocline.reflow.FlowableWork;
 import isocline.reflow.WorkFlow;
-import isocline.reflow.WorkProcessor;
-import isocline.reflow.WorkProcessorFactory;
 import isocline.reflow.log.XLogger;
 import org.junit.Test;
 
@@ -58,9 +58,9 @@ public class BasicWorkFlow implements FlowableWork {
 
     @Test
     public void test() {
-        WorkProcessor processor = WorkProcessorFactory.getProcessor();
+        FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
-        processor.newPlan(this).startDelayTime(2000).activate();
+        processor.reflow(this).startDelayTime(2000).activate();
 
         //processor.activate(this);
 

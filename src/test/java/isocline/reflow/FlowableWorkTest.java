@@ -22,7 +22,7 @@ public class FlowableWorkTest {
 
     @Test
     public void testBasic() {
-        WorkProcessor.main().reflow(f -> {
+        FlowProcessor.main().reflow(f -> {
             f
                     .applyAsync(e -> getExhangeRate(1000, 3, 5))
                     .applyAsync(e -> getExhangeRate(2000, 4, 2))

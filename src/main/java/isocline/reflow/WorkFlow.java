@@ -247,7 +247,7 @@ public interface WorkFlow<T> {
 
 
 
-    WorkFlow pattern(WorkFlowPattern pattern, WorkFlowPatternFunction func);
+    WorkFlow pattern(WorkFlowPattern pattern, WorkFlowPatternFunction... func);
 
 
 

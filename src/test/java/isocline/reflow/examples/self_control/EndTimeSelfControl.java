@@ -31,11 +31,11 @@ public class EndTimeSelfControl implements Work {
     @Test
     public void case1() throws Exception {
 
-        WorkProcessor processor = WorkProcessorFactory.getProcessor();
+        FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
         EndTimeSelfControl checker = new EndTimeSelfControl();
 
-        Plan schedule = processor.newPlan(checker);
+        Plan schedule = processor.reflow(checker);
         schedule.activate();
 
         schedule.block();

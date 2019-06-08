@@ -35,10 +35,10 @@ public class EventReceiver implements Work {
     @Test
     public void basicStyle() throws Exception {
 
-        WorkProcessor processor = WorkProcessorFactory.getProcessor();
+        FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-        Plan schedule = processor.newPlan(new EventReceiver()).bindEvent("example-event");
+        Plan schedule = processor.reflow(new EventReceiver()).bindEvent("example-event");
         schedule.activate();
 
 
@@ -46,7 +46,7 @@ public class EventReceiver implements Work {
         gen.setEventName("example-event");
 
 
-        processor.newPlan(gen)
+        processor.reflow(gen)
 
                 .setStrictMode()
                 .startTime(Clock.nextSecond())
@@ -61,12 +61,12 @@ public class EventReceiver implements Work {
     @Test
     public void simpleStyle() throws Exception {
 
-        WorkProcessor processor = WorkProcessorFactory.getProcessor();
+        FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
 
 
-        processor.newPlan(new EventReceiver(), "example-event").activate();
+        processor.reflow(new EventReceiver(), "example-event").activate();
 
 
 
@@ -74,7 +74,7 @@ public class EventReceiver implements Work {
         WorkEventGenerator gen = new WorkEventGenerator();
         gen.setEventName("example-event");
 
-        processor.newPlan(gen).finishTimeFromNow(30 * Clock.SECOND).setStrictMode().startTime
+        processor.reflow(gen).finishTimeFromNow(30 * Clock.SECOND).setStrictMode().startTime
                 (Clock.nextSecond()).activate();
 
 

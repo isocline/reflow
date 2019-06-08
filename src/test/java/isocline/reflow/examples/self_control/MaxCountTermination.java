@@ -34,12 +34,12 @@ public class MaxCountTermination implements Work {
     @Test
     public void case1() throws Exception {
 
-        WorkProcessor processor = WorkProcessorFactory.getProcessor();
+        FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
         MaxCountTermination checker = new MaxCountTermination();
 
-        Plan schedule = processor.newPlan(checker);
+        Plan schedule = processor.reflow(checker);
         schedule.activate();
 
         //wait until finish

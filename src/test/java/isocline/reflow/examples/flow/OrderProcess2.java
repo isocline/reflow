@@ -105,7 +105,7 @@ public class OrderProcess2 implements FlowableWork {
 
     public static void main(String[] args) throws Exception {
 
-        WorkProcessor processor = WorkProcessorFactory.getProcessor("perform", Configuration.PERFORMANCE);
+        FlowProcessor processor = FlowProcessorFactory.getProcessor("perform", Configuration.PERFORMANCE);
 
 
         OrderProcess2 p = new OrderProcess2("AutoExpress2");

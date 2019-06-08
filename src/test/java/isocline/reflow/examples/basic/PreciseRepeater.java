@@ -21,9 +21,9 @@ public class PreciseRepeater implements Work {
     @Test
     public void case1() throws Exception {
 
-        WorkProcessor processor = WorkProcessorFactory.getProcessor();
+        FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
-        Plan schedule = processor.newPlan(new PreciseRepeater()).setStrictMode();
+        Plan schedule = processor.reflow(new PreciseRepeater()).setStrictMode();
 
         schedule.activate();
 

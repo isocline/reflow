@@ -14,13 +14,13 @@ public class PlanTest {
 
     private int seq;
 
-    private WorkProcessor processor;
+    private FlowProcessor processor;
 
     @Before
     public void before() {
         seq = 0;
 
-        processor = WorkProcessorFactory.getProcessor();
+        processor = FlowProcessorFactory.getProcessor();
     }
 
     @After
@@ -33,7 +33,7 @@ public class PlanTest {
     public void executeOneTime() throws Exception {
 
 
-        processor.newPlan((WorkEvent event) -> {
+        processor.reflow((WorkEvent event) -> {
             seq++;
             logger.debug("exec " + seq);
 
@@ -51,7 +51,7 @@ public class PlanTest {
     public void executeSleep() throws Exception {
 
 
-        processor.newPlan((WorkEvent event) -> {
+        processor.reflow((WorkEvent event) -> {
             seq++;
             logger.debug("exec " + seq);
 
@@ -68,7 +68,7 @@ public class PlanTest {
     public void executeLoop() throws Exception {
 
 
-        processor.newPlan((WorkEvent event) -> {
+        processor.reflow((WorkEvent event) -> {
             seq++;
             logger.debug("exec " + seq);
 

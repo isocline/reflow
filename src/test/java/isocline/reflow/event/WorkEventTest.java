@@ -11,7 +11,7 @@ public class WorkEventTest {
     @Test
     public void testBasic() {
 
-        WorkEvent event = WorkEventFactory.create("evt");
+        WorkEvent event = WorkEventFactory.createOrigin("evt");
 
         assertEquals("evt", event.getEventName());
 
@@ -34,7 +34,7 @@ public class WorkEventTest {
     @Test
     public void testChildEvent() {
 
-        WorkEvent event = WorkEventFactory.create("evt");
+        WorkEvent event = WorkEventFactory.createOrigin("evt");
 
         assertEquals("evt", event.getEventName());
 

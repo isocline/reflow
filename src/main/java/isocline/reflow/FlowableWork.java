@@ -140,7 +140,7 @@ public interface FlowableWork<T> extends Work {
 
                 String errClassEventName = "error::"+e.getClass().getName() ;
 
-                WorkEvent errClsEvent = WorkEventFactory.create(errClassEventName);
+                WorkEvent errClsEvent = WorkEventFactory.createOrigin(errClassEventName);
                 errClsEvent.setThrowable(e);
 
                 schedule.raiseLocalEvent(errClsEvent);
@@ -149,7 +149,7 @@ public interface FlowableWork<T> extends Work {
                 if (fireEventName != null) {
                     String errEventName = "error::"+ fireEventName;
 
-                    //WorkEvent errEvent = WorkEventFactory.create(errEventName);
+                    //WorkEvent errEvent = WorkEventFactory.createOrigin(errEventName);
                     WorkEvent errEvent = event.createChild(errEventName);
                     errEvent.setThrowable(e);
 
@@ -159,7 +159,7 @@ public interface FlowableWork<T> extends Work {
 
                 String errEventName = "error::"+ executor.getFireEventUUID() ;
 
-                //final WorkEvent errEvent = WorkEventFactory.create(errEventName);
+                //final WorkEvent errEvent = WorkEventFactory.createOrigin(errEventName);
                 final WorkEvent errEvent = event.createChild(errEventName);
                 errEvent.setThrowable(e);
 
@@ -167,7 +167,7 @@ public interface FlowableWork<T> extends Work {
                 schedule.raiseLocalEvent(errEvent);
 
 
-                //final WorkEvent errEvent2 = WorkEventFactory.create(WorkFlow.ERROR);
+                //final WorkEvent errEvent2 = WorkEventFactory.createOrigin(WorkFlow.ERROR);
                 final WorkEvent errEvent2 = event.createChild(errEventName);
                 errEvent2.setFireEventName(WorkFlow.ERROR);
                 errEvent2.setThrowable(e);
@@ -213,7 +213,7 @@ public interface FlowableWork<T> extends Work {
 
     default Plan start() {
 
-        Plan p = WorkProcessor.main().execute(this).block();
+        Plan p = FlowProcessor.main().execute(this).block();
 
         return p;
 

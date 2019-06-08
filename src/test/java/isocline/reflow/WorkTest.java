@@ -14,27 +14,27 @@ public class WorkTest {
 
     private int seq;
 
-    private WorkProcessor workProcessor;
+    private FlowProcessor flowProcessor;
 
     @Before
     public void before() {
         seq = 0;
 
-        workProcessor = WorkProcessorFactory.getProcessor();
+        flowProcessor = FlowProcessorFactory.getProcessor();
     }
 
     @After
     public void after() {
 
-        workProcessor.shutdown(1000);
+        flowProcessor.shutdown(1000);
     }
 
     @Test
     public void executeSimple() throws Exception {
 
 
-        WorkProcessor.main()
-                .newPlan(e -> {
+        FlowProcessor.main()
+                .reflow(e -> {
                     seq++;
                     logger.debug("exec " + seq);
 
@@ -50,8 +50,8 @@ public class WorkTest {
     public void executeSimple2() throws Exception {
 
 
-        WorkProcessor.main()
-                .newPlan(e -> {
+        FlowProcessor.main()
+                .reflow(e -> {
                     seq++;
                     logger.debug("exec " + seq);
 
@@ -70,17 +70,17 @@ public class WorkTest {
 
         Plan schedule =
 
-                workProcessor.newPlan((WorkEvent event) -> {
+                flowProcessor.reflow((WorkEvent event) -> {
                     seq++;
                     logger.debug("exec " + seq + " event:" + event.getEventName());
 
                     return Work.WAIT;
                 }, "testEvent").activate();
 
-        workProcessor.execute((WorkEvent event) -> {
+        flowProcessor.execute((WorkEvent event) -> {
             logger.debug("fire event:" + event.getEventName());
 
-            event.getPlan().getWorkProcessor().raiseEvent("testEvent", event);
+            event.getPlan().getFlowProcessor().raiseEvent("testEvent", event);
 
             return Work.TERMINATE;
         });
@@ -99,7 +99,7 @@ public class WorkTest {
 
         Plan schedule =
 
-                workProcessor.newPlan((WorkEvent event) -> {
+                flowProcessor.reflow((WorkEvent event) -> {
                     seq++;
                     logger.debug("exec " + seq);
 
@@ -118,7 +118,7 @@ public class WorkTest {
 
         Plan schedule =
 
-                workProcessor.newPlan((WorkEvent event) -> {
+                flowProcessor.reflow((WorkEvent event) -> {
                     seq++;
                     logger.debug("exec " + seq);
 
@@ -136,7 +136,7 @@ public class WorkTest {
 
         Plan schedule =
 
-                workProcessor.newPlan((WorkEvent event) -> {
+                flowProcessor.reflow((WorkEvent event) -> {
                     seq++;
                     logger.debug("exec " + seq);
 

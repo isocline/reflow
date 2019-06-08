@@ -15,13 +15,13 @@ public class MultiStepSchedule   {
     private static XLogger logger = XLogger.getLogger(MultiStepSchedule.class);
 
     public static void main(String[] args) throws Exception {
-        WorkProcessor processor = WorkProcessorFactory.getProcessor();
+        FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-        Plan schedule = processor.newPlan(Step1Schedule.class).setStrictMode();
+        Plan schedule = processor.reflow(Step1Schedule.class).setStrictMode();
         schedule.activate();
 
-        schedule = processor.newPlan(Step2Schedule.class).bindEvent("fireEvent");
+        schedule = processor.reflow(Step2Schedule.class).bindEvent("fireEvent");
         schedule.activate();
 
 
@@ -40,7 +40,7 @@ public class MultiStepSchedule   {
 
             if (count > 5) {
 
-                event.getPlan().getWorkProcessor().raiseEvent(WorkEventFactory.create("fireEvent"));
+                event.getPlan().getFlowProcessor().raiseEvent(WorkEventFactory.createOrigin("fireEvent"));
 
                 return TERMINATE;
             } else {

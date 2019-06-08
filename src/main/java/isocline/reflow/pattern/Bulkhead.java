@@ -94,13 +94,19 @@ public class Bulkhead implements WorkFlowPattern {
 
 
     @Override
-    public void beforeFlow(WorkFlow flow) {
+    public void startFlow(WorkFlow flow) {
 
         flow.check(this::check);
     }
 
+
     @Override
-    public void afterFlow(WorkFlow flow) {
+    public void middleFlow(WorkFlow flow, int seq) {
+        return;
+    }
+
+    @Override
+    public void endFlow(WorkFlow flow) {
 
         String cursor = flow.cursor();
 

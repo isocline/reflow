@@ -8,7 +8,7 @@ public class WorkHelper {
 
 
     public static Plan reflow(FlowableWork workFlow) {
-        return WorkProcessor.main().reflow(workFlow);
+        return FlowProcessor.main().reflow(workFlow);
     }
 
     public static List GetResultList(WorkEvent e) {
