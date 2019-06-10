@@ -18,7 +18,7 @@ public class MultiStepSchedule   {
         FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-        Planning schedule = processor.reflow(Step1Schedule.class).setStrictMode();
+        Plan schedule = processor.reflow(Step1Schedule.class).strictMode();
         schedule.activate();
 
         schedule = processor.reflow(Step2Schedule.class).on("fireEvent");

@@ -29,7 +29,7 @@ public class RetryPattern3 {
 
 
     public void finish(WorkEvent e) {
-        logger.debug("finish start " + Thread.currentThread().getId());
+        logger.debug("inactive start " + Thread.currentThread().getId());
 
         logger.debug(e.origin());
         logger.debug(e.origin().getAttribute("result:service1"));
@@ -40,7 +40,7 @@ public class RetryPattern3 {
 
         assertEquals("ABC", result);
 
-        logger.debug("finish - " + result);
+        logger.debug("inactive - " + result);
     }
 
 

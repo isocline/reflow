@@ -25,7 +25,7 @@ public class ScheduledWork implements Work {
         FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-        Planning schedule = processor.reflow(new ScheduledWork())
+        Plan schedule = processor.reflow(new ScheduledWork())
                 .interval(1 * Clock.HOUR)
                 .startTime("2020-04-24T09:00:00Z")
                 .finishTime("2020-06-16T16:00:00Z")
@@ -46,7 +46,7 @@ public class ScheduledWork implements Work {
 
 
 
-        Planning schedule = manager.reflow(ScheduledWork.class);
+        Plan schedule = manager.reflow(ScheduledWork.class);
 
         schedule.interval(1 * Clock.SECOND);
         schedule.activate();
@@ -62,10 +62,10 @@ public class ScheduledWork implements Work {
 
 
 
-        Planning schedule = processor.reflow(ScheduledWork.class);
+        Plan schedule = processor.reflow(ScheduledWork.class);
 
         schedule.interval(1 * Clock.SECOND);
-        schedule.setStrictMode();
+        schedule.strictMode();
         schedule.activate();
 
 
@@ -79,7 +79,7 @@ public class ScheduledWork implements Work {
 
 
 
-        Planning schedule = processor.reflow(ScheduledWork.class);
+        Plan schedule = processor.reflow(ScheduledWork.class);
 
         schedule.interval(1 * Clock.SECOND);
         schedule.startDelayTime(Clock.milliseconds(0,0,2));
@@ -97,7 +97,7 @@ public class ScheduledWork implements Work {
 
 
 
-        Planning schedule = processor.reflow(ScheduledWork.class);
+        Plan schedule = processor.reflow(ScheduledWork.class);
 
         schedule.interval(1 * Clock.SECOND);
         schedule.startTime(Clock.nextSecond()+Clock.SECOND*2);

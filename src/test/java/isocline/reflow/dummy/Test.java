@@ -19,7 +19,7 @@ public class Test {
             TestJob work = new TestJob(i);
             //Plan schedule = processor.reflow(work).on("fire").setStartDelay(1000);
             //Plan schedule = processor.reflow(work).on("fire").setStartDelay(Clock.milliseconds("2019-01-17T13:32:30+09:00"));
-            Planning schedule = processor.reflow(work).on("fire").setStrictMode();
+            Plan schedule = processor.reflow(work).on("fire").strictMode();
             //Plan schedule = processor.reflow(work).on("fire");
 
             schedule.activate();

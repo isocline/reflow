@@ -42,7 +42,7 @@ public class MaxCountTermination implements Work {
         Plan schedule = processor.reflow(checker);
         schedule.activate();
 
-        //wait until finish
+        //wait until inactive
         schedule.block();
 
         assertEquals(3, checker.count);

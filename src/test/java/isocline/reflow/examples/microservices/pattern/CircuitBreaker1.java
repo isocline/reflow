@@ -37,7 +37,7 @@ public class CircuitBreaker1 {
 
 
     public void finish(WorkEvent e) {
-        logger.debug("finish start " + Thread.currentThread().getId());
+        logger.debug("inactive start " + Thread.currentThread().getId());
 
         logger.debug(e.origin());
         logger.debug(e.origin().getAttribute("result:service1"));
@@ -48,7 +48,7 @@ public class CircuitBreaker1 {
 
         assertEquals("ABC", result);
 
-        logger.debug("finish - " + result);
+        logger.debug("inactive - " + result);
     }
 
 
@@ -91,7 +91,7 @@ public class CircuitBreaker1 {
         CircuitBreaker circuitBreaker = CircuitBreaker.create("xhk");
         circuitBreaker.setMaxFailCount(3);
 
-        Planning schedule =
+        Plan schedule =
                 FlowProcessor.core()
                         .reflow(flow -> {
 
@@ -106,7 +106,7 @@ public class CircuitBreaker1 {
                             flow.onError(cursor).next(circuitBreaker::error).finish();
 
 
-                            //flow.onError("*").next(this::onError2).finish();
+                            //flow.onError("*").next(this::onError2).inactive();
 
 
                             flow.wait("test").finish();

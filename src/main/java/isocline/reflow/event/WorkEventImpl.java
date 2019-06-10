@@ -294,7 +294,7 @@ public class WorkEventImpl implements WorkEvent {
         if(this==this.originWorkEvent) {
             return "WorkEventImpl:origin{" +this.hashCode()+" "+
                     "eventName='" + eventName + '\'' +
-                    "count="+this.getCounter("funcExecSequence")+
+
                     '}';
         }
         return "WorkEventImpl{" +

@@ -74,8 +74,8 @@ public class MultiPlexer implements Work {
 
 
         for(int i=0;i< 10;i++ ) {
-            Planning schedule = processor.reflow(new MultiPlexer("A",i)).startTime(startTime+i*10)
-                    .setStrictMode();
+            Plan schedule = processor.reflow(new MultiPlexer("A",i)).startTime(startTime+i*10)
+                    .strictMode();
             schedule.activate();
         }
 
@@ -84,7 +84,7 @@ public class MultiPlexer implements Work {
         /*
 
         for(int i=0;i<10;i++ ) {
-            Plan schedule = worker.reflow(new MultiPlexer("B",i)).setStrictMode(true).setStartTime(startTime+i*100+50);
+            Plan schedule = worker.reflow(new MultiPlexer("B",i)).strictMode(true).setStartTime(startTime+i*100+50);
             schedule.activate();
         }
         */

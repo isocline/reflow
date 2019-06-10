@@ -65,7 +65,7 @@ public class ServerHeartbeat implements Work {
         FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-        Planning schedule = processor.reflow(ServerHeartbeat.class).setStrictMode();
+        Plan schedule = processor.reflow(ServerHeartbeat.class).strictMode();
         schedule.activate();
 
 

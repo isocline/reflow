@@ -47,7 +47,7 @@ public class AsyncAggregator implements FlowableWork {
 
         assertEquals("ABC", result);
 
-        logger.debug("finish - " + result);
+        logger.debug("inactive - " + result);
     }
 
 

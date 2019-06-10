@@ -7,7 +7,7 @@ import java.util.List;
 public class WorkHelper {
 
 
-    public static Planning reflow(FlowableWork workFlow) {
+    public static Plan reflow(FlowableWork workFlow) {
         return FlowProcessor.core().reflow(workFlow);
     }
 

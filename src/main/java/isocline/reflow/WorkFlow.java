@@ -31,7 +31,7 @@ public interface WorkFlow<T> {
     String START = "CLOCKWORK::start";
 
 
-    String FINISH = "CLOCKWORK::finish";
+    String FINISH = "CLOCKWORK::inactive";
 
 
     String ERROR = "error::*";
@@ -271,7 +271,7 @@ public interface WorkFlow<T> {
 
     /**
      *
-     * finish workflow.
+     * inactive workflow.
      *
      * @return an instance of WorkFlow
      */

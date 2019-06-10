@@ -27,6 +27,14 @@ import isocline.reflow.WorkEvent;
 public class WorkEventFactory {
 
 
+
+    public static WorkEvent create(String eventName, WorkEvent originEvent) {
+        WorkEventImpl event = new WorkEventImpl(eventName, originEvent);
+
+        return event;
+    }
+
+
     /**
      *
      * Create a implement object of WorkEvent
@@ -41,11 +49,6 @@ public class WorkEventFactory {
     }
 
 
-    public static WorkEvent createOrigin(String eventName, WorkEvent originEvent) {
-        WorkEventImpl event = new WorkEventImpl(eventName, originEvent);
-
-        return event;
-    }
 
     /**
      * Create a implement object of WorkEvent

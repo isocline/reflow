@@ -54,7 +54,7 @@ public class FlowProcessor extends ThreadGroup {
 
     private AtomicInteger currentThreadWorkerCount = new AtomicInteger(0);
 
-    private BlockingQueue<Plan.ExecuteContext> workQueue;
+    private BlockingQueue<PlanImpl.ExecuteContext> workQueue;
 
     private WorkChecker workChecker;
 
@@ -111,7 +111,7 @@ public class FlowProcessor extends ThreadGroup {
             this.checkpointWorkQueueSize = 500;
         }
 
-        this.workQueue = new LinkedBlockingQueue<Plan.ExecuteContext>(this.configuration.getMaxWorkQueueSize());
+        this.workQueue = new LinkedBlockingQueue<PlanImpl.ExecuteContext>(this.configuration.getMaxWorkQueueSize());
 
         init(true);
 
@@ -138,22 +138,22 @@ public class FlowProcessor extends ThreadGroup {
      * @param eventNames an event names
      * @return an new instance of Plan
      */
-    public Planning reflow(Work work, String... eventNames) {
-        Planning planning = new Plan(this, work);
-        planning.daemon();
-        planning.on(eventNames);
+    public Plan reflow(Work work, String... eventNames) {
+        Plan Plan = new PlanImpl(this, work);
+        Plan.daemonMode();
+        Plan.on(eventNames);
 
 
-        return planning;
+        return Plan;
     }
 
 
-    public Planning reflow(FlowableWork<?> workFlow) {
+    public Plan reflow(FlowableWork<?> workFlow) {
 
-        Planning planning = new Plan(this, workFlow);
+        Plan Plan = new PlanImpl(this, workFlow);
 
 
-        return planning;
+        return Plan;
     }
 
     public Plan execute(Work work) {
@@ -161,7 +161,7 @@ public class FlowProcessor extends ThreadGroup {
     }
 
     public Plan execute(Work work, long startDelayTime) {
-        Plan plan = new Plan(this, work);
+        Plan plan = new PlanImpl(this, work);
         if (startDelayTime > 0) {
             plan.startDelayTime(startDelayTime);
         }
@@ -178,8 +178,8 @@ public class FlowProcessor extends ThreadGroup {
      *
      * @return a new instance of Plan
      */
-    public Planning reflow() {
-        return new Plan(this, null);
+    public Plan reflow() {
+        return new PlanImpl(this, null);
     }
 
 
@@ -195,7 +195,7 @@ public class FlowProcessor extends ThreadGroup {
 
 
     public Plan reflow(PlanDescriptor config, Work work) {
-        Plan plan = new Plan(this, work);
+        Plan plan = new PlanImpl(this, work);
         if (config != null) {
             plan.describe(config);
         }
@@ -212,7 +212,7 @@ public class FlowProcessor extends ThreadGroup {
      * @throws InstantiationException InstantiationException
      * @throws IllegalAccessException IllegalAccessException
      */
-    public Planning reflow(Class workClass) throws InstantiationException, IllegalAccessException {
+    public Plan reflow(Class workClass) throws InstantiationException, IllegalAccessException {
         return reflow((Work) workClass.newInstance());
     }
 
@@ -226,7 +226,7 @@ public class FlowProcessor extends ThreadGroup {
      * @throws InstantiationException InstantiationException
      * @throws IllegalAccessException IllegalAccessException
      */
-    public Planning reflow(PlanDescriptor descriptor, Class workClass) throws InstantiationException, IllegalAccessException {
+    public Plan reflow(PlanDescriptor descriptor, Class workClass) throws InstantiationException, IllegalAccessException {
         return reflow(descriptor, (Work) workClass.newInstance());
     }
 
@@ -240,8 +240,8 @@ public class FlowProcessor extends ThreadGroup {
      * @throws InstantiationException if this Class represents an abstract class, an interface, an array class, a primitive type, or void; or if the class has no nullary constructor; or if the instantiation fails for some other reason.
      * @throws IllegalAccessException if the class or its nullary constructor is not accessible.
      */
-    public Planning reflow(String className) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-        return new Plan(this, (Work) Class.forName(className).newInstance());
+    public Plan reflow(String className) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+        return new PlanImpl(this, (Work) Class.forName(className).newInstance());
     }
 
 
@@ -391,13 +391,13 @@ public class FlowProcessor extends ThreadGroup {
     }
 
 
-    boolean addWorkSchedule(Plan plan) {
+    boolean addWorkSchedule(PlanImpl plan) {
 
         return addWorkSchedule(plan, false);
     }
 
 
-    boolean addWorkSchedule(Plan plan, boolean isUserEvent) {
+    boolean addWorkSchedule(PlanImpl plan, boolean isUserEvent) {
 
         boolean result = this.workQueue.offer(plan.enterQueue(isUserEvent));
         //System.err.println("add >>> "+result);
@@ -415,7 +415,7 @@ public class FlowProcessor extends ThreadGroup {
         return result;
     }
 
-    boolean addWorkSchedule(Plan plan, WorkEvent workEvent) {
+    boolean addWorkSchedule(PlanImpl plan, WorkEvent workEvent) {
 
         boolean result = this.workQueue.offer(plan.enterQueue(true, workEvent));
         if (result) {
@@ -432,7 +432,7 @@ public class FlowProcessor extends ThreadGroup {
     }
 
 
-    boolean addWorkSchedule(Plan plan, WorkEvent workEvent, long delayTime) {
+    boolean addWorkSchedule(PlanImpl plan, WorkEvent workEvent, long delayTime) {
 
         workEvent.setFireTime(System.currentTimeMillis() + delayTime);
 
@@ -538,28 +538,28 @@ public class FlowProcessor extends ThreadGroup {
         return workScheduleList;
     }
 
-    void bindEvent(Planning planning, String eventName) {
+    void bindEvent(Plan Plan, String eventName) {
 
 
         WorkScheduleList workScheduleMap = getWorkScheduleList(eventName, true);
 
-        workScheduleMap.add(planning);
+        workScheduleMap.add(Plan);
 
 
     }
 
 
-    void bindEvent(Planning planning, String... eventNames) {
+    void bindEvent(Plan Plan, String... eventNames) {
 
         for (String eventName : eventNames) {
-            bindEvent(planning, eventName);
+            bindEvent(Plan, eventName);
         }
 
 
     }
 
 
-    void unbindEvent(Planning planning, String... eventNames) {
+    void unbindEvent(Plan Plan, String... eventNames) {
 
         for (String eventName : eventNames) {
             WorkScheduleList workScheduleMap = getWorkScheduleList(eventName, false);
@@ -567,7 +567,7 @@ public class FlowProcessor extends ThreadGroup {
                 return;
             }
 
-            workScheduleMap.remove(planning);
+            workScheduleMap.remove(Plan);
         }
     }
 
@@ -587,7 +587,7 @@ public class FlowProcessor extends ThreadGroup {
         if (event == null) {
             workEvent = WorkEventFactory.createOrigin();
         }else {
-            workEvent = WorkEventFactory.createOrigin(eventName, event);
+            workEvent = WorkEventFactory.create(eventName, event);
         }
 
 
@@ -597,8 +597,8 @@ public class FlowProcessor extends ThreadGroup {
         //if (workScheduleList != null)
         {
 
-            Plan[] array = workScheduleList.getWorkScheduleArray();
-            for (Plan schedule : array) {
+            PlanImpl[] array = workScheduleList.getPlanArray();
+            for (PlanImpl schedule : array) {
 
                 String newEventName = schedule.getDeliverableEventName(eventName, event);
 
@@ -633,25 +633,25 @@ public class FlowProcessor extends ThreadGroup {
      * Sub class for Plan information
      *
      ****************************************/
-    static final class WorkScheduleList extends HashSet<Planning> {
+    static final class WorkScheduleList extends HashSet<Plan> {
 
-        private Plan[] array = null;
+        private PlanImpl[] array = null;
 
 
         private void setArray() {
-            array = this.toArray(new Plan[this.size()]);
+            array = this.toArray(new PlanImpl[this.size()]);
         }
 
-        Plan[] getWorkScheduleArray() {
+        PlanImpl[] getPlanArray() {
             return this.array;
         }
 
 
         @Override
-        public boolean add(Planning planning) {
+        public boolean add(Plan Plan) {
             boolean result;
             synchronized (this) {
-                result = super.add(planning);
+                result = super.add(Plan);
                 this.setArray();
             }
             return result;
@@ -732,7 +732,7 @@ public class FlowProcessor extends ThreadGroup {
         }
 
 
-        private boolean check(Plan plan, long time) throws InterruptedException {
+        private boolean check(PlanImpl plan, long time) throws InterruptedException {
 
             if (!plan.isActivated()) {
                 return false;
@@ -772,12 +772,12 @@ public class FlowProcessor extends ThreadGroup {
 
             while (isWorking()) {
 
-                Plan plan = null;
+                PlanImpl plan = null;
 
                 try {
 
 
-                    final Plan.ExecuteContext ctx = this.flowProcessor.workQueue.poll(maxWaitTime,
+                    final PlanImpl.ExecuteContext ctx = this.flowProcessor.workQueue.poll(maxWaitTime,
                             TimeUnit.MILLISECONDS);
 
                     if (ctx == null) {
@@ -873,7 +873,7 @@ public class FlowProcessor extends ThreadGroup {
                             } else if (delaytime == Work.WAIT) {
                                 plan.adjustRepeatInterval(Work.WAIT);
                             } else {
-                                plan.finish();
+                                plan.inactive();
                             }
 
 
@@ -890,7 +890,7 @@ public class FlowProcessor extends ThreadGroup {
                             }
 
                         } else {
-                            plan.finish();
+                            plan.inactive();
                         }
 
                     } else {
@@ -910,17 +910,17 @@ public class FlowProcessor extends ThreadGroup {
 
                 } catch (RuntimeException re) {
                     re.printStackTrace();
-                    plan.finish();
+                    plan.inactive();
                 } catch (InterruptedException ite) {
                     if (plan != null) {
-                        plan.finish();
+                        plan.inactive();
                     }
 
                     //ite.printStackTrace();
 
                 } catch (Throwable e) {
                     if (plan != null) {
-                        plan.finish();
+                        plan.inactive();
                     }
                     e.printStackTrace();
 
@@ -941,21 +941,21 @@ public class FlowProcessor extends ThreadGroup {
 
     private static class WorkScheduleWrapper {
 
-        private Plan plan = null;
+        private PlanImpl plan = null;
 
         private WorkEvent workEvent = null;
 
-        WorkScheduleWrapper(Plan plan) {
+        WorkScheduleWrapper(PlanImpl plan) {
             this.plan = plan;
         }
 
-        WorkScheduleWrapper(Plan plan, WorkEvent workEvent) {
+        WorkScheduleWrapper(PlanImpl plan, WorkEvent workEvent) {
             this(plan);
             this.workEvent = workEvent;
         }
 
 
-        Plan getPlan() {
+        PlanImpl getPlan() {
             return plan;
         }
 
@@ -982,11 +982,11 @@ public class FlowProcessor extends ThreadGroup {
         }
 
 
-        void addWorkStatusWrapper(Plan sb) {
+        void addWorkStatusWrapper(PlanImpl sb) {
             statusWrappers.add(new WorkScheduleWrapper(sb));
         }
 
-        void addWorkStatusWrapper(Plan sb, WorkEvent event) {
+        void addWorkStatusWrapper(PlanImpl sb, WorkEvent event) {
             statusWrappers.add(new WorkScheduleWrapper(sb, event));
         }
 
@@ -1001,7 +1001,7 @@ public class FlowProcessor extends ThreadGroup {
 
 
                     if (workScheduleWrapper != null) {
-                        Plan plan = workScheduleWrapper.getPlan();
+                        PlanImpl plan = workScheduleWrapper.getPlan();
 
                         long nextExecuteTime = -1;
 

@@ -26,7 +26,7 @@ public class CompletableFutureTest4 {
 
         FlowProcessor.core()
                 .reflow(flow1)
-                //.daemon()
+                //.daemonMode()
                 .activate(System.out::println);
 
         System.out.println("---2");

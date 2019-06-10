@@ -31,6 +31,6 @@ public interface PlanDescriptor {
      *
      * @param planning Plan
      */
-    void build(Planning planning);
+    void build(Plan planning);
 
 }

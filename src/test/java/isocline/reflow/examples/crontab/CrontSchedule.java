@@ -41,7 +41,7 @@ public class CrontSchedule implements Work {
         FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-        Planning schedule = processor.reflow(new CronDescriptor("* * * * *"), CrontSchedule.class);
+        Plan schedule = processor.reflow(new CronDescriptor("* * * * *"), CrontSchedule.class);
 
         schedule.activate();
 

@@ -23,7 +23,7 @@ public class PreciseRepeater implements Work {
 
         FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
-        Planning schedule = processor.reflow(new PreciseRepeater()).setStrictMode();
+        Plan schedule = processor.reflow(new PreciseRepeater()).strictMode();
 
         schedule.activate();
 

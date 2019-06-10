@@ -50,14 +50,14 @@ public interface FlowableWork<T> extends Work {
      *    // step1 : activate this.checkMemory() then activate this.checkStorage()
      *    WorkFlow p1 = flow.next(this::checkMemory).next(this::checkStorage);
      *
-     *    // Until wait finish of step1, then this.sendSignal()
+     *    // Until wait inactive of step1, then this.sendSignal()
      *    WorkFlow t1 = flow.wait(p1).next(this::sendSignal);
      *
-     *    // Until wait finish of step1, then this.sendStatusMsg() and this.sendReportMsg()
+     *    // Until wait inactive of step1, then this.sendStatusMsg() and this.sendReportMsg()
      *    WorkFlow t2 = flow.wait(p1).next(this::sendStatusMsg).next(this::sendReportMsg);
      *
      *    // Wait until both step1 and step2 are finished, then activate this.report()
-     *    flow.waitAll(t1, t2).next(this::report).finish();
+     *    flow.waitAll(t1, t2).next(this::report).inactive();
      *  }
      * </pre>
      * </blockquote>
@@ -104,7 +104,7 @@ public interface FlowableWork<T> extends Work {
                     executor = wrapper.getFunctionExecutor();
 
                     if (wrapper.hasNext()) {
-                        schedule.raiseLocalEvent(event.createChild(eventName));
+                        schedule.emit(event.createChild(eventName));
                     }
 
                 }
@@ -147,7 +147,7 @@ public interface FlowableWork<T> extends Work {
                 WorkEvent errClsEvent = WorkEventFactory.createOrigin(errClassEventName);
                 errClsEvent.setThrowable(e);
 
-                schedule.raiseLocalEvent(errClsEvent);
+                schedule.emit(errClsEvent);
 
 
                 if (fireEventName != null) {
@@ -157,7 +157,7 @@ public interface FlowableWork<T> extends Work {
                     WorkEvent errEvent = event.createChild(errEventName);
                     errEvent.setThrowable(e);
 
-                    schedule.raiseLocalEvent(errEvent);
+                    schedule.emit(errEvent);
 
                 }
 
@@ -168,7 +168,7 @@ public interface FlowableWork<T> extends Work {
                 errEvent.setThrowable(e);
 
 
-                schedule.raiseLocalEvent(errEvent);
+                schedule.emit(errEvent);
 
 
                 //final WorkEvent errEvent2 = WorkEventFactory.createOrigin(WorkFlow.ERROR);
@@ -176,21 +176,21 @@ public interface FlowableWork<T> extends Work {
                 errEvent2.setFireEventName(WorkFlow.ERROR);
                 errEvent2.setThrowable(e);
 
-                schedule.raiseLocalEvent(errEvent2);
+                schedule.emit(errEvent2);
             } finally {
                 if (rs!=null && rs.isProcessNext()) {
 
-                    schedule.raiseLocalEvent(event.createChild(rs.getFireEventUUID()));
+                    schedule.emit(event.createChild(rs.getFireEventUUID()));
                     final String fireEventNameTmp = rs.getFireEventName();
 
                     if (fireEventNameTmp != null) {
                         long delayTime = executor.getDelayTimeFireEvent();
-                        schedule.raiseLocalEvent(event.createChild(fireEventNameTmp), delayTime);
+                        schedule.emit(event.createChild(fireEventNameTmp), delayTime);
 
                         if(fireEventNameTmp.indexOf("error::")==0) {
                             WorkEvent we = event.createChild(fireEventNameTmp);
                             we.setFireEventName(WorkFlow.ERROR);
-                            schedule.raiseLocalEvent(we,delayTime);
+                            schedule.emit(we,delayTime);
                         }
 
                     }

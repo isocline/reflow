@@ -58,7 +58,7 @@ public class FlowableWorkTest {
                 System.err.println("RESULT = " + e.origin().getResult());
             });
         })
-                .daemon()
+                .daemonMode()
                 .on("xxx")
                 .activate(logger::debug);
 

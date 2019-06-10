@@ -38,7 +38,7 @@ public class EventReceiver implements Work {
         FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-        Planning schedule = processor.reflow(new EventReceiver()).on("example-event");
+        Plan schedule = processor.reflow(new EventReceiver()).on("example-event");
         schedule.activate();
 
 
@@ -48,7 +48,7 @@ public class EventReceiver implements Work {
 
         processor.reflow(gen)
 
-                .setStrictMode()
+                .strictMode()
                 .startTime(Clock.nextSecond())
                 .finishTimeFromNow(30 * Clock.SECOND)
                 .activate();
@@ -74,7 +74,7 @@ public class EventReceiver implements Work {
         WorkEventGenerator gen = new WorkEventGenerator();
         gen.setEventName("example-event");
 
-        processor.reflow(gen).finishTimeFromNow(30 * Clock.SECOND).setStrictMode().startTime
+        processor.reflow(gen).finishTimeFromNow(30 * Clock.SECOND).strictMode().startTime
                 (Clock.nextSecond()).activate();
 
 

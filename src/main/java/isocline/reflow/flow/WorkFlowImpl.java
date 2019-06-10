@@ -34,6 +34,9 @@ import java.util.function.Consumer;
 public class WorkFlowImpl<T> implements WorkFlow<T> {
 
 
+    private final static String KEYNAME_FUNC_EXEC_SEQ = "funcExecSeq";
+
+
     private int funcExecSequence = 0;
 
     private String[] regReadyEventNameArray = new String[]{WorkFlow.START};
@@ -558,7 +561,7 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
 
     public FunctionExecutor getNextExecutor(WorkEvent event) {
 
-        AtomicInteger counter = event.origin().getCounter("funcExecSequence" );
+        AtomicInteger counter = event.origin().getCounter(KEYNAME_FUNC_EXEC_SEQ);
 
         //IndexOutOfBoundsException
 
@@ -576,7 +579,7 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
     }
 
     public boolean existNextFunctionExecutor(WorkEvent event) {
-        AtomicInteger counter = event.origin().getCounter("funcExecSequence");
+        AtomicInteger counter = event.origin().getCounter(KEYNAME_FUNC_EXEC_SEQ);
 
         if (counter.get() < functionExecutorList.size()) {
             return true;

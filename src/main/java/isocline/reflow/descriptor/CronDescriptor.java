@@ -49,7 +49,7 @@ public class CronDescriptor implements PlanDescriptor {
 
 
     @Override
-    public void build(Planning planning) {
+    public void build(Plan planning) {
 
         long t1 = Clock.nextMinutes();
 
@@ -57,7 +57,7 @@ public class CronDescriptor implements PlanDescriptor {
 
         planning.startTime(t1);
         planning.interval(Clock.MINUTE);
-        planning.executeEventChecker(this.checker);
+        planning.eventChecker(this.checker);
 
 
     }
