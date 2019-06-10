@@ -15,31 +15,45 @@
  */
 package isocline.reflow.event;
 
-import java.util.HashSet;
+import isocline.reflow.WorkEvent;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *
  *
  */
-public class EventSet extends HashSet<String> {
+public class SimultaneousEventSet  {
 
     private String eventSetName;
 
-    private boolean isFinish = false;
+    private String eventNameForEventSet;
+
+    private int sumOfHashcode = 0;
+
 
     /**
-     * EventSet is bundle of event names.
+     * SimultaneousEventSet is bundle of event names.
      * ex)  event1&event2
      *
      * @param eventSetName
      */
-    public EventSet(String eventSetName) {
+    public SimultaneousEventSet(String eventSetName) {
         this.eventSetName = eventSetName;
+        this.eventNameForEventSet = "eset::" + eventSetName;
+
+        String[] eventNames = eventSetName.split("&");
+
+        for (String eventName : eventNames) {
+            sumOfHashcode = sumOfHashcode + eventName.hashCode();
+        }
+
     }
 
 
     /**
      * Returns a EventSetName
+     *
      * @return
      */
     public String getEventSetName() {
@@ -53,19 +67,26 @@ public class EventSet extends HashSet<String> {
      * @param eventName
      * @return
      */
-    public boolean isRaiseEventReady(String eventName) {
+    public boolean isRaiseEventReady(WorkEvent event, String eventName) {
 
-        this.remove(eventName);
-        if(this.size()==0) {
-            if(isFinish) {
-                return false;
-            }else {
-                isFinish = true;
-                return true;
-            }
+        int hashCode = eventName.hashCode();
 
+
+        AtomicInteger integer = event.origin().getCounter(this.eventNameForEventSet);
+
+        if (integer.get() == this.sumOfHashcode) {
+            return false;
+        }
+        int sum = integer.addAndGet(hashCode);
+
+
+
+        if (sum == this.sumOfHashcode) {
+            return true;
+        } else {
+            return false;
         }
 
-        return false;
+
     }
 }

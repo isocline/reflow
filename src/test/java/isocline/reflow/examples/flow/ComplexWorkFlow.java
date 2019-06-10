@@ -62,9 +62,11 @@ public class ComplexWorkFlow implements FlowableWork {
 
     @Test
     public void test() throws InterruptedException {
+
         Plan schedule = start();
 
         schedule.block();
+
 
         FlowProcessorFactory.getProcessor().awaitShutdown();
 

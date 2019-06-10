@@ -288,7 +288,7 @@ public interface WorkFlow<T> {
      *
      * @return FunctionExecutor
      */
-    FunctionExecutor getNextExecutor();
+    FunctionExecutor getNextExecutor(WorkEvent event);
 
 
     /**
@@ -296,7 +296,7 @@ public interface WorkFlow<T> {
      *
      * @return true/false
      */
-    boolean existNextFunctionExecutor();
+    boolean existNextFunctionExecutor(WorkEvent event);
 
 
     /**
@@ -306,7 +306,7 @@ public interface WorkFlow<T> {
      * @param eventName name of event
      * @return FunctionExecutorList instance
      */
-    FunctionExecutorList getFunctionExecutorList(String eventName);
+    FunctionExecutorList getFunctionExecutorList(WorkEvent event, String eventName);
 
 
     /**

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite tests="4" failures="0" name="isocline.reflow.ClockTest" time="0.008" errors="0" skipped="0">
+<testsuite tests="4" failures="0" name="isocline.reflow.ClockTest" time="0.007" errors="0" skipped="0">
   <properties>
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
     <property name="sun.boot.library.path" value="/Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/jre/lib"/>
@@ -68,5 +68,5 @@
   <testcase classname="isocline.reflow.ClockTest" name="nextMinutes" time="0.004"/>
   <testcase classname="isocline.reflow.ClockTest" name="nextSecond" time="0"/>
   <testcase classname="isocline.reflow.ClockTest" name="testTime" time="0"/>
-  <testcase classname="isocline.reflow.ClockTest" name="testISOTime" time="0.004"/>
+  <testcase classname="isocline.reflow.ClockTest" name="testISOTime" time="0.003"/>
 </testsuite>

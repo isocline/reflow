@@ -17,6 +17,7 @@ package isocline.reflow.module;
 
 import isocline.reflow.Work;
 import isocline.reflow.WorkEvent;
+import isocline.reflow.log.XLogger;
 
 
 /**
@@ -25,7 +26,11 @@ import isocline.reflow.WorkEvent;
 public class WorkEventGenerator implements Work {
 
 
+    private static XLogger logger = XLogger.getLogger(WorkEventGenerator.class);
+
     private long timeGap = 1000;
+
+    private int count = 0;
 
     private String eventName = "reflow:signal";
 
@@ -41,17 +46,23 @@ public class WorkEventGenerator implements Work {
     @Override
     public long execute(WorkEvent event) throws InterruptedException {
 
+        count++;
 
         WorkEvent newEvent = event.createChild(eventName);
+        //WorkEvent newEvent = WorkEventFactory.createOrigin(eventName);
 
 
-        event.getPlan().getFlowProcessor().raiseEvent(eventName, newEvent);
+        event.getPlan().getFlowProcessor().emit(eventName, newEvent);
 
-        //event.getPlan().getFlowProcessor().raiseEvent(eventName, event);
-        //FlowProcessorFactory.getProcessor().raiseEvent(eventName, newEvent);
+        //event.getPlan().getFlowProcessor().emit(eventName, event);
+        //FlowProcessorFactory.getProcessor().emit(eventName, newEvent);
 
-        System.out.println("fire event [" + eventName+"]");
+        logger.info("fire event [" + eventName+"]");
 
         return timeGap;
+    }
+
+    public int getCount() {
+        return this.count;
     }
 }

@@ -25,12 +25,12 @@ public class CrontSchedule implements Work {
     public void case1() throws Exception {
 
 
-        FlowProcessor.main()
+        FlowProcessor.core()
                 .reflow(CrontSchedule.class)
                 .describe(new CronDescriptor("* * * * *"))
                 .activate();
 
-        FlowProcessor.main().shutdown(10*Clock.SECOND);
+        FlowProcessor.core().shutdown(10*Clock.SECOND);
 
 
     }
@@ -41,7 +41,7 @@ public class CrontSchedule implements Work {
         FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-        Plan schedule = processor.reflow(new CronDescriptor("* * * * *"), CrontSchedule.class);
+        Planning schedule = processor.reflow(new CronDescriptor("* * * * *"), CrontSchedule.class);
 
         schedule.activate();
 

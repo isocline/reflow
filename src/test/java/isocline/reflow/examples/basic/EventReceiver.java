@@ -38,7 +38,7 @@ public class EventReceiver implements Work {
         FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-        Plan schedule = processor.reflow(new EventReceiver()).bindEvent("example-event");
+        Planning schedule = processor.reflow(new EventReceiver()).on("example-event");
         schedule.activate();
 
 

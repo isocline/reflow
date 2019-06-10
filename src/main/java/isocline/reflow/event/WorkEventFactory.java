@@ -41,6 +41,12 @@ public class WorkEventFactory {
     }
 
 
+    public static WorkEvent createOrigin(String eventName, WorkEvent originEvent) {
+        WorkEventImpl event = new WorkEventImpl(eventName, originEvent);
+
+        return event;
+    }
+
     /**
      * Create a implement object of WorkEvent
      *

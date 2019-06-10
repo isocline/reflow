@@ -29,8 +29,8 @@ public interface PlanDescriptor {
     /**
      * Pass the configuration information to the Plan.
      *
-     * @param plan Plan
+     * @param planning Plan
      */
-    void build(Plan plan);
+    void build(Planning planning);
 
 }

@@ -16,7 +16,7 @@
 package isocline.reflow;
 
 import isocline.reflow.event.EventRepository;
-import isocline.reflow.event.EventSet;
+import isocline.reflow.event.SimultaneousEventSet;
 import isocline.reflow.event.WorkEventFactory;
 import isocline.reflow.flow.WorkFlowFactory;
 import isocline.reflow.log.XLogger;
@@ -33,7 +33,7 @@ import java.util.function.Consumer;
  *
  * @see isocline.reflow.Work
  */
-public class Plan {
+public class Plan implements Planning {
 
     protected static XLogger logger = XLogger.getLogger(Plan.class);
 
@@ -71,6 +71,10 @@ public class Plan {
 
     private boolean isEventBindding = false;
 
+    private boolean isDaemonMode = false;
+
+    private boolean isFinished = false;
+
 
     private Work work;
 
@@ -104,6 +108,7 @@ public class Plan {
      *
      * @return a ID of Plan
      */
+    @Override
     public String getId() {
         return this.workUUID;
     }
@@ -203,6 +208,7 @@ public class Plan {
     // public method
 
 
+    @Override
     public void lock(Object lockOwner) throws IllegalAccessException {
         if (this.lockOwner != null) {
             throw new IllegalAccessException("Already locking");
@@ -218,6 +224,7 @@ public class Plan {
      * @param lockOwner The object that performed the lock
      * @throws IllegalAccessException If the Lock object and the input object are not the same
      */
+    @Override
     public void unlock(Object lockOwner) throws IllegalAccessException {
         if (lockOwner == this.lockOwner) {
             this.isLock = false;
@@ -233,6 +240,7 @@ public class Plan {
      *
      * @param workObject an instance of WorkObject
      */
+    @Override
     public void setWorkObject(Work workObject) {
         this.work = workObject;
     }
@@ -240,12 +248,14 @@ public class Plan {
     /**
      * @return a instance of Work
      */
+    @Override
     public Work getWorkObject() {
         return this.work;
     }
 
 
-    public Plan startTime(long nextExecuteTime) {
+    @Override
+    public Planning startTime(long nextExecuteTime) {
 
         this.isDefinedStartTime = true;
         return setStartTime(nextExecuteTime);
@@ -257,7 +267,7 @@ public class Plan {
      * @param nextExecuteTime the number of milliseconds since January 1, 1970, 00:00:00 GMT for the date and time specified by the arguments.
      * @return an instance of Plan
      */
-    private Plan setStartTime(long nextExecuteTime) {
+    private Planning setStartTime(long nextExecuteTime) {
 
         if (waitingTime == 0) {
             waitingTime = 1;
@@ -268,7 +278,8 @@ public class Plan {
         return this;
     }
 
-    public Plan startDelayTime(long waitTime) {
+    @Override
+    public Planning startDelayTime(long waitTime) {
         checkLocking();
         this.waitingTime = waitTime;
 
@@ -281,7 +292,7 @@ public class Plan {
      * @param waitTime a milliseconds for timeout
      * @return an instance of Plan
      */
-    Plan adjustDelayTime(long waitTime) {
+    Planning adjustDelayTime(long waitTime) {
 
 
         this.waitingTime = waitTime;
@@ -358,7 +369,8 @@ public class Plan {
      * @param intervalTime a milliseconds time for interval
      * @return an instance of Plan
      */
-    public Plan interval(long intervalTime) {
+    @Override
+    public Planning interval(long intervalTime) {
 
         checkLocking();
 
@@ -372,7 +384,7 @@ public class Plan {
      * @param intervalTime
      * @return
      */
-    Plan adjustRepeatInterval(long intervalTime) {
+    Planning adjustRepeatInterval(long intervalTime) {
 
 
         this.intervalTime = intervalTime;
@@ -389,7 +401,8 @@ public class Plan {
      * @return an instance of Plan
      * @throws java.text.ParseException if date time format is not valid.
      */
-    public Plan startTime(String isoDateTime) throws java.text.ParseException {
+    @Override
+    public Planning startTime(String isoDateTime) throws java.text.ParseException {
 
         this.isDefinedStartTime = true;
 
@@ -403,7 +416,8 @@ public class Plan {
      * @param startDateTime Date of start
      * @return an instance of Plan
      */
-    public Plan startTime(Date startDateTime) {
+    @Override
+    public Planning startTime(Date startDateTime) {
 
         this.isDefinedStartTime = true;
 
@@ -419,7 +433,8 @@ public class Plan {
      * @return an instance of Plan
      * @throws java.text.ParseException if date time format is not valid.
      */
-    public Plan finishTime(String isoDateTime) throws java.text.ParseException {
+    @Override
+    public Planning finishTime(String isoDateTime) throws java.text.ParseException {
 
         return finishTime(Clock.toDate(isoDateTime));
     }
@@ -431,7 +446,8 @@ public class Plan {
      * @param endDateTime Date of end
      * @return an instance of Plan
      */
-    public Plan finishTime(Date endDateTime) {
+    @Override
+    public Planning finishTime(Date endDateTime) {
 
         this.workEndTime = endDateTime.getTime();
         return this;
@@ -443,7 +459,8 @@ public class Plan {
      * @param milliSeconds milliseconds
      * @return an instance of Plan
      */
-    public Plan finishTimeFromNow(long milliSeconds) {
+    @Override
+    public Planning finishTimeFromNow(long milliSeconds) {
         this.workEndTime = System.currentTimeMillis() + milliSeconds;
         return this;
     }
@@ -456,7 +473,7 @@ public class Plan {
      * @throws InstantiationException if this Class represents an abstract class, an interface, an array class, a primitive type, or void; or if the class has no nullary constructor; or if the instantiation fails for some other reason.
      * @throws IllegalAccessException if the class or its nullary constructor is not accessible.
      */
-    public Plan workSession(String className) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+    public Planning workSession(String className) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
         checkLocking();
         this.workSession = (WorkSession) Class.forName(className).newInstance();
         return this;
@@ -468,7 +485,7 @@ public class Plan {
      * @param workSession an instance of WorkSession
      * @return an instance of Plan
      */
-    public Plan workSession(WorkSession workSession) {
+    public Planning workSession(WorkSession workSession) {
         checkLocking();
 
         this.workSession = workSession;
@@ -500,6 +517,7 @@ public class Plan {
     ////////////////
 
 
+    @Override
     public void raiseLocalEvent(WorkEvent event) {
 
         this.flowProcessor.addWorkSchedule(this, event);
@@ -507,6 +525,7 @@ public class Plan {
     }
 
 
+    @Override
     public void raiseLocalEvent(WorkEvent event, long delayTime) {
 
         if (delayTime > 0) {
@@ -522,7 +541,8 @@ public class Plan {
     }
 
 
-    public Plan bindEvent(String... eventNames) {
+    @Override
+    public Planning on(String... eventNames) {
         checkLocking();
 
         for (String eventName : eventNames) {
@@ -537,31 +557,37 @@ public class Plan {
     }
 
 
-    public Plan setStrictMode() {
+    @Override
+    public Planning setStrictMode() {
         checkLocking();
         this.isStrictMode = true;
         return this;
     }
 
-    public Plan setBetweenStartTimeMode(boolean isBetweenStartTimeMode) {
+    @Override
+    public Planning setBetweenStartTimeMode(boolean isBetweenStartTimeMode) {
         checkLocking();
         this.isBetweenStartTimeMode = isBetweenStartTimeMode;
         return this;
     }
 
-    public Plan jitter(long jitter) {
+    @Override
+    public Planning jitter(long jitter) {
         checkLocking();
         this.jitter = jitter;
         return this;
     }
 
-    public Plan setSleepMode() {
+    @Override
+    public Planning daemon() {
         checkLocking();
         this.startDelayTime(Work.WAIT);
+        this.isDaemonMode = true;
         return this;
     }
 
 
+    @Override
     public Plan activate() {
         return activate(null);
     }
@@ -569,7 +595,8 @@ public class Plan {
 
 
 
-    public Plan describe(PlanDescriptor descriptor) {
+    @Override
+    public Planning describe(PlanDescriptor descriptor) {
         descriptor.build(this);
         return this;
     }
@@ -582,6 +609,7 @@ public class Plan {
      * @param consumer Consumer
      * @return an instance of Plan
      */
+    @Override
     public Plan activate(Consumer consumer) {
         if (isActivated) {
             throw new RuntimeException("Already activate!");
@@ -602,10 +630,13 @@ public class Plan {
 
                 fw.defineWorkFlow(wf);
 
-                if (!wf.isSetFinish()) {
+
+                if (!this.isDaemonMode && !wf.isSetFinish()) {
+
                     wf.fireEvent(WorkFlow.FINISH, 0);
                     wf.wait(WorkFlow.FINISH).finish();
                 }
+
             }
 
         } catch (UnsupportedOperationException npe) {
@@ -642,7 +673,8 @@ public class Plan {
      *
      * @return
      */
-    public Plan run() {
+    @Override
+    public Planning run() {
         Plan schedule = activate();
 
         schedule.block();
@@ -664,6 +696,7 @@ public class Plan {
      *
      * @return True if Plan is activated
      */
+    @Override
     public boolean isActivated() {
         return isActivated;
     }
@@ -672,6 +705,7 @@ public class Plan {
     /**
      * finish job
      */
+    @Override
     synchronized public void finish() {
         if (this.isActivated) {
             this.isActivated = false;
@@ -687,9 +721,14 @@ public class Plan {
     }
 
 
-    synchronized public Plan block(long timeout) {
+    synchronized public Planning block(long timeout) {
+
         try {
-            wait(timeout);
+
+            if(this.isActivated) {
+                wait(timeout);
+            }
+
         } catch (InterruptedException ie) {
 
         }
@@ -699,7 +738,9 @@ public class Plan {
 
     synchronized public Plan block() {
         try {
-            wait();
+            if(this.isActivated) {
+                wait();
+            }
         } catch (InterruptedException ie) {
 
         }
@@ -722,12 +763,14 @@ public class Plan {
     }
 
 
+    @Override
     public FlowProcessor getFlowProcessor() {
         return flowProcessor;
     }
 
 
-    public Plan executeEventChecker(ExecuteEventChecker checker) {
+    @Override
+    public Planning executeEventChecker(ExecuteEventChecker checker) {
         this.executeEventChecker = checker;
         return this;
     }
@@ -740,10 +783,12 @@ public class Plan {
         return true;
     }
 
+    @Override
     public Throwable getError() {
         return error;
     }
 
+    @Override
     public void setError(Throwable error) {
         this.error = error;
     }
@@ -763,15 +808,24 @@ public class Plan {
         WorkEvent event = null;
 
         if (inputWorkEvent == null) {
-            if (originEvent == null) {
+            //System.err.println("== 0 ===============");
+            if (originEvent == null)
+            {
                 originEvent = WorkEventFactory.createOrigin();
                 originEvent.setPlan(this);
+                //System.err.println("== 1");
+            }else {
+                //System.err.println("== 2 "+originEvent.getEventName());
             }
             event = originEvent;
         } else {
             if (originEvent == null) {
                 originEvent = inputWorkEvent;
+                //System.err.println("== 3 "+inputWorkEvent.getEventName());
+            }else {
+                //System.err.println("== 4 "+inputWorkEvent.getEventName());
             }
+
             event = inputWorkEvent;
             event.setPlan(this);
         }
@@ -789,22 +843,24 @@ public class Plan {
      * @param eventName name of event
      * @return name of event
      */
-    String getDeliverableEventName(String eventName) {
+    String getDeliverableEventName(String eventName, WorkEvent event) {
 
 
-        EventSet eventSet = eventRepository.getEventSet(eventName);
 
 
-        if (eventSet == null) {
-            //System.err.println("getDeliverableEventName normal = "+eventName );
+        SimultaneousEventSet simultaneousEventSet = eventRepository.getSimultaneousEventSet(eventName);
+
+
+        if (simultaneousEventSet == null) {
             return eventName;
         }
 
+        WorkEvent originEvent = event.origin();
 
-        if (eventSet.isRaiseEventReady(eventName)) {
 
-            //System.err.println("getDeliverableEventName event="+eventName + " set="+eventSet + " fire="+eventSet.getEventSetName());
-            return eventSet.getEventSetName();
+        if (simultaneousEventSet.isRaiseEventReady(event, eventName)) {
+
+            return simultaneousEventSet.getEventSetName();
         }
 
 

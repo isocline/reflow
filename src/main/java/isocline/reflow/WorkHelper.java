@@ -7,8 +7,8 @@ import java.util.List;
 public class WorkHelper {
 
 
-    public static Plan reflow(FlowableWork workFlow) {
-        return FlowProcessor.main().reflow(workFlow);
+    public static Planning reflow(FlowableWork workFlow) {
+        return FlowProcessor.core().reflow(workFlow);
     }
 
     public static List GetResultList(WorkEvent e) {

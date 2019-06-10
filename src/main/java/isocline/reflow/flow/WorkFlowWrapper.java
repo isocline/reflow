@@ -15,6 +15,7 @@
  */
 package isocline.reflow.flow;
 
+import isocline.reflow.WorkEvent;
 import isocline.reflow.WorkFlow;
 import isocline.reflow.WorkFlowPattern;
 import isocline.reflow.flow.func.*;
@@ -250,8 +251,8 @@ public class WorkFlowWrapper<T> implements WorkFlow<T> {
 
 
     @Override
-    public WorkFlow pattern(WorkFlowPattern pattern, WorkFlowPatternFunction func) {
-        this.workFlowInstance.pattern(pattern, func);
+    public WorkFlow pattern(WorkFlowPattern pattern, WorkFlowPatternFunction... functions) {
+        this.workFlowInstance.pattern(pattern, functions);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
@@ -294,18 +295,18 @@ public class WorkFlowWrapper<T> implements WorkFlow<T> {
     }
 
     @Override
-    public FunctionExecutor getNextExecutor() {
-        return this.workFlowInstance.getNextExecutor();
+    public FunctionExecutor getNextExecutor(WorkEvent event) {
+        return this.workFlowInstance.getNextExecutor(event);
     }
 
     @Override
-    public boolean existNextFunctionExecutor() {
-        return this.workFlowInstance.existNextFunctionExecutor();
+    public boolean existNextFunctionExecutor(WorkEvent event) {
+        return this.workFlowInstance.existNextFunctionExecutor(event);
     }
 
     @Override
-    public FunctionExecutorList getFunctionExecutorList(String eventName) {
-        return this.workFlowInstance.getFunctionExecutorList(eventName);
+    public FunctionExecutorList getFunctionExecutorList(WorkEvent event, String eventName) {
+        return this.workFlowInstance.getFunctionExecutorList(event, eventName);
 
     }
 

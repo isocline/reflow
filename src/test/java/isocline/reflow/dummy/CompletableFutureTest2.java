@@ -20,7 +20,7 @@ public class CompletableFutureTest2 {
         Price price = new Price();
 
 
-        FlowProcessor.main().reflow((WorkFlow<Double> flow) -> {
+        FlowProcessor.core().reflow((WorkFlow<Double> flow) -> {
             flow
                     .next(price::print)
                     .applyAsync(e -> price.calculatePrice(1) )
@@ -37,7 +37,7 @@ public class CompletableFutureTest2 {
         }).activate(System.out::println).block();
 
 
-        FlowProcessor.main().shutdown();
+        FlowProcessor.core().shutdown();
 
     }
 

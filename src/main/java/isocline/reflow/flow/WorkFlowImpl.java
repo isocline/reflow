@@ -15,14 +15,16 @@
  */
 package isocline.reflow.flow;
 
+import isocline.reflow.WorkEvent;
 import isocline.reflow.WorkFlow;
 import isocline.reflow.WorkFlowPattern;
 import isocline.reflow.event.EventRepository;
-import isocline.reflow.event.EventSet;
+import isocline.reflow.event.SimultaneousEventSet;
 import isocline.reflow.flow.func.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 /**
@@ -47,7 +49,7 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
 
     private FunctionExecutor lastSyncFuncExecutor = null;
 
-    private EventRepository<String, FunctionExecutorList> eventRepository = new EventRepository();
+    private EventRepository<String, List<FunctionExecutor>> eventRepository = new EventRepository();
 
     private List<FunctionExecutor> functionExecutorList = new ArrayList<FunctionExecutor>();
 
@@ -64,9 +66,9 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
     private void bindEventRepository(String eventName, FunctionExecutor functionExecutor) {
 
 
-        FunctionExecutorList functionExecutorList = this.eventRepository.get(eventName);
+        List<FunctionExecutor> functionExecutorList = this.eventRepository.get(eventName);
         if (functionExecutorList == null) {
-            functionExecutorList = new FunctionExecutorList();
+            functionExecutorList = new ArrayList<>();
             this.eventRepository.put(eventName, functionExecutorList);
         }
 
@@ -553,25 +555,30 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
         return this.isSetFinish;
     }
 
-    public FunctionExecutor getNextExecutor() {
+
+    public FunctionExecutor getNextExecutor(WorkEvent event) {
+
+        AtomicInteger counter = event.origin().getCounter("funcExecSequence" );
 
         //IndexOutOfBoundsException
 
         FunctionExecutor exec = null;
         try {
-            exec = functionExecutorList.get(this.funcExecSequence);
+            exec = functionExecutorList.get(counter.get());
         } catch (IndexOutOfBoundsException ie) {
             return null;
         }
         if (exec != null) {
-            funcExecSequence++;
+            counter.addAndGet(1);
         }
 
         return exec;
     }
 
-    public boolean existNextFunctionExecutor() {
-        if (this.funcExecSequence < functionExecutorList.size()) {
+    public boolean existNextFunctionExecutor(WorkEvent event) {
+        AtomicInteger counter = event.origin().getCounter("funcExecSequence");
+
+        if (counter.get() < functionExecutorList.size()) {
             return true;
         }
 
@@ -579,14 +586,25 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
     }
 
 
-    public FunctionExecutorList getFunctionExecutorList(String eventName) {
+    public FunctionExecutorList getFunctionExecutorList(WorkEvent event, String eventName) {
         if (eventName == null) return null;
 
 
-        EventSet eventSet = eventRepository.getEventSet(eventName);
+        SimultaneousEventSet simultaneousEventSet = eventRepository.getSimultaneousEventSet(eventName);
 
-        if (eventSet == null || eventSet.isRaiseEventReady(eventName)) {
-            FunctionExecutorList functionExecutorList = this.eventRepository.get(eventName);
+        if (simultaneousEventSet == null || simultaneousEventSet.isRaiseEventReady(event, eventName)) {
+            FunctionExecutorList functionExecutorList = (FunctionExecutorList) event.origin().getAttribute("fnc::"+eventName);
+            if(functionExecutorList==null) {
+                List<FunctionExecutor> list =  this.eventRepository.get(eventName);
+                if(list==null) {
+                    return null;
+                }
+
+                functionExecutorList = new FunctionExecutorList(list, event, eventName);
+                event.origin().setAttribute("fnc::"+eventName, functionExecutorList);
+
+            }
+
 
             if (functionExecutorList != null) {
                 return functionExecutorList;

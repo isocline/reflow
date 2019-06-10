@@ -37,7 +37,7 @@ public class MultiAsync2 {
     @Test
     public void test() throws InterruptedException {
 
-        FlowProcessor.main().reflow(
+        FlowProcessor.core().reflow(
                 flow -> {
                     flow.runAsync(this::asyncMulti, 5)
                             .waitAll()

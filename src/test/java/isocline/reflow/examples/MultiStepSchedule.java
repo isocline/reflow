@@ -18,10 +18,10 @@ public class MultiStepSchedule   {
         FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-        Plan schedule = processor.reflow(Step1Schedule.class).setStrictMode();
+        Planning schedule = processor.reflow(Step1Schedule.class).setStrictMode();
         schedule.activate();
 
-        schedule = processor.reflow(Step2Schedule.class).bindEvent("fireEvent");
+        schedule = processor.reflow(Step2Schedule.class).on("fireEvent");
         schedule.activate();
 
 
@@ -40,7 +40,7 @@ public class MultiStepSchedule   {
 
             if (count > 5) {
 
-                event.getPlan().getFlowProcessor().raiseEvent(WorkEventFactory.createOrigin("fireEvent"));
+                event.getPlan().getFlowProcessor().emit(WorkEventFactory.createOrigin("fireEvent"));
 
                 return TERMINATE;
             } else {

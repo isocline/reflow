@@ -75,7 +75,7 @@ public class RetryPattern {
     @Test
     public void startTest() {
 
-        FlowProcessor.main()
+        FlowProcessor.core()
                 .reflow(flow -> {
 
             flow.wait("check")

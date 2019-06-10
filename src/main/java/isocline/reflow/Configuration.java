@@ -69,7 +69,7 @@ public class Configuration {
      * By default, the initial thread count is 6, the maximum thread count is 12, and the thread priority setting is Thread.NORM_PRIORITY state.
      *
      */
-    public final static Configuration NOMAL = create().setInitThreadWorkerSize(6).setMaxThreadWorkerSize(12).setThreadPriority(Thread.NORM_PRIORITY).lock();
+    public final static Configuration NOMAL = create().setInitThreadWorkerSize(8).setMaxThreadWorkerSize(128).setThreadPriority(Thread.NORM_PRIORITY).lock();
 
     /**
      * Initialization settings related to thread settings for FlowProcessor initialization
@@ -83,7 +83,7 @@ public class Configuration {
      * Preset for high-end environments, the initial thread count is 24, the maximum thread count is 36,
      * and the thread priority setting is Thread.MAX_PRIORITY state.
      */
-    public final static Configuration PERFORMANCE = create().setInitThreadWorkerSize(24).setMaxThreadWorkerSize(36).setThreadPriority(Thread.MAX_PRIORITY).lock();
+    public final static Configuration PERFORMANCE = create().setInitThreadWorkerSize(32).setMaxThreadWorkerSize(256).setThreadPriority(Thread.MAX_PRIORITY).lock();
 
     /**
      * Initialization settings related to thread settings for FlowProcessor initialization

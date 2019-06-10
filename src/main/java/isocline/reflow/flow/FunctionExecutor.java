@@ -23,6 +23,7 @@ import isocline.reflow.flow.func.ReturnEventFunction;
 import isocline.reflow.flow.func.WorkEventConsumer;
 import isocline.reflow.flow.func.WorkEventFunction;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -46,7 +47,6 @@ public class FunctionExecutor {
 
     private long delayTimeFireEvent = 0;
 
-    private int callCount=0;
 
     private int maxCallCount = 0;
 
@@ -60,7 +60,6 @@ public class FunctionExecutor {
     private Function function = null;
 
 
-
     private WorkEventConsumer workEventConsumer = null;
 
     private WorkEventFunction workEventFunction = null;
@@ -69,7 +68,6 @@ public class FunctionExecutor {
     private CheckFunction checkFunction = null;
 
     private ReturnEventFunction returnEventFunction = null;
-
 
 
     FunctionExecutor() {
@@ -86,20 +84,19 @@ public class FunctionExecutor {
 
                 this.consumer = (Consumer) obj;
 
-            } else if(obj instanceof WorkEventConsumer) {
+            } else if (obj instanceof WorkEventConsumer) {
                 this.workEventConsumer = (WorkEventConsumer) obj;
             } else if (obj instanceof Supplier) {
                 this.supplier = (Supplier) obj;
             } else if (obj instanceof Function) {
                 this.function = (Function) obj;
-            }else if (obj instanceof CheckFunction) {
+            } else if (obj instanceof CheckFunction) {
                 this.checkFunction = (CheckFunction) obj;
-            }else if (obj instanceof ReturnEventFunction) {
+            } else if (obj instanceof ReturnEventFunction) {
                 this.returnEventFunction = (ReturnEventFunction) obj;
-            } else if(obj instanceof WorkEventFunction) {
+            } else if (obj instanceof WorkEventFunction) {
                 this.workEventFunction = (WorkEventFunction) obj;
-            }
-            else {
+            } else {
                 throw new IllegalArgumentException("Not Support type");
             }
         }
@@ -110,7 +107,7 @@ public class FunctionExecutor {
 
     private String getUUID() {
         nonce++;
-        String uuid = nonce + "#h" + String.valueOf(this.hashCode());
+        String uuid = "U#"+nonce + "X" + String.valueOf(this.hashCode());
         return uuid;
     }
 
@@ -160,59 +157,98 @@ public class FunctionExecutor {
         this.maxCallCount = maxCallCount;
     }
 
-    public boolean execute(WorkEvent event) throws Throwable {
 
-        callCount++;
 
-        if(maxCallCount>0 && maxCallCount<=callCount) {
-            return false;
+    private AtomicInteger getCallCounter(WorkEvent event) {
+
+        WorkEvent origin = event.origin();
+
+        String countKeyName = this.fireEventUUID+"<count>";
+        AtomicInteger count = origin.getCounter(countKeyName);
+
+        return count;
+    }
+
+
+    public ResultState execute(WorkEvent event) throws Throwable {
+
+        String pFireEventName = this.fireEventName;
+        String pFireEventUUID = this.fireEventUUID;
+
+        boolean isProcessNext = true;
+
+        AtomicInteger counter = getCallCounter(event);
+        counter.addAndGet(1);
+
+
+
+        if (maxCallCount > 0 && maxCallCount <= counter.get()) {
+            new ResultState(pFireEventUUID, pFireEventName, false);
         }
 
-        WorkEventImpl e = (WorkEventImpl)event;
-        e.setEmitCount(callCount);
+        WorkEventImpl e = (WorkEventImpl) event;
+        e.setEmitCount(counter.get());
 
         if (runnable != null) {
             runnable.run();
-        }
-
-        else if (consumer != null) {
+        } else if (consumer != null) {
 
             WorkEventImpl rootEvent = (WorkEventImpl) event.origin();
 
 
-
             consumer.accept(rootEvent.getAttributeMap());
-        }
-
-        else if (workEventConsumer !=null) {
+        } else if (workEventConsumer != null) {
             workEventConsumer.accept(event);
-        }
-
-        else if (workEventFunction !=null) {
+        } else if (workEventFunction != null) {
             Object result = workEventFunction.apply(event);
             WorkHelper.Return(event, result);
-        }
-
-
-        else if (checkFunction != null) {
+        } else if (checkFunction != null) {
             boolean runNext = checkFunction.check(event);
-            if(!runNext) {
+            if (!runNext) {
                 isLastExecutor = true;
             }
 
-            return runNext;
-        }
-        else if (returnEventFunction != null) {
+            isProcessNext = runNext;
+        } else if (returnEventFunction != null) {
             String newEventName = returnEventFunction.checkFlow(event);
-            if(newEventName !=null) {
-                fireEventName = null;
-                fireEventUUID =newEventName;
+            if (newEventName != null) {
+                pFireEventName = null;
+                pFireEventUUID = newEventName;
             }
 
 
         }
 
 
-        return true;
+        return new ResultState(pFireEventUUID, pFireEventName, isProcessNext);
+
+
+    }
+
+    final public static class ResultState {
+
+        private String fireEventUUID;
+        private String fireEventName;
+        private boolean isProcessNext;
+
+        ResultState(String fireEventUUID, String fireEventName, boolean isProcessNext) {
+            this.fireEventUUID = fireEventUUID;
+            this.fireEventName = fireEventName;
+            this.isProcessNext = isProcessNext;
+        }
+
+        public String getFireEventUUID() {
+            return fireEventUUID;
+        }
+
+
+        public String getFireEventName() {
+            return fireEventName;
+        }
+
+        public boolean isProcessNext() {
+            return this.isProcessNext;
+        }
+
     }
 }

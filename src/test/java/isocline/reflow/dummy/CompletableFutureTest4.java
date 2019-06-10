@@ -24,15 +24,15 @@ public class CompletableFutureTest4 {
         };
 
 
-        FlowProcessor.main()
+        FlowProcessor.core()
                 .reflow(flow1)
-                .setSleepMode()
+                //.daemon()
                 .activate(System.out::println);
 
         System.out.println("---2");
 
 
-        FlowProcessor.main().awaitShutdown();
+        FlowProcessor.core().awaitShutdown();
 
     }
 

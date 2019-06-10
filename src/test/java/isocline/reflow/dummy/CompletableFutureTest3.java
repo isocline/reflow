@@ -23,7 +23,7 @@ public class CompletableFutureTest3 {
 
 
 
-        FlowProcessor.main().reflow(flow -> {
+        FlowProcessor.core().reflow(flow -> {
             flow.runAsync(e -> {
                 Return(e, price.calculatePrice(e.count()));
             },5).waitAll().next( (WorkEvent e) -> {
@@ -35,7 +35,7 @@ public class CompletableFutureTest3 {
         }).activate().block();
 
 
-        FlowProcessor.main().shutdown();
+        FlowProcessor.core().shutdown();
 
     }
 

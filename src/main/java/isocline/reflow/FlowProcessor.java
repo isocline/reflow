@@ -69,7 +69,7 @@ public class FlowProcessor extends ThreadGroup {
     private static Map<String, FlowProcessor> processorMap = new HashMap<String, FlowProcessor>();
 
 
-    public static FlowProcessor main() {
+    public static FlowProcessor core() {
 
 
         if (defaultFlowProcessor == null || !defaultFlowProcessor.isWorking()) {
@@ -127,9 +127,7 @@ public class FlowProcessor extends ThreadGroup {
         workChecker = new WorkChecker(this);
         workChecker.start();
 
-        do {
-            addThreadWorker();
-        } while (this.currentThreadWorkerCount.get() < this.configuration.getInitThreadWorkerSize());
+        addThreadWorker(this.configuration.getInitThreadWorkerSize());
 
     }
 
@@ -140,23 +138,22 @@ public class FlowProcessor extends ThreadGroup {
      * @param eventNames an event names
      * @return an new instance of Plan
      */
-    public Plan reflow(Work work, String... eventNames) {
-        Plan plan = new Plan(this, work);
-        plan.setSleepMode();
-        plan.bindEvent(eventNames);
+    public Planning reflow(Work work, String... eventNames) {
+        Planning planning = new Plan(this, work);
+        planning.daemon();
+        planning.on(eventNames);
 
 
-
-        return plan;
+        return planning;
     }
 
 
-    public Plan reflow(FlowableWork<?> workFlow) {
+    public Planning reflow(FlowableWork<?> workFlow) {
 
-        Plan plan = new Plan(this, workFlow);
+        Planning planning = new Plan(this, workFlow);
 
 
-        return plan;
+        return planning;
     }
 
     public Plan execute(Work work) {
@@ -181,7 +178,7 @@ public class FlowProcessor extends ThreadGroup {
      *
      * @return a new instance of Plan
      */
-    public Plan reflow() {
+    public Planning reflow() {
         return new Plan(this, null);
     }
 
@@ -215,7 +212,7 @@ public class FlowProcessor extends ThreadGroup {
      * @throws InstantiationException InstantiationException
      * @throws IllegalAccessException IllegalAccessException
      */
-    public Plan reflow(Class workClass) throws InstantiationException, IllegalAccessException {
+    public Planning reflow(Class workClass) throws InstantiationException, IllegalAccessException {
         return reflow((Work) workClass.newInstance());
     }
 
@@ -229,7 +226,7 @@ public class FlowProcessor extends ThreadGroup {
      * @throws InstantiationException InstantiationException
      * @throws IllegalAccessException IllegalAccessException
      */
-    public Plan reflow(PlanDescriptor descriptor, Class workClass) throws InstantiationException, IllegalAccessException {
+    public Planning reflow(PlanDescriptor descriptor, Class workClass) throws InstantiationException, IllegalAccessException {
         return reflow(descriptor, (Work) workClass.newInstance());
     }
 
@@ -243,7 +240,7 @@ public class FlowProcessor extends ThreadGroup {
      * @throws InstantiationException if this Class represents an abstract class, an interface, an array class, a primitive type, or void; or if the class has no nullary constructor; or if the instantiation fails for some other reason.
      * @throws IllegalAccessException if the class or its nullary constructor is not accessible.
      */
-    public Plan reflow(String className) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+    public Planning reflow(String className) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
         return new Plan(this, (Work) Class.forName(className).newInstance());
     }
 
@@ -454,20 +451,29 @@ public class FlowProcessor extends ThreadGroup {
     }
 
 
-    private synchronized boolean addThreadWorker() {
+    private synchronized boolean addThreadWorker(int addSize) {
 
-        int i = currentThreadWorkerCount.get();
-        if (i < this.configuration.getMaxThreadWorkerSize()) {
-            ThreadWorker mon = new ThreadWorker(this, this.configuration.getThreadPriority());
-            threadWorkers.add(mon);
-            mon.setDaemon(true);
-            mon.start();
+        boolean result = false;
 
-            currentThreadWorkerCount.addAndGet(1);
-            return true;
+        for (int s = 0; s < addSize; s++) {
+
+            if (currentThreadWorkerCount.get() < this.configuration.getMaxThreadWorkerSize()) {
+
+                ThreadWorker mon = new ThreadWorker(this, this.configuration.getThreadPriority());
+                threadWorkers.add(mon);
+                mon.setDaemon(true);
+                mon.start();
+
+                result = true;
+
+                currentThreadWorkerCount.addAndGet(1);
+            }
         }
 
-        return false;
+        if (result) {
+            logger.info("new ThreadWorker (+" + addSize + ") current:" + currentThreadWorkerCount.get());
+        }
+        return result;
 
     }
 
@@ -532,28 +538,28 @@ public class FlowProcessor extends ThreadGroup {
         return workScheduleList;
     }
 
-    void bindEvent(Plan plan, String eventName) {
+    void bindEvent(Planning planning, String eventName) {
 
 
         WorkScheduleList workScheduleMap = getWorkScheduleList(eventName, true);
 
-        workScheduleMap.add(plan);
+        workScheduleMap.add(planning);
 
 
     }
 
 
-    void bindEvent(Plan plan, String... eventNames) {
+    void bindEvent(Planning planning, String... eventNames) {
 
         for (String eventName : eventNames) {
-            bindEvent(plan, eventName);
+            bindEvent(planning, eventName);
         }
 
 
     }
 
 
-    void unbindEvent(Plan plan, String... eventNames) {
+    void unbindEvent(Planning planning, String... eventNames) {
 
         for (String eventName : eventNames) {
             WorkScheduleList workScheduleMap = getWorkScheduleList(eventName, false);
@@ -561,26 +567,32 @@ public class FlowProcessor extends ThreadGroup {
                 return;
             }
 
-            workScheduleMap.remove(plan);
+            workScheduleMap.remove(planning);
         }
     }
 
-    public void raiseEvent(WorkEvent event) {
+    public void emit(WorkEvent event) {
         String eventName = event.getEventName();
         if (eventName != null && eventName.length() > 0) {
-            raiseEvent(eventName, event);
+            emit(eventName, event);
         }
     }
 
 
-    public void raiseEvent(String eventName, WorkEvent event) {
+    public void emit(String eventName, WorkEvent event) {
 
         WorkScheduleList workScheduleList = getWorkScheduleList(eventName, false);
 
         WorkEvent workEvent = event;
         if (event == null) {
             workEvent = WorkEventFactory.createOrigin();
+        }else {
+            workEvent = WorkEventFactory.createOrigin(eventName, event);
         }
+
+
+        // for FlowableWork
+        //workEvent.setFireEventName( WorkFlow.START );
 
         //if (workScheduleList != null)
         {
@@ -588,7 +600,7 @@ public class FlowProcessor extends ThreadGroup {
             Plan[] array = workScheduleList.getWorkScheduleArray();
             for (Plan schedule : array) {
 
-                String newEventName = schedule.getDeliverableEventName(eventName);
+                String newEventName = schedule.getDeliverableEventName(eventName, event);
 
                 if (newEventName != null) {
                     WorkEvent newWorkEvent = workEvent;
@@ -600,7 +612,7 @@ public class FlowProcessor extends ThreadGroup {
                         newWorkEvent = workEvent.createChild(newEventName);
 
                     }
-                    //schedule.raiseEvent(newWorkEvent);
+                    //schedule.emit(newWorkEvent);
                     this.workQueue.offer(schedule.enterQueue(true, newWorkEvent));
 
                 }
@@ -621,7 +633,7 @@ public class FlowProcessor extends ThreadGroup {
      * Sub class for Plan information
      *
      ****************************************/
-    static final class WorkScheduleList extends HashSet<Plan> {
+    static final class WorkScheduleList extends HashSet<Planning> {
 
         private Plan[] array = null;
 
@@ -636,10 +648,10 @@ public class FlowProcessor extends ThreadGroup {
 
 
         @Override
-        public boolean add(Plan plan) {
+        public boolean add(Planning planning) {
             boolean result;
             synchronized (this) {
-                result = super.add(plan);
+                result = super.add(planning);
                 this.setArray();
             }
             return result;
@@ -678,7 +690,7 @@ public class FlowProcessor extends ThreadGroup {
 
         private int timeoutCount = 0;
 
-        private int stoplessCount = 0;
+        private static int stoplessCount = 0;
 
         private long lastWorkTime = 0;
 
@@ -691,6 +703,8 @@ public class FlowProcessor extends ThreadGroup {
         private int sequence = 0;
 
         private int maxWaitTime = 2000;
+
+        private static AtomicInteger runningCounter = new AtomicInteger(0);
 
         public ThreadWorker(FlowProcessor parent, int threadPriority) {
             super(parent, "Clockwork:ThreadWorker-" + parent.currentThreadWorkerCount);
@@ -724,7 +738,7 @@ public class FlowProcessor extends ThreadGroup {
                 return false;
             }
 
-            if(plan.isOverEndTime()) {
+            if (plan.isOverEndTime()) {
                 throw new InterruptedException("time out");
             }
 
@@ -762,6 +776,7 @@ public class FlowProcessor extends ThreadGroup {
 
                 try {
 
+
                     final Plan.ExecuteContext ctx = this.flowProcessor.workQueue.poll(maxWaitTime,
                             TimeUnit.MILLISECONDS);
 
@@ -782,7 +797,7 @@ public class FlowProcessor extends ThreadGroup {
                     this.lastWorkTime = System.currentTimeMillis();
 
                     timeoutCount = 0;
-                    stoplessCount++;
+
 
                     Work workObject = plan.getWorkObject();
 
@@ -799,6 +814,8 @@ public class FlowProcessor extends ThreadGroup {
                             */
                         if (ctx.isExecuteImmediately() || remainMilliTime < plan.getPreemptiveMilliTime()) {
 
+                            stoplessCount++;
+
                             WorkEvent workEvent = plan.getOriginWorkEvent(ctx.getWorkEvent());
                             /*
                             WorkEvent workEvent = ctx.getWorkEvent();
@@ -813,20 +830,27 @@ public class FlowProcessor extends ThreadGroup {
 
                             plan.adjustWaiting();
 
-                            long delaytime = workObject.execute(workEvent);
-
                             int loopCount = 0;
-                            while (delaytime == Work.LOOP && loopCount < 1000) {
+                            long delaytime = 0;
+
+                            try {
+                                runningCounter.addAndGet(1);
+
                                 delaytime = workObject.execute(workEvent);
-                                loopCount++;
+
+
+                                while (delaytime == Work.LOOP && loopCount < 1000) {
+                                    delaytime = workObject.execute(workEvent);
+                                    loopCount++;
+                                }
+                            }finally {
+                                runningCounter.addAndGet(-1);
                             }
 
                             if (delaytime == Work.LOOP) {
                                 delaytime = 1 * Clock.SECOND;
-                            }
 
-
-                            if (delaytime == Work.WAIT) {
+                            }else if (delaytime == Work.WAIT) {
 
                                 long repeatInterval = plan.getIntervalTime();
 
@@ -877,23 +901,25 @@ public class FlowProcessor extends ThreadGroup {
                     if (timeoutCount > 10) {
                         this.flowProcessor.removeThreadWorker();
                         timeoutCount = 0;
-                    } else if (stoplessCount > 1000) {
-                        this.flowProcessor.addThreadWorker();
+                    } else if (runningCounter.get()>  3*(this.flowProcessor.getCurrentThreadWorkerCount()/4) ) {
+                        //System.out.println(this.hashCode() +" >>> "+this.stoplessCount + " "+runningCounter.get()+ " "+this.flowProcessor.getCurrentThreadWorkerCount());
                         stoplessCount = 0;
+                        this.flowProcessor.addThreadWorker(6);
+
                     }
 
                 } catch (RuntimeException re) {
                     re.printStackTrace();
                     plan.finish();
                 } catch (InterruptedException ite) {
-                    if(plan!=null){
+                    if (plan != null) {
                         plan.finish();
                     }
 
                     //ite.printStackTrace();
 
                 } catch (Throwable e) {
-                    if(plan!=null){
+                    if (plan != null) {
                         plan.finish();
                     }
                     e.printStackTrace();

@@ -1,18 +1,30 @@
 package isocline.reflow.flow;
 
+import isocline.reflow.WorkEvent;
+
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class FunctionExecutorList {
 
-    private int index = -1;
+    private String evetName;
+
+    private AtomicInteger counter;
+
 
     private List<FunctionExecutor> functionExecutorList = new ArrayList();
 
 
-    FunctionExecutorList() {
+    FunctionExecutorList(List<FunctionExecutor> functionExecutorList, WorkEvent event, String eventName) {
+        this.functionExecutorList = functionExecutorList;
+
+        this.counter =  event.origin().getCounter(eventName);
+        this.counter.set(-1);
+
+        this.evetName = eventName;
+
 
     }
 
@@ -21,20 +33,16 @@ public class FunctionExecutorList {
         return this.functionExecutorList.size();
     }
 
-    public void add(FunctionExecutor functionExecutor) {
-
-        this.functionExecutorList.add(functionExecutor);
-    }
 
     public FunctionExecutor get(int index) {
         return this.functionExecutorList.get(index);
     }
 
     public synchronized Wrapper getNextstepFunctionExecutor() {
-        index++;
+        final int index = this.counter.addAndGet(1);
 
         if (index >= this.functionExecutorList.size()) {
-            index = -1;
+            this.counter.set(-1);
             return null;
         }
 
@@ -46,15 +54,18 @@ public class FunctionExecutorList {
     }
 
 
-    private  boolean hasNext() {
+    private boolean hasNext() {
         int size = this.functionExecutorList.size();
 
+        final int index = this.counter.get();
 
-        if (size>0 && index < size) {
+
+        if (size > 0 && index < size) {
             return true;
         }
 
-        this.index = -1;
+
+        this.counter.set(-1);
 
         return false;
     }

@@ -20,7 +20,7 @@ public class CompletableFutureTest {
 
         System.out.println("Non Blocking!!");
 
-        // main thread 가 죽으면 child 도 다 죽어 버려서 대기함.
+        // core thread 가 죽으면 child 도 다 죽어 버려서 대기함.
         Thread.sleep(5000l);
     }
 

@@ -33,7 +33,7 @@ public class WorkTest {
     public void executeSimple() throws Exception {
 
 
-        FlowProcessor.main()
+        FlowProcessor.core()
                 .reflow(e -> {
                     seq++;
                     logger.debug("exec " + seq);
@@ -50,7 +50,7 @@ public class WorkTest {
     public void executeSimple2() throws Exception {
 
 
-        FlowProcessor.main()
+        FlowProcessor.core()
                 .reflow(e -> {
                     seq++;
                     logger.debug("exec " + seq);
@@ -80,7 +80,7 @@ public class WorkTest {
         flowProcessor.execute((WorkEvent event) -> {
             logger.debug("fire event:" + event.getEventName());
 
-            event.getPlan().getFlowProcessor().raiseEvent("testEvent", event);
+            event.getPlan().getFlowProcessor().emit("testEvent", event);
 
             return Work.TERMINATE;
         });

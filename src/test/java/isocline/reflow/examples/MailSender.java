@@ -68,7 +68,7 @@ public class MailSender implements Work {
        for(String email:emails) {
 
            MailSender checker = new MailSender( email, "Test", "test");
-           Plan schedule = processor.reflow(checker);
+           Planning schedule = processor.reflow(checker);
            schedule.activate();
        }
 

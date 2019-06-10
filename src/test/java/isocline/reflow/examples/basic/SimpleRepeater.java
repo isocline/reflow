@@ -25,14 +25,14 @@ public class SimpleRepeater implements Work {
     public void case1() throws Exception {
 
 
-        Plan plan = FlowProcessor.main()
+        Planning planning = FlowProcessor.core()
                 .reflow(new SimpleRepeater())
                 .interval(1 * Clock.SECOND)
                 .finishTimeFromNow(5 * Clock.SECOND);
 
-        plan.activate().block();
+        planning.activate().block();
 
-        FlowProcessor.main().shutdown(TestConfiguration.TIMEOUT);
+        FlowProcessor.core().shutdown(TestConfiguration.TIMEOUT);
         //processor.awaitShutdown();
 
 
@@ -45,7 +45,7 @@ public class SimpleRepeater implements Work {
         FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-        Plan schedule = processor.reflow(SimpleRepeater.class);
+        Planning schedule = processor.reflow(SimpleRepeater.class);
 
         schedule.interval(1 * Clock.SECOND);
         schedule.activate();
@@ -60,7 +60,7 @@ public class SimpleRepeater implements Work {
         FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-        Plan schedule = processor.reflow(SimpleRepeater.class);
+        Planning schedule = processor.reflow(SimpleRepeater.class);
 
         schedule.interval(1 * Clock.SECOND);
         schedule.setStrictMode();
@@ -76,7 +76,7 @@ public class SimpleRepeater implements Work {
         FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-        Plan schedule = processor.reflow(SimpleRepeater.class);
+        Planning schedule = processor.reflow(SimpleRepeater.class);
 
         schedule.interval(1 * Clock.SECOND);
         schedule.startDelayTime(Clock.milliseconds(0, 0, 2));
@@ -93,7 +93,7 @@ public class SimpleRepeater implements Work {
         FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-        Plan schedule = processor.reflow(SimpleRepeater.class);
+        Planning schedule = processor.reflow(SimpleRepeater.class);
 
         schedule.interval(1 * Clock.SECOND);
         schedule.startTime(Clock.nextSecond() + Clock.SECOND * 2);

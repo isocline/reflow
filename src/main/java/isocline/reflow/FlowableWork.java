@@ -85,6 +85,7 @@ public interface FlowableWork<T> extends Work {
             return TERMINATE;
         }
 
+
         final String eventName = event.getFireEventName();
 
 
@@ -93,7 +94,7 @@ public interface FlowableWork<T> extends Work {
         boolean existNextExecutor = false;
 
         if (eventName != null) {
-            FunctionExecutorList functionExecutorList = flow.getFunctionExecutorList(eventName);
+            FunctionExecutorList functionExecutorList = flow.getFunctionExecutorList(event, eventName);
             if (functionExecutorList != null) {
 
                 FunctionExecutorList.Wrapper wrapper = functionExecutorList.getNextstepFunctionExecutor();
@@ -111,9 +112,9 @@ public interface FlowableWork<T> extends Work {
         }
 
         if (executor == null) {
-            executor = flow.getNextExecutor();
+            executor = flow.getNextExecutor(event);
             if (executor != null) {
-                existNextExecutor = flow.existNextFunctionExecutor();
+                existNextExecutor = flow.existNextFunctionExecutor(event);
             }
         }
 
@@ -126,13 +127,16 @@ public interface FlowableWork<T> extends Work {
 
             final String fireEventName = executor.getFireEventName();
 
+            FunctionExecutor.ResultState rs = null;
+
             try {
                 if (event.getThrowable() != null) {
                     isFireEvent = true;
                 }
 
 
-                isFireEvent = executor.execute(event);;
+                //isFireEvent = executor.execute(event);;
+                rs = executor.execute(event);
 
             } catch (Throwable e) {
 
@@ -174,20 +178,23 @@ public interface FlowableWork<T> extends Work {
 
                 schedule.raiseLocalEvent(errEvent2);
             } finally {
-                if (isFireEvent) {
+                if (rs!=null && rs.isProcessNext()) {
 
-                    if (fireEventName != null) {
+                    schedule.raiseLocalEvent(event.createChild(rs.getFireEventUUID()));
+                    final String fireEventNameTmp = rs.getFireEventName();
+
+                    if (fireEventNameTmp != null) {
                         long delayTime = executor.getDelayTimeFireEvent();
-                        schedule.raiseLocalEvent(event.createChild(fireEventName), delayTime);
+                        schedule.raiseLocalEvent(event.createChild(fireEventNameTmp), delayTime);
 
-                        if(fireEventName.indexOf("error::")==0) {
-                            WorkEvent we = event.createChild(fireEventName);
+                        if(fireEventNameTmp.indexOf("error::")==0) {
+                            WorkEvent we = event.createChild(fireEventNameTmp);
                             we.setFireEventName(WorkFlow.ERROR);
                             schedule.raiseLocalEvent(we,delayTime);
                         }
 
                     }
-                    schedule.raiseLocalEvent(event.createChild(executor.getFireEventUUID()));
+
                 }
             }
 
@@ -203,7 +210,8 @@ public interface FlowableWork<T> extends Work {
             }
 
             if (existNextExecutor) {
-                return LOOP;
+                //return LOOP;
+                return 1;
             }
         }
 
@@ -213,7 +221,7 @@ public interface FlowableWork<T> extends Work {
 
     default Plan start() {
 
-        Plan p = FlowProcessor.main().execute(this).block();
+        Plan p = FlowProcessor.core().execute(this).block();
 
         return p;
 

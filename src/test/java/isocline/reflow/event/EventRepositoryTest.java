@@ -1,5 +1,6 @@
 package isocline.reflow.event;
 
+import isocline.reflow.WorkEvent;
 import isocline.reflow.flow.FunctionExecutor;
 import org.junit.Test;
 
@@ -37,24 +38,25 @@ public class EventRepositoryTest {
         assertEquals("event2", subEventNames[1]);
 
 
+        WorkEvent e = WorkEventFactory.createOrigin();
 
-        EventSet eventSet = eventRepository.getEventSet("event1");
+        SimultaneousEventSet simultaneousEventSet = eventRepository.getSimultaneousEventSet("event1");
 
-        if (eventSet == null || eventSet.isRaiseEventReady("event1")) {
+        if (simultaneousEventSet == null || simultaneousEventSet.isRaiseEventReady(e,"event1")) {
             fail();
         }
 
-        eventSet = eventRepository.getEventSet("event3");
+        simultaneousEventSet = eventRepository.getSimultaneousEventSet("event3");
 
-        if (eventSet == null || eventSet.isRaiseEventReady("event3")) {
+        if (simultaneousEventSet == null || simultaneousEventSet.isRaiseEventReady(e,"event3")) {
 
         }else {
             fail();
         }
 
-        eventSet = eventRepository.getEventSet("event2");
+        simultaneousEventSet = eventRepository.getSimultaneousEventSet("event2");
 
-        if (eventSet == null || eventSet.isRaiseEventReady("event2")) {
+        if (simultaneousEventSet == null || simultaneousEventSet.isRaiseEventReady(e,"event2")) {
 
         }else{
             fail();

@@ -17,10 +17,10 @@ public class Test {
         for (int i = 0; i < 1; i++) {
 
             TestJob work = new TestJob(i);
-            //Plan schedule = processor.reflow(work).bindEvent("fire").setStartDelay(1000);
-            //Plan schedule = processor.reflow(work).bindEvent("fire").setStartDelay(Clock.milliseconds("2019-01-17T13:32:30+09:00"));
-            Plan schedule = processor.reflow(work).bindEvent("fire").setStrictMode();
-            //Plan schedule = processor.reflow(work).bindEvent("fire");
+            //Plan schedule = processor.reflow(work).on("fire").setStartDelay(1000);
+            //Plan schedule = processor.reflow(work).on("fire").setStartDelay(Clock.milliseconds("2019-01-17T13:32:30+09:00"));
+            Planning schedule = processor.reflow(work).on("fire").setStrictMode();
+            //Plan schedule = processor.reflow(work).on("fire");
 
             schedule.activate();
 
@@ -39,7 +39,7 @@ public class Test {
             if(i==15) {
                 WorkEvent event = new WorkEvent();
                 event.put("x","X value setup");
-                worker.raiseEvent("fire", event );
+                worker.emit("fire", event );
                 System.err.println("xxxxxxx");
             }
 

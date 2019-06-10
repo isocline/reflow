@@ -15,18 +15,18 @@
  */
 package isocline.reflow;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 /**
+ * A interface that represents the event to be delivered when the work object is executed.
  *
- *  A interface that represents the event to be delivered when the work object is executed.
- *
+ * @author Richard D. Kim
  * @see Work
  * @see FlowableWork
- * @author Richard D. Kim
  */
 public interface WorkEvent {
 
@@ -39,11 +39,9 @@ public interface WorkEvent {
     public String getEventName();
 
 
-
     int count();
 
     /**
-     *
      * Set the Plan object.
      *
      * @param plan instance of Plan
@@ -60,11 +58,9 @@ public interface WorkEvent {
 
 
     /**
-     *
      * Set additional custom attribute values.
      *
-     *
-     * @param key the key name to which the object is bound; cannot be null
+     * @param key   the key name to which the object is bound; cannot be null
      * @param value the object to be bound
      */
     void setAttribute(String key, Object value);
@@ -73,7 +69,7 @@ public interface WorkEvent {
      * Returns the object bound with the specified name in this session,
      * or null if no object is bound under the name.
      *
-     * @param key  a string specifying the name of the object
+     * @param key a string specifying the name of the object
      * @return the object with the specified name
      */
     Object getAttribute(String key);
@@ -85,6 +81,10 @@ public interface WorkEvent {
      * @return the name of the object to remove from this session
      */
     Object removeAttribute(String key);
+
+
+
+    AtomicInteger getCounter(String key);
 
 
     /**
@@ -118,13 +118,13 @@ public interface WorkEvent {
      *
      * @param e Throwable error
      */
-    void setThrowable(Throwable e) ;
+    void setThrowable(Throwable e);
 
 
     /**
      * Returns error information. Null is returned in normal state.
      *
-     *@return an instance of Throwable
+     * @return an instance of Throwable
      */
     Throwable getThrowable();
 
@@ -138,8 +138,7 @@ public interface WorkEvent {
 
 
     /**
-     *
-     *  Returns the valid time at which the event occurs.
+     * Returns the valid time at which the event occurs.
      *
      * @return time the milliseconds since January 1, 1970, 00:00:00 GMT.
      */
@@ -153,20 +152,20 @@ public interface WorkEvent {
 
 
 
-    Stream getStream();
 
     Object getResult();
 
 
+    Stream getStream();
 
 
-     IntStream getIntStream();
+    IntStream getIntStream();
 
 
-     LongStream getLongStream();
+    LongStream getLongStream();
 
 
-     DoubleStream getDoubleStream();
+    DoubleStream getDoubleStream();
 
 
 }

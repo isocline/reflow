@@ -15,10 +15,7 @@
  */
 package isocline.reflow.descriptor;
 
-import isocline.reflow.Clock;
-import isocline.reflow.ExecuteEventChecker;
-import isocline.reflow.PlanDescriptor;
-import isocline.reflow.Plan;
+import isocline.reflow.*;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -52,15 +49,15 @@ public class CronDescriptor implements PlanDescriptor {
 
 
     @Override
-    public void build(Plan plan) {
+    public void build(Planning planning) {
 
         long t1 = Clock.nextMinutes();
 
         //System.err.println("--- "+Clock.toDateFormat(t1));
 
-        plan.startTime(t1);
-        plan.interval(Clock.MINUTE);
-        plan.executeEventChecker(this.checker);
+        planning.startTime(t1);
+        planning.interval(Clock.MINUTE);
+        planning.executeEventChecker(this.checker);
 
 
     }

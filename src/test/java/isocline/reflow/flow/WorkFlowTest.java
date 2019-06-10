@@ -74,7 +74,7 @@ public class WorkFlowTest implements FlowableWork {
 
     }
 
-    public void defineWorkFlow3(WorkFlow flow) {
+    public void defineWorkFlow(WorkFlow flow) {
 
         flow.runAsync(this::order).next(this::sendMail,"mail").next(this::sendSMS,"x1");
 
@@ -98,7 +98,7 @@ public class WorkFlowTest implements FlowableWork {
 
     }
 
-    public void defineWorkFlow(WorkFlow flow) {
+    public void defineWorkFlow3(WorkFlow flow) {
 
         flow.fireEvent("timeout",3000).runAsync(this::order).next(this::sendMail,"mail").next(this::sendSMS,"x1");
 
@@ -130,7 +130,7 @@ public class WorkFlowTest implements FlowableWork {
         FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-        processor.reflow(this).bindEvent("start").activate();
+        processor.reflow(this::defineWorkFlow3).on("start").activate();
 
 
         WorkEventGenerator gen = new WorkEventGenerator();

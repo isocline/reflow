@@ -19,6 +19,7 @@ import isocline.reflow.Plan;
 import isocline.reflow.WorkEvent;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
@@ -40,17 +41,19 @@ public class WorkEventImpl implements WorkEvent {
     private String fireEventName;
 
 
-    private Map attributeMap = new Hashtable();
+    private Map<String, Object> attributeMap = new Hashtable();
+
+    private Map<String,AtomicInteger> counterMap = new HashMap<>();
 
     private Plan schedule;
 
-    private WorkEvent rootWorkEvent;
+    private WorkEvent originWorkEvent;
 
     private Throwable throwable;
 
 
     WorkEventImpl() {
-        this.rootWorkEvent = this;
+        this.originWorkEvent = this;
     }
 
     /**
@@ -58,16 +61,23 @@ public class WorkEventImpl implements WorkEvent {
      */
     WorkEventImpl(String eventName) {
         this.eventName = eventName;
-        this.rootWorkEvent = this;
+        this.originWorkEvent = this;
     }
 
     /**
      * @param eventName
-     * @param rootWorkEvent
+     * @param originWorkEvent
      */
-    WorkEventImpl(String eventName, WorkEvent rootWorkEvent) {
+    WorkEventImpl(String eventName, WorkEvent originWorkEvent) {
         this.eventName = eventName;
-        this.rootWorkEvent = rootWorkEvent;
+        this.originWorkEvent = originWorkEvent;
+        /*
+        try {
+            throw new RuntimeException("xxx");
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        */
     }
 
 
@@ -122,6 +132,17 @@ public class WorkEventImpl implements WorkEvent {
     }
 
 
+    @Override
+    public synchronized AtomicInteger getCounter(String key) {
+        AtomicInteger counter = counterMap.get(key);
+        if(counter==null) {
+            counter = new AtomicInteger(0);
+            counterMap.put(key, counter);
+        }
+
+        return counter;
+    }
+
     /**
      * @param key
      * @return
@@ -158,7 +179,7 @@ public class WorkEventImpl implements WorkEvent {
         }
 
 
-        WorkEventImpl newEvent = new WorkEventImpl(eventName, this.rootWorkEvent);
+        WorkEventImpl newEvent = new WorkEventImpl(eventName, this.originWorkEvent);
         //newEvent.attributeMap = this.attributeMap;
         newEvent.schedule = this.schedule;
 
@@ -192,7 +213,7 @@ public class WorkEventImpl implements WorkEvent {
 
     @Override
     public WorkEvent origin() {
-        return this.rootWorkEvent;
+        return this.originWorkEvent;
     }
 
     @Override
@@ -266,5 +287,19 @@ public class WorkEventImpl implements WorkEvent {
 
 
         return event.getAttribute(resultKey);
+    }
+
+    @Override
+    public String toString() {
+        if(this==this.originWorkEvent) {
+            return "WorkEventImpl:origin{" +this.hashCode()+" "+
+                    "eventName='" + eventName + '\'' +
+                    "count="+this.getCounter("funcExecSequence")+
+                    '}';
+        }
+        return "WorkEventImpl{" +
+                "eventName='" + eventName + '\'' +
+                "origin='" + this.originWorkEvent + '\'' +
+                '}';
     }
 }

@@ -109,7 +109,7 @@ public class ServerUptimeChecker  implements Work {
        for(String url:urls) {
 
            ServerUptimeChecker checker = new ServerUptimeChecker( url);
-           Plan schedule = processor.reflow(checker).bindEvent("connectTypeChange").jitter(200).setStrictMode();
+           Planning schedule = processor.reflow(checker).on("connectTypeChange").jitter(200).setStrictMode();
            schedule.activate();
        }
 
