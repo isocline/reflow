@@ -46,7 +46,7 @@ public interface WorkEvent {
      *
      * @param plan instance of Plan
      */
-    void setPlan(Plan plan);
+    void setPlan(ActivatedPlan plan);
 
 
     /**
@@ -54,7 +54,7 @@ public interface WorkEvent {
      *
      * @return instance of Plan
      */
-    Plan getPlan();
+    ActivatedPlan getPlan();
 
 
     /**

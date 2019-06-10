@@ -65,9 +65,9 @@ public class MultiAndSumFlow2 implements FlowableWork {
 
     @Test
     public void test() throws InterruptedException {
-        Plan schedule = start();
+        ActivatedPlan plan = start();
 
-        schedule.block();
+        plan.block();
 
         FlowProcessorFactory.getProcessor().awaitShutdown();
 

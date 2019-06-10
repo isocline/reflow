@@ -40,10 +40,10 @@ public class MaxCountTermination implements Work {
         MaxCountTermination checker = new MaxCountTermination();
 
         Plan schedule = processor.reflow(checker);
-        schedule.activate();
+        schedule.activate().block();
 
         //wait until inactive
-        schedule.block();
+
 
         assertEquals(3, checker.count);
 

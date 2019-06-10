@@ -68,7 +68,7 @@ public class WorkTest {
     @Test
     public void executeByEvent() throws Exception {
 
-        Plan schedule =
+        ActivatedPlan plan =
 
                 flowProcessor.reflow((WorkEvent event) -> {
                     seq++;
@@ -76,6 +76,7 @@ public class WorkTest {
 
                     return Work.WAIT;
                 }, "testEvent").activate();
+
 
         flowProcessor.execute((WorkEvent event) -> {
             logger.debug("fire event:" + event.getEventName());
@@ -85,7 +86,7 @@ public class WorkTest {
             return Work.TERMINATE;
         });
 
-        schedule.block(1000);
+        plan.block(1000);
 
 
         assertEquals(1, seq);
@@ -97,16 +98,16 @@ public class WorkTest {
     public void executeOneTime() throws Exception {
 
 
-        Plan schedule =
+        Plan plan =
 
                 flowProcessor.reflow((WorkEvent event) -> {
                     seq++;
                     logger.debug("exec " + seq);
 
                     return Work.TERMINATE;
-                }).activate();
+                });
 
-        schedule.block(1000);
+        plan.activate().block(1000);
 
 
         assertEquals(1, seq);
@@ -116,16 +117,16 @@ public class WorkTest {
     @Test
     public void executeSleep() throws Exception {
 
-        Plan schedule =
+        Plan plan =
 
                 flowProcessor.reflow((WorkEvent event) -> {
                     seq++;
                     logger.debug("exec " + seq);
 
                     return Work.WAIT;
-                }).activate();
+                });
 
-        schedule.block(100);
+        plan.activate().block(100);
 
         assertEquals(1, seq);
 
@@ -134,7 +135,7 @@ public class WorkTest {
     @Test
     public void executeLoop() throws Exception {
 
-        Plan schedule =
+        Plan plan =
 
                 flowProcessor.reflow((WorkEvent event) -> {
                     seq++;
@@ -145,13 +146,35 @@ public class WorkTest {
                     }
 
                     return Work.LOOP;
-                }).activate();
+                });
 
 
-        schedule.block(100);
+        plan.activate().block(100);
+
         assertEquals(10, seq);
 
     }
 
+
+    @Test
+    public void executeRunnable() throws Exception {
+
+        seq = 0;
+        Runnable runnable = ()-> {
+            logger.debug("runnable");
+            seq++;
+        };
+
+
+        FlowProcessor.core()
+                .reflow(runnable)
+                .startDelayTime(2*Clock.SECOND)
+                .activate()
+                .block();
+
+
+        assertEquals(1, seq);
+
+    }
 
 }

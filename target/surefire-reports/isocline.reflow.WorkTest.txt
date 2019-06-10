@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: isocline.reflow.WorkTest
 -------------------------------------------------------------------------------
-Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.651 sec
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.652 sec

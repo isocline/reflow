@@ -77,7 +77,7 @@ public interface FlowableWork<T> extends Work {
     default long execute(WorkEvent event) throws InterruptedException {
 
 
-        final Plan schedule = event.getPlan();
+        final ActivatedPlan schedule = event.getPlan();
 
         final WorkFlow flow = schedule.getWorkFlow();
 
@@ -219,9 +219,9 @@ public interface FlowableWork<T> extends Work {
     }
 
 
-    default Plan start() {
+    default ActivatedPlan start() {
 
-        Plan p = FlowProcessor.core().execute(this).block();
+        ActivatedPlan p = FlowProcessor.core().execute(this).block();
 
         return p;
 

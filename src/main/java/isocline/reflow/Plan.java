@@ -53,30 +53,17 @@ public interface Plan {
 
     Plan describe(PlanDescriptor descriptor);
 
-    Plan activate();
+    ActivatedPlan activate();
 
-    Plan activate(Consumer consumer);
+    ActivatedPlan activate(Consumer consumer);
 
-    Plan run();
+    ActivatedPlan run();
 
     boolean isActivated();
 
 
-
-
     WorkFlow getWorkFlow();
-
-
-
-
-
-    void inactive();
-
-    Plan block();
-
-    Plan block(long timeout);
-
-    Throwable getError();
-
-    void setError(Throwable error);
 }
+
+
+

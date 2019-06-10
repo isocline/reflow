@@ -36,9 +36,9 @@ public class EndTimeSelfControl implements Work {
         EndTimeSelfControl checker = new EndTimeSelfControl();
 
         Plan schedule = processor.reflow(checker);
-        schedule.activate();
+        schedule.activate().block();
 
-        schedule.block();
+
 
         assertEquals(4, checker.count);
 

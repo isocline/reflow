@@ -33,7 +33,7 @@ import java.util.function.Consumer;
  *
  * @see isocline.reflow.Work
  */
-public class PlanImpl implements Plan {
+public class PlanImpl implements Plan, ActivatedPlan {
 
     protected static XLogger logger = XLogger.getLogger(Plan.class);
 
@@ -588,7 +588,7 @@ public class PlanImpl implements Plan {
 
 
     @Override
-    public Plan activate() {
+    public ActivatedPlan activate() {
         return activate(null);
     }
 
@@ -607,7 +607,7 @@ public class PlanImpl implements Plan {
      * @return an instance of Plan
      */
     @Override
-    public Plan activate(Consumer consumer) {
+    public ActivatedPlan activate(Consumer consumer) {
         if (isActivated) {
             throw new RuntimeException("Already activate!");
         }
@@ -668,8 +668,8 @@ public class PlanImpl implements Plan {
      * @return
      */
     @Override
-    public Plan run() {
-        Plan schedule = activate();
+    public ActivatedPlan run() {
+        ActivatedPlan schedule = activate();
 
         schedule.block();
 
@@ -714,7 +714,7 @@ public class PlanImpl implements Plan {
     }
 
 
-    synchronized public Plan block(long timeout) {
+    synchronized public ActivatedPlan block(long timeout) {
 
         try {
 
@@ -729,7 +729,7 @@ public class PlanImpl implements Plan {
     }
 
 
-    synchronized public Plan block() {
+    synchronized public ActivatedPlan block() {
         try {
             if (this.isActivated) {
                 wait();

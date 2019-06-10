@@ -156,32 +156,6 @@ public class FlowProcessor extends ThreadGroup {
         return Plan;
     }
 
-    public Plan execute(Work work) {
-        return execute(work, 0);
-    }
-
-    public Plan execute(Work work, long startDelayTime) {
-        Plan plan = new PlanImpl(this, work);
-        if (startDelayTime > 0) {
-            plan.startDelayTime(startDelayTime);
-        }
-
-        plan.activate();
-
-        plan.block();
-
-        return plan;
-    }
-
-    /**
-     * Create a empty Plan instance
-     *
-     * @return a new instance of Plan
-     */
-    public Plan reflow() {
-        return new PlanImpl(this, null);
-    }
-
 
     /**
      * Create a Plan instance.
@@ -193,8 +167,28 @@ public class FlowProcessor extends ThreadGroup {
         return reflow(null, work);
     }
 
+    public Plan reflow(Runnable runnable) {
+        return reflow(null, runnable);
+    }
+
 
     public Plan reflow(PlanDescriptor config, Work work) {
+        Plan plan = new PlanImpl(this, work);
+        if (config != null) {
+            plan.describe(config);
+        }
+
+        return plan;
+    }
+
+    public Plan reflow(PlanDescriptor config, Runnable runnable) {
+
+        Work work = (WorkEvent e) -> {
+            runnable.run();
+
+            return Work.TERMINATE;
+        };
+
         Plan plan = new PlanImpl(this, work);
         if (config != null) {
             plan.describe(config);
@@ -242,6 +236,22 @@ public class FlowProcessor extends ThreadGroup {
      */
     public Plan reflow(String className) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
         return new PlanImpl(this, (Work) Class.forName(className).newInstance());
+    }
+
+
+    public ActivatedPlan execute(Work work) {
+        return execute(work, 0);
+    }
+
+    public ActivatedPlan execute(Work work, long startDelayTime) {
+        Plan plan = new PlanImpl(this, work);
+        if (startDelayTime > 0) {
+            plan.startDelayTime(startDelayTime);
+        }
+
+        return plan.activate().block();
+
+
     }
 
 
@@ -586,7 +596,7 @@ public class FlowProcessor extends ThreadGroup {
         WorkEvent workEvent = event;
         if (event == null) {
             workEvent = WorkEventFactory.createOrigin();
-        }else {
+        } else {
             workEvent = WorkEventFactory.create(eventName, event);
         }
 
@@ -843,14 +853,14 @@ public class FlowProcessor extends ThreadGroup {
                                     delaytime = workObject.execute(workEvent);
                                     loopCount++;
                                 }
-                            }finally {
+                            } finally {
                                 runningCounter.addAndGet(-1);
                             }
 
                             if (delaytime == Work.LOOP) {
                                 delaytime = 1 * Clock.SECOND;
 
-                            }else if (delaytime == Work.WAIT) {
+                            } else if (delaytime == Work.WAIT) {
 
                                 long repeatInterval = plan.getIntervalTime();
 
@@ -901,7 +911,7 @@ public class FlowProcessor extends ThreadGroup {
                     if (timeoutCount > 10) {
                         this.flowProcessor.removeThreadWorker();
                         timeoutCount = 0;
-                    } else if (runningCounter.get()>  3*(this.flowProcessor.getCurrentThreadWorkerCount()/4) ) {
+                    } else if (runningCounter.get() > 3 * (this.flowProcessor.getCurrentThreadWorkerCount() / 4)) {
                         //System.out.println(this.hashCode() +" >>> "+this.stoplessCount + " "+runningCounter.get()+ " "+this.flowProcessor.getCurrentThreadWorkerCount());
                         stoplessCount = 0;
                         this.flowProcessor.addThreadWorker(6);

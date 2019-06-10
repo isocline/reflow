@@ -15,7 +15,7 @@
  */
 package isocline.reflow.event;
 
-import isocline.reflow.Plan;
+import isocline.reflow.ActivatedPlan;
 import isocline.reflow.WorkEvent;
 
 import java.util.*;
@@ -45,7 +45,7 @@ public class WorkEventImpl implements WorkEvent {
 
     private Map<String,AtomicInteger> counterMap = new HashMap<>();
 
-    private Plan schedule;
+    private ActivatedPlan schedule;
 
     private WorkEvent originWorkEvent;
 
@@ -100,15 +100,15 @@ public class WorkEventImpl implements WorkEvent {
     }
 
 
-    public void setPlan(Plan sechedule) {
-        this.schedule = sechedule;
+    public void setPlan(ActivatedPlan plan) {
+        this.schedule = plan;
     }
 
 
     /**
      * @return
      */
-    public Plan getPlan() {
+    public ActivatedPlan getPlan() {
 
         return this.schedule;
     }

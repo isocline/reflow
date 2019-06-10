@@ -31,7 +31,6 @@ isocline/reflow/flow/func/WorkFlowPatternFunction.class
 isocline/reflow/FlowProcessor$WorkChecker.class
 isocline/reflow/event/WorkEventImpl.class
 isocline/reflow/PlanImpl.class
-isocline/reflow/PlanExecuteContext.class
 isocline/reflow/Configuration.class
 isocline/reflow/FlowProcessor$ThreadWorker.class
 isocline/reflow/WorkHelper.class
@@ -52,3 +51,4 @@ isocline/reflow/FlowableWork.class
 isocline/reflow/flow/FunctionExecutorList$Wrapper.class
 isocline/reflow/event/SimultaneousEventSet.class
 isocline/reflow/pattern/Bulkhead.class
+isocline/reflow/ActivatedPlan.class
