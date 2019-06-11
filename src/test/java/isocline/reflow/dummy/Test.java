@@ -68,7 +68,7 @@ public class Test {
 
             count ++;
 
-            Object eventMsg = event.getAttribute("x");
+            Object eventMsg = event.get("x");
             log(seq + "th job activate. count="+count + " "+eventMsg);
 
             if(eventMsg!=null) {

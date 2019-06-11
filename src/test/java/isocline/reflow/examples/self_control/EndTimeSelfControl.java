@@ -20,7 +20,7 @@ public class EndTimeSelfControl implements Work {
         logger.debug("activate:" + count);
 
         if(count ==1) {
-            event.getPlan().finishTimeFromNow(Clock.SECOND*2);
+            event.getPlan().finishFromNow(Clock.SECOND*2);
         }
 
         return Clock.SECOND/2;

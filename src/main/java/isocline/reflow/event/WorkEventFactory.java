@@ -29,7 +29,10 @@ public class WorkEventFactory {
 
 
     public static WorkEvent create(String eventName, WorkEvent originEvent) {
-        WorkEventImpl event = new WorkEventImpl(eventName, originEvent);
+
+        WorkEventImpl event = (WorkEventImpl) originEvent;
+        event.setOriginWorkEvent(originEvent);
+        event.setEventName(eventName);
 
         return event;
     }

@@ -596,7 +596,7 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
         SimultaneousEventSet simultaneousEventSet = eventRepository.getSimultaneousEventSet(eventName);
 
         if (simultaneousEventSet == null || simultaneousEventSet.isRaiseEventReady(event, eventName)) {
-            FunctionExecutorList functionExecutorList = (FunctionExecutorList) event.origin().getAttribute("fnc::"+eventName);
+            FunctionExecutorList functionExecutorList = (FunctionExecutorList) event.origin().get("fnc::"+eventName);
             if(functionExecutorList==null) {
                 List<FunctionExecutor> list =  this.eventRepository.get(eventName);
                 if(list==null) {
@@ -604,7 +604,7 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
                 }
 
                 functionExecutorList = new FunctionExecutorList(list, event, eventName);
-                event.origin().setAttribute("fnc::"+eventName, functionExecutorList);
+                event.origin().put("fnc::"+eventName, functionExecutorList);
 
             }
 

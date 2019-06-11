@@ -25,7 +25,7 @@ public class ScheduledWork implements Work {
         FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-        Plan schedule = processor.reflow(new ScheduledWork())
+        ActivatedPlan schedule = processor.reflow(new ScheduledWork())
                 .interval(1 * Clock.HOUR)
                 .startTime("2020-04-24T09:00:00Z")
                 .finishTime("2020-06-16T16:00:00Z")

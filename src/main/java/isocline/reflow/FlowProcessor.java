@@ -581,15 +581,17 @@ public class FlowProcessor extends ThreadGroup {
         }
     }
 
-    public void emit(WorkEvent event) {
+    public FlowProcessor emit(WorkEvent event) {
         String eventName = event.getEventName();
         if (eventName != null && eventName.length() > 0) {
             emit(eventName, event);
         }
+
+        return this;
     }
 
 
-    public void emit(String eventName, WorkEvent event) {
+    public FlowProcessor emit(String eventName, WorkEvent event) {
 
         WorkScheduleList workScheduleList = getWorkScheduleList(eventName, false);
 
@@ -630,6 +632,8 @@ public class FlowProcessor extends ThreadGroup {
 
             }
         }
+
+        return this;
 
     }
 

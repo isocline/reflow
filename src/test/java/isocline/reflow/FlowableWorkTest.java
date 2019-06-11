@@ -1,5 +1,6 @@
 package isocline.reflow;
 
+import isocline.reflow.event.WorkEventFactory;
 import isocline.reflow.log.XLogger;
 import isocline.reflow.module.WorkEventGenerator;
 import org.junit.Test;
@@ -12,32 +13,48 @@ public class FlowableWorkTest {
 
     private XLogger logger = XLogger.getLogger(FlowableWorkTest.class);
 
+
+    /**
+     *
+     * @param money
+     * @param formCountryCode
+     * @param toCountryCode
+     * @return
+     */
     public double getExhangeRate(double money, int formCountryCode, int toCountryCode) {
 
-        logger.debug("call");
+        logger.debug(money+ " > call");
 
-        TestUtil.waiting(1000 + (long) (1000 * Math.random()));
+        TestUtil.waiting(500 + (long) (100 * Math.random()));
 
         double result = money + money * (formCountryCode / toCountryCode);
 
-        logger.debug(money + "  --> result=" + result);
+        logger.debug(money + " > result : " + result);
         return result;
     }
 
 
     public void check(Object data) {
-        logger.debug( " sum  --> result=" + data);
+        logger.debug(" sum  --> result=" + data);
     }
 
+
+    private void case1(WorkEvent e) {
+        logger.debug("case1 >>" +e.get("result"));
+    }
+
+    private void case2() {
+        logger.debug("case2");
+    }
 
     @Test
     public void testBasic() {
 
         FlowProcessor.core().reflow(f -> {
             f
-                    .applyAsync(e -> getExhangeRate(1000, 3, 5))
+                    .applyAsync(e -> getExhangeRate(1000*Math.random(), 3, 5))
                     .applyAsync(e -> getExhangeRate(2000, 4, 2))
-                    .applyAsync(e -> getExhangeRate(5000, 3, 4))
+                    .applyAsync(e -> getExhangeRate(5000*Math.random(), 3, 4))
                     .waitAll().next((WorkEvent e) -> e.getDoubleStream().sum());
         }).activate(this::check).block();
 
@@ -50,12 +67,12 @@ public class FlowableWorkTest {
 
         FlowProcessor.core().reflow(f -> {
             f
-                    .applyAsync(e -> getExhangeRate(1000, 3, 5))
-                    .applyAsync(e -> getExhangeRate(2000, 4, 2))
-                    .applyAsync(e -> getExhangeRate(5000, 3, 4))
+                    .applyAsync(e -> getExhangeRate(1000*Math.random(), 3, 5))
+                    .applyAsync(e -> getExhangeRate(2000*Math.random(), 4, 2))
+                    .applyAsync(e -> getExhangeRate(5000*Math.random(), 3, 4))
                     .waitAll().next((WorkEvent e) -> e.getDoubleStream().sum()).next((WorkEvent e) -> {
                 count.addAndGet(1);
-                System.err.println("RESULT = " + e.origin().getResult());
+                logger.info("RESULT = " + e.getResult());
             });
         })
                 .daemonMode()
@@ -64,28 +81,58 @@ public class FlowableWorkTest {
 
         WorkEventGenerator generator = new WorkEventGenerator();
         generator.setEventName("xxx");
-        generator.setRepeatTime(100);
+        generator.setRepeatTime(10);
 
-        FlowProcessor.core().reflow(generator).startDelayTime(2 * Clock.SECOND).finishTimeFromNow(7 * Clock.SECOND).activate();
-
+        FlowProcessor.core()
+                .reflow(generator)
+                .startTime(Clock.nextSecond())
+                .finishTimeFromStart(2 * Clock.SECOND)
+                .strictMode()
+                .activate();
 
 
         logger.debug("END ======");
-        for(int i=0;i<100;i++) {
+        long t1 = System.currentTimeMillis();
+        Thread.sleep(2000);
+        for (int i = 0; i < 200; i++) {
             int crntCount = count.get();
-            logger.debug(crntCount+"/"+generator.getCount());
 
-            if(generator.getCount()!=0 && crntCount==generator.getCount()) {
+            logger.debug(crntCount + "/" + generator.getCount() +" " +(System.currentTimeMillis()-t1));
+
+            if (generator.getCount() != 0 && crntCount == generator.getCount()) {
                 return;
             }
             Thread.sleep(500);
         }
 
-
         fail();
-
-
-
     }
+
+
+    @Test
+    public void testBasic3() throws Exception {
+        FlowProcessor.core().reflow(f-> {
+            f.wait("case1").next(this::case1);
+            f.wait("case2").next(this::case2);
+        }).on("x").daemonMode().activate();
+
+
+        FlowProcessor.core().reflow((WorkEvent e) ->{
+
+            e.setFireEventName("case1");
+            e.put("result","skkim");
+
+            e.getPlan().getFlowProcessor()
+
+                    .emit("x",e)
+                    .emit("x", WorkEventFactory.createOrigin("x").setFireEventName("case2"));
+
+
+            return Work.TERMINATE;
+        }).startDelayTime(2*Clock.SECOND).activate().block();
+
+        Thread.sleep(3000);
+    }
+
 }
 

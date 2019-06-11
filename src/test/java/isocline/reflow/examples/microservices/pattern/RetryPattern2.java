@@ -22,7 +22,7 @@ public class RetryPattern2 {
         TestUtil.waiting(500);
         logger.debug("Service1 - end");
 
-        e.origin().setAttribute("result:service1", "A");
+        e.origin().put("result:service1", "A");
         throw new RuntimeException("zzzz");
     }
 
@@ -31,11 +31,11 @@ public class RetryPattern2 {
         logger.debug("inactive start " + Thread.currentThread().getId());
 
         logger.debug(e.origin());
-        logger.debug(e.origin().getAttribute("result:service1"));
+        logger.debug(e.origin().get("result:service1"));
 
-        String result = e.origin().getAttribute("result:service1").toString()
-                + e.origin().getAttribute("result:service2")
-                + e.origin().getAttribute("result:service3");
+        String result = e.origin().get("result:service1").toString()
+                + e.origin().get("result:service2")
+                + e.origin().get("result:service3");
 
         assertEquals("ABC", result);
 

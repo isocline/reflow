@@ -15,19 +15,19 @@ public class WorkEventTest {
 
         assertEquals("evt", event.getEventName());
 
-        assertEquals(null, event.getAttribute("key1"));
+        assertEquals(null, event.get("key1"));
 
-        event.removeAttribute("key1");
+        event.remove("key1");
 
 
-        event.setAttribute("key1", "val1");
-        assertEquals("val1", event.getAttribute("key1"));
+        event.put("key1", "val1");
+        assertEquals("val1", event.get("key1"));
 
-        event.setAttribute("key1", "val2");
-        assertEquals("val2", event.getAttribute("key1"));
+        event.put("key1", "val2");
+        assertEquals("val2", event.get("key1"));
 
-        event.removeAttribute("key1");
-        assertEquals(null, event.getAttribute("key1"));
+        event.remove("key1");
+        assertEquals(null, event.get("key1"));
 
     }
 
@@ -38,19 +38,19 @@ public class WorkEventTest {
 
         assertEquals("evt", event.getEventName());
 
-        event.removeAttribute("key1");
-        event.setAttribute("key1", "val1");
-        assertEquals("val1", event.getAttribute("key1"));
+        event.remove("key1");
+        event.put("key1", "val1");
+        assertEquals("val1", event.get("key1"));
 
 
         WorkEvent event2 =event.createChild("evt2");
         assertEquals("evt2", event2.getEventName());
 
-        assertEquals(null, event2.getAttribute("key1"));
+        assertEquals(null, event2.get("key1"));
 
 
-        //event2.setAttribute("key1", "val2");
-        assertEquals("val1", event2.origin().getAttribute("key1"));
+        //event2.put("key1", "val2");
+        assertEquals("val1", event2.origin().get("key1"));
 
     }
 }

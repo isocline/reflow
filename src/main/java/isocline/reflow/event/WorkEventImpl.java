@@ -118,16 +118,17 @@ public class WorkEventImpl implements WorkEvent {
      * @param key
      * @param value
      */
-    public void setAttribute(String key, Object value) {
+    public WorkEvent put(String key, Object value) {
         this.attributeMap.put(key, value);
 
+        return this;
     }
 
     /**
      * @param key
      * @return
      */
-    public Object getAttribute(String key) {
+    public Object get(String key) {
         return this.attributeMap.get(key);
     }
 
@@ -147,7 +148,7 @@ public class WorkEventImpl implements WorkEvent {
      * @param key
      * @return
      */
-    public Object removeAttribute(String key) {
+    public Object remove(String key) {
         return this.attributeMap.remove(key);
     }
 
@@ -191,8 +192,9 @@ public class WorkEventImpl implements WorkEvent {
 
 
     @Override
-    public void setFireTime(long time) {
+    public WorkEvent setFireTime(long time) {
         this.fireTime = time;
+        return this;
     }
 
     @Override
@@ -201,8 +203,9 @@ public class WorkEventImpl implements WorkEvent {
     }
 
     @Override
-    public void setThrowable(Throwable e) {
+    public WorkEvent setThrowable(Throwable e) {
         this.throwable = e;
+        return this;
 
     }
 
@@ -216,6 +219,10 @@ public class WorkEventImpl implements WorkEvent {
         return this.originWorkEvent;
     }
 
+    void setOriginWorkEvent(WorkEvent originWorkEvent) {
+        this.originWorkEvent = originWorkEvent;
+    }
+
     @Override
     public String getFireEventName() {
         if (this.fireEventName != null) {
@@ -225,8 +232,9 @@ public class WorkEventImpl implements WorkEvent {
     }
 
     @Override
-    public void setFireEventName(String eventName) {
+    public WorkEvent setFireEventName(String eventName) {
         this.fireEventName = eventName;
+        return this;
 
     }
 
@@ -243,13 +251,13 @@ public class WorkEventImpl implements WorkEvent {
         synchronized (event) {
             List newList = Collections.synchronizedList(new ArrayList<>());
             ;
-            list = (List) event.getAttribute(resultKey);
+            list = (List) event.get(resultKey);
             if (list == null) {
                 list = newList;
 
-                event.setAttribute(resultKey, list);
+                event.put(resultKey, list);
             } else {
-                event.setAttribute(resultKey, newList);
+                event.put(resultKey, newList);
             }
         }
 
@@ -285,8 +293,9 @@ public class WorkEventImpl implements WorkEvent {
 
         String resultKey = "result::" + event.hashCode() + "<Mono>";
 
+        final Object result = event.get(resultKey);
 
-        return event.getAttribute(resultKey);
+        return result;
     }
 
     @Override

@@ -22,11 +22,11 @@ public class WorkHelper {
 
         List list = null;
         synchronized (event) {
-            list = (List) event.getAttribute(resultKey);
+            list = (List) event.get(resultKey);
             if (list == null) {
                 list = Collections.synchronizedList(new ArrayList<>());
 
-                event.setAttribute(resultKey, list);
+                event.put(resultKey, list);
             }
         }
 
@@ -48,7 +48,7 @@ public class WorkHelper {
         String resultKey = "result::" + event.hashCode()+"<Mono>";
 
 
-        return event.getAttribute(resultKey);
+        return event.get(resultKey);
 
     }
 
@@ -62,15 +62,15 @@ public class WorkHelper {
 
         String resultKey = "result::" + event.hashCode();
 
-        event.setAttribute(resultKey+"<Mono>",result);
+        event.put(resultKey+"<Mono>",result);
 
         List list = null;
         synchronized (event) {
-            list = (List) event.getAttribute(resultKey);
+            list = (List) event.get(resultKey);
             if (list == null) {
                 list = Collections.synchronizedList(new ArrayList<>());
 
-                event.setAttribute(resultKey, list);
+                event.put(resultKey, list);
             }
         }
 

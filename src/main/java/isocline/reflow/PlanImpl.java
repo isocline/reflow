@@ -21,6 +21,7 @@ import isocline.reflow.event.WorkEventFactory;
 import isocline.reflow.flow.WorkFlowFactory;
 import isocline.reflow.log.XLogger;
 
+import java.text.ParseException;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.UUID;
@@ -269,9 +270,13 @@ public class PlanImpl implements Plan, ActivatedPlan {
      */
     private Plan setStartTime(long nextExecuteTime) {
 
+
+        /*
         if (waitingTime == 0) {
             waitingTime = 1;
         }
+        */
+
 
         this.nextExecuteTime = nextExecuteTime;
 
@@ -465,6 +470,32 @@ public class PlanImpl implements Plan, ActivatedPlan {
         return this;
     }
 
+    @Override
+    public Plan finishTimeFromStart(long milliSeconds) {
+        if (this.nextExecuteTime > 0) {
+            this.workEndTime = this.nextExecuteTime + milliSeconds;
+        } else {
+            this.workEndTime = System.currentTimeMillis() + milliSeconds;
+        }
+
+        return this;
+    }
+
+
+    @Override
+    public ActivatedPlan finish(String isoDateTime) throws ParseException {
+        return (ActivatedPlan) finishTime(isoDateTime);
+    }
+
+    @Override
+    public ActivatedPlan finish(Date endDateTime) {
+        return (ActivatedPlan) finishTime(endDateTime);
+    }
+
+    @Override
+    public ActivatedPlan finishFromNow(long milliSeconds) {
+        return (ActivatedPlan) finishTimeFromNow(milliSeconds);
+    }
 
     /**
      * @param className name of class
@@ -518,15 +549,17 @@ public class PlanImpl implements Plan, ActivatedPlan {
 
 
     @Override
-    public void emit(WorkEvent event) {
+    public ActivatedPlan emit(WorkEvent event) {
 
         this.flowProcessor.addWorkSchedule(this, event);
+
+        return this;
 
     }
 
 
     @Override
-    public void emit(WorkEvent event, long delayTime) {
+    public ActivatedPlan emit(WorkEvent event, long delayTime) {
 
         if (delayTime > 0) {
             //this.flowProcessor.workChecker
@@ -537,6 +570,7 @@ public class PlanImpl implements Plan, ActivatedPlan {
             emit(event);
         }
 
+        return this;
 
     }
 

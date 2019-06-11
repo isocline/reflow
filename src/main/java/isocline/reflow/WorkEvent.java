@@ -63,7 +63,7 @@ public interface WorkEvent {
      * @param key   the key name to which the object is bound; cannot be null
      * @param value the object to be bound
      */
-    void setAttribute(String key, Object value);
+    WorkEvent put(String key, Object value);
 
     /**
      * Returns the object bound with the specified name in this session,
@@ -72,7 +72,7 @@ public interface WorkEvent {
      * @param key a string specifying the name of the object
      * @return the object with the specified name
      */
-    Object getAttribute(String key);
+    Object get(String key);
 
     /**
      * Delete the attribute value.
@@ -80,7 +80,7 @@ public interface WorkEvent {
      * @param key the name of the object to remove from this session
      * @return the name of the object to remove from this session
      */
-    Object removeAttribute(String key);
+    Object remove(String key);
 
 
 
@@ -118,7 +118,7 @@ public interface WorkEvent {
      *
      * @param e Throwable error
      */
-    void setThrowable(Throwable e);
+    WorkEvent setThrowable(Throwable e);
 
 
     /**
@@ -134,7 +134,7 @@ public interface WorkEvent {
      *
      * @param time the milliseconds since January 1, 1970, 00:00:00 GMT.
      */
-    void setFireTime(long time);
+    WorkEvent setFireTime(long time);
 
 
     /**
@@ -148,7 +148,7 @@ public interface WorkEvent {
     String getFireEventName();
 
 
-    void setFireEventName(String eventName);
+    WorkEvent setFireEventName(String eventName);
 
 
 
