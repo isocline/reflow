@@ -111,7 +111,7 @@ public interface WorkFlow<T> {
      * @param execObject executable object
      * @return an instance of WorkFlow
      */
-    WorkFlow runAsync(Runnable execObject);
+    WorkFlow runAsync(Runnable... execObject);
 
     /**
      *
@@ -157,24 +157,16 @@ public interface WorkFlow<T> {
      */
     WorkFlow runAsync(Runnable execObject, int count);
 
-    /**
-     *
-     * Asynchronously activate method of Consumer implement object
-     * Raises an event after completion of method execution.
-     *
-     * @param execObject executable object
-     * @param count name of event
-     * @return an instance of WorkFlow
-     */
+
     //WorkFlow applyAsync(Consumer<? extends T> execObject, int count);
 
 
-    WorkFlow runAsync(WorkEventConsumer execObject);
+    WorkFlow runAsync(WorkEventConsumer... execObject);
     WorkFlow runAsync(WorkEventConsumer execObject, String fireEventName);
     WorkFlow runAsync(WorkEventConsumer execObject, int count);
 
 
-    WorkFlow applyAsync(WorkEventFunction execObject);
+    WorkFlow applyAsync(WorkEventFunction... execObject);
     WorkFlow applyAsync(WorkEventFunction execObject, String fireEventName);
     WorkFlow applyAsync(WorkEventFunction execObject, int count);
 
@@ -237,6 +229,13 @@ public interface WorkFlow<T> {
     WorkFlow next(WorkEventConsumer execObject);
 
 
+    /**
+     *  "{sucess:'ver', timeout:'erer', before:'324',  fail:'dfdf' }"
+     *
+     * @param execObject
+     * @param fireEventName
+     * @return
+     */
     WorkFlow next(WorkEventConsumer execObject, String fireEventName);
 
 

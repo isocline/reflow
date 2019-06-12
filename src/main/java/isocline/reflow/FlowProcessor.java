@@ -599,7 +599,7 @@ public class FlowProcessor extends ThreadGroup {
         if (event == null) {
             workEvent = WorkEventFactory.createOrigin();
         } else {
-            workEvent = WorkEventFactory.create(eventName, event);
+            workEvent = WorkEventFactory.createWithOrigin(eventName, event);
         }
 
 

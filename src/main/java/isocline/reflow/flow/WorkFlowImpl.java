@@ -255,8 +255,15 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
     }
 
 
-    public WorkFlow runAsync(Runnable execObject) {
-        return processRunAsync(execObject, null);
+    public WorkFlow runAsync(Runnable... execObject) {
+
+        for(Runnable c:execObject) {
+
+            processRunAsync(c, null);
+        }
+
+        return this.waitAll();
+
     }
 
     public WorkFlow runAsync(Consumer execObject) {
@@ -273,28 +280,36 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
 
 
     public WorkFlow runAsync(Runnable execObject, int count) {
-        WorkFlow workFlow = null;
+
         for (int i = 0; i < count; i++) {
-            workFlow = processRunAsync(execObject, null);
+            processRunAsync(execObject, null);
         }
 
-        return workFlow;
+        return this.waitAll();
     }
 
 
     public WorkFlow runAsync(Consumer execObject, int count) {
-        WorkFlow workFlow = null;
+
         for (int i = 0; i < count; i++) {
-            workFlow = processRunAsync(execObject, null);
+            processRunAsync(execObject, null);
         }
 
-        return workFlow;
+        return this.waitAll();
     }
 
 
     @Override
-    public WorkFlow runAsync(WorkEventConsumer execObject) {
-        return processRunAsync(execObject, null);
+    public WorkFlow runAsync(WorkEventConsumer... execObject) {
+
+
+
+        for(WorkEventConsumer c:execObject) {
+
+            processRunAsync(c, null);
+        }
+
+        return this.waitAll();
     }
 
     @Override
@@ -314,8 +329,15 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
 
 
     @Override
-    public WorkFlow applyAsync(WorkEventFunction execObject) {
-        return processRunAsync(execObject, null);
+    public WorkFlow applyAsync(WorkEventFunction... execObject) {
+        WorkFlow result = null;
+
+        for(WorkEventFunction c:execObject) {
+
+            result = processRunAsync(c, null);
+        }
+
+        return result;
     }
 
     @Override

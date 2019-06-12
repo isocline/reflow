@@ -28,11 +28,14 @@ public class WorkEventFactory {
 
 
 
-    public static WorkEvent create(String eventName, WorkEvent originEvent) {
+    public static WorkEvent createWithOrigin(String eventName, WorkEvent originEvent) {
 
-        WorkEventImpl event = (WorkEventImpl) originEvent;
-        event.setOriginWorkEvent(originEvent);
+        /*
+        WorkEventImpl event = (WorkEventImpl) inEvent;
+        event.setOriginWorkEvent(inEvent);
         event.setEventName(eventName);
+        */
+        WorkEventImpl event = new WorkEventImpl(eventName,originEvent);
 
         return event;
     }

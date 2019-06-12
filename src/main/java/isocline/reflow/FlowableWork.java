@@ -16,7 +16,6 @@
 package isocline.reflow;
 
 
-import isocline.reflow.event.WorkEventFactory;
 import isocline.reflow.flow.FunctionExecutor;
 import isocline.reflow.flow.FunctionExecutorList;
 
@@ -144,8 +143,10 @@ public interface FlowableWork<T> extends Work {
 
                 String errClassEventName = "error::"+e.getClass().getName() ;
 
-                WorkEvent errClsEvent = WorkEventFactory.createOrigin(errClassEventName);
-                errClsEvent.setThrowable(e);
+                //WorkEvent errClsEvent = WorkEventFactory.createOrigin(errClassEventName);
+                //WorkEvent errClsEvent = WorkEventFactory.createWithOrigin(errClassEventName,event.origin());
+                WorkEvent errClsEvent = event.createChild(errClassEventName);
+                        errClsEvent.setThrowable(e);
 
                 schedule.emit(errClsEvent);
 
@@ -180,20 +181,9 @@ public interface FlowableWork<T> extends Work {
             } finally {
                 if (rs!=null && rs.isProcessNext()) {
 
-                    schedule.emit(event.createChild(rs.getFireEventUUID()));
-                    final String fireEventNameTmp = rs.getFireEventName();
+                    WorkHelper.emitLocalEvent(schedule,event, rs.getFireEventUUID(),0);
 
-                    if (fireEventNameTmp != null) {
-                        long delayTime = executor.getDelayTimeFireEvent();
-                        schedule.emit(event.createChild(fireEventNameTmp), delayTime);
-
-                        if(fireEventNameTmp.indexOf("error::")==0) {
-                            WorkEvent we = event.createChild(fireEventNameTmp);
-                            we.setFireEventName(WorkFlow.ERROR);
-                            schedule.emit(we,delayTime);
-                        }
-
-                    }
+                    WorkHelper.emitLocalEvent(schedule,event, rs.getFireEventName(),executor.getDelayTimeFireEvent());
 
                 }
             }

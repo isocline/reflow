@@ -105,10 +105,10 @@ public class CircuitBreaker2 {
         reflow(flow -> {
 
             flow.pattern(
-                    CircuitBreaker.create("xdR"),
-                    () -> {
+                    CircuitBreaker.create("xdR"), () -> {
                         flow.next(this::callService1);
-                    });
+                    }
+            );
 
         }).run();
     }

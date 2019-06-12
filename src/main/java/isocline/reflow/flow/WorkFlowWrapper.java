@@ -90,15 +90,12 @@ public class WorkFlowWrapper<T> implements WorkFlow<T> {
     }
 
     @Override
-    public WorkFlow runAsync(Runnable execObject) {
+    public WorkFlow runAsync(Runnable... execObject) {
         this.workFlowInstance.runAsync(execObject);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
-    //@Override
-    public WorkFlow runAsync(Consumer execObject) {
-        return new WorkFlowWrapper(this.workFlowInstance);
-    }
+
 
     @Override
     public WorkFlow runAsync(Runnable execObject, String eventName) {
@@ -125,7 +122,7 @@ public class WorkFlowWrapper<T> implements WorkFlow<T> {
     }
 
     @Override
-    public WorkFlow runAsync(WorkEventConsumer execObject) {
+    public WorkFlow runAsync(WorkEventConsumer... execObject) {
         this.workFlowInstance.runAsync(execObject);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
@@ -143,7 +140,7 @@ public class WorkFlowWrapper<T> implements WorkFlow<T> {
     }
 
     @Override
-    public WorkFlow applyAsync(WorkEventFunction execObject) {
+    public WorkFlow applyAsync(WorkEventFunction... execObject) {
         this.workFlowInstance.applyAsync(execObject);
         return new WorkFlowWrapper(this.workFlowInstance);
     }

@@ -15,6 +15,7 @@
  */
 package isocline.reflow.flow;
 
+import isocline.reflow.FunctionExecFeature;
 import isocline.reflow.WorkEvent;
 import isocline.reflow.WorkHelper;
 import isocline.reflow.event.WorkEventImpl;
@@ -33,17 +34,31 @@ import java.util.function.Supplier;
  *
  *
  */
-public class FunctionExecutor {
+public class FunctionExecutor implements FunctionExecFeature {
 
     private static short nonce = -1;
 
     private boolean isLastExecutor = false;
 
-    private String fireEventName;
+
 
     private String recvEventName;
 
     private String fireEventUUID;
+
+    private String fireEventName;
+
+
+    private String[] sucessFireEventNames;
+
+    private String[] failFireEventNames;
+
+    private String[] beforeFireEventNames;
+
+    private String[] timeoutFireEventNames;
+
+    private long timeout = 0;
+
 
     private long delayTimeFireEvent = 0;
 
@@ -126,11 +141,18 @@ public class FunctionExecutor {
 
     public void setFireEventName(String eventName) {
         this.fireEventName = eventName;
+        this.sucessFireEventNames = new String[1];
+        this.sucessFireEventNames[0] = eventName;
+
+        this.failFireEventNames = new String[1];
+        this.failFireEventNames[0] = "error::"+ eventName;
+
     }
 
     public void setRecvEventName(String eventName) {
         this.recvEventName = eventName;
     }
+
 
     public String getFireEventName() {
         return this.fireEventName;
@@ -224,6 +246,49 @@ public class FunctionExecutor {
 
 
     }
+
+
+    @Override
+    public FunctionExecFeature before(String... eventNames) {
+        this.beforeFireEventNames = eventNames;
+        return this;
+    }
+
+    @Override
+    public FunctionExecFeature success(String... eventNames) {
+        this.sucessFireEventNames = eventNames;
+        return this;
+    }
+
+    @Override
+    public FunctionExecFeature fail(String... eventNames) {
+        this.failFireEventNames = eventNames;
+        return this;
+    }
+
+    @Override
+    public FunctionExecFeature timeout(long timeout, String... eventNames) {
+        this.timeout = timeout;
+        this.timeoutFireEventNames = eventNames;
+        return this;
+    }
+
+    public String[] getBeforeFireEventNames() {
+        return this.beforeFireEventNames;
+    }
+
+    public String[] getSucessFireEventNames() {
+        return this.sucessFireEventNames;
+    }
+
+    public String[] getFailFireEventNames() {
+        return this.failFireEventNames;
+    }
+
+    public String[] getTimeoutFireEventNames() {
+        return this.timeoutFireEventNames;
+    }
+
 
     final public static class ResultState {
 
