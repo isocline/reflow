@@ -7,8 +7,8 @@ import java.util.List;
 public class WorkHelper {
 
 
-    public static Plan reflow(FlowableWork workFlow) {
-        return FlowProcessor.core().reflow(workFlow);
+    public static ActivatedPlan Reflow(FlowableWork workFlow) {
+        return FlowProcessor.core().reflow(workFlow).activate().block();
     }
 
     public static List GetResultList(WorkEvent e) {
@@ -84,33 +84,57 @@ public class WorkHelper {
 
     }
 
+    static void emitLocalErrorEvent(ActivatedPlan plan, WorkEvent event, String eventName, long delayTime, Throwable error) {
+        if (eventName != null && eventName.indexOf("error::") == 0) {
+            final WorkEvent we = event.createChild(eventName);
+            if (error != null) {
+                we.setThrowable(error);
+            }
+
+            we.setFireEventName(WorkFlow.ERROR);
+            plan.emit(we, delayTime);
+
+        }
+
+    }
 
     static void emitLocalEvent(ActivatedPlan plan, WorkEvent event, String eventName, long delayTime, Throwable error) {
+        emitLocalEvent(plan, event, eventName, delayTime, error, null);
+    }
 
-        if(eventName==null) return;
+    static void emitLocalEvent(ActivatedPlan plan, WorkEvent event, String eventName, long delayTime, Throwable error, Thread currentThread) {
+
+        if (eventName == null) return;
 
         WorkEvent emitEvent = null;
         emitEvent = event.createChild(eventName);
-        if(error==null) {
-            emitEvent = event.createChild(eventName);
-        }else {
+        if (error == null) {
+            //emitEvent = event.createChild(eventName);
+        } else {
             //emitEvent = WorkEventFactory.createWithOrigin(eventName,event.origin());
             emitEvent.setThrowable(error);
         }
 
+        if (currentThread != null) {
+            emitEvent.setTimeoutThread(currentThread);
+        }
+
         plan.emit(emitEvent, delayTime);
 
-        if(eventName.indexOf("error::")==0) {
-            final WorkEvent we = event.createChild(eventName);
-            we.setFireEventName(WorkFlow.ERROR);
-            plan.emit(we,delayTime);
+    }
 
+    static void emitLocalEvent(ActivatedPlan plan, WorkEvent event, String[] eventNames, long delayTime,Throwable error, Thread currentThread) {
+
+        if (eventNames == null || delayTime < 1) return;
+
+        for (String eventName : eventNames) {
+            emitLocalEvent(plan, event, eventName, delayTime, error, currentThread);
         }
     }
 
     static void emitLocalEvent(ActivatedPlan plan, WorkEvent event, String[] eventNames, long delayTime) {
 
-        if(eventNames==null) return;
+        if (eventNames == null) return;
 
         for (String eventName : eventNames) {
             emitLocalEvent(plan, event, eventName, delayTime, null);
@@ -119,7 +143,7 @@ public class WorkHelper {
 
     static void emitLocalEvent(ActivatedPlan plan, WorkEvent event, String[] eventNames, Throwable error) {
 
-        if(eventNames==null) return;
+        if (eventNames == null) return;
 
         for (String eventName : eventNames) {
             emitLocalEvent(plan, event, eventName, 0, error);

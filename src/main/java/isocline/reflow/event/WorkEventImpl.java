@@ -51,6 +51,7 @@ public class WorkEventImpl implements WorkEvent {
 
     private Throwable throwable;
 
+    private Thread timeoutThread = null;
 
     WorkEventImpl() {
         this.originWorkEvent = this;
@@ -132,6 +133,11 @@ public class WorkEventImpl implements WorkEvent {
         return this.attributeMap.get(key);
     }
 
+    @Override
+    public void reset() {
+        this.attributeMap.clear();
+        this.counterMap.clear();
+    }
 
     @Override
     public synchronized AtomicInteger getCounter(String key) {
@@ -212,6 +218,18 @@ public class WorkEventImpl implements WorkEvent {
     @Override
     public Throwable getThrowable() {
         return this.throwable;
+    }
+
+
+    @Override
+    public WorkEvent setTimeoutThread(Thread thread) {
+        this.timeoutThread = thread;
+        return this;
+    }
+
+    @Override
+    public Thread getTimeoutThread() {
+        return this.timeoutThread;
     }
 
     @Override
@@ -301,13 +319,15 @@ public class WorkEventImpl implements WorkEvent {
     @Override
     public String toString() {
         if(this==this.originWorkEvent) {
-            return "WorkEventImpl:origin{" +this.hashCode()+" "+
+            return "WorkEventImpl:origin{" +
                     "eventName='" + eventName + '\'' +
+                    "hash='" + hashCode() + '\'' +
 
                     '}';
         }
         return "WorkEventImpl{" +
                 "eventName='" + eventName + '\'' +
+                "hash='" + hashCode() + '\'' +
                 "origin='" + this.originWorkEvent + '\'' +
                 '}';
     }

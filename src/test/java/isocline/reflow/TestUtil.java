@@ -7,6 +7,7 @@ public final class TestUtil {
         try {
             Thread.sleep(waitTime);
         } catch (InterruptedException ie) {
+            ie.printStackTrace();
 
         }
     }

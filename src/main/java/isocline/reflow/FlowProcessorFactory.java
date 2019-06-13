@@ -58,7 +58,7 @@ public class FlowProcessorFactory {
     }
 
     private static Configuration getDefaultConfiguration() {
-        String processorType = System.getProperty("isocline.reflow.processor.type");
+        String processorType = System.getProperty("isocline.Reflow.processor.type");
 
         if ("performance".equals(processorType)) {
             return Configuration.PERFORMANCE;

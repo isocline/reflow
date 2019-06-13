@@ -80,7 +80,7 @@ public class FlowProcessor extends ThreadGroup {
     }
 
     private static Configuration getDefaultConfiguration() {
-        String processorType = System.getProperty("isocline.reflow.processor.type");
+        String processorType = System.getProperty("isocline.Reflow.processor.type");
 
         if ("performance".equals(processorType)) {
             return Configuration.PERFORMANCE;
@@ -409,8 +409,15 @@ public class FlowProcessor extends ThreadGroup {
 
     boolean addWorkSchedule(PlanImpl plan, boolean isUserEvent) {
 
+
+        logger.debug("ADD 1 > " + Thread.currentThread().getId());
+        try{
+            throw new RuntimeException("zz");
+        }catch (Exception e) {
+            e.printStackTrace(System.out);
+        }
+
         boolean result = this.workQueue.offer(plan.enterQueue(isUserEvent));
-        //System.err.println("add >>> "+result);
         if (result) {
 
 
@@ -788,6 +795,8 @@ public class FlowProcessor extends ThreadGroup {
 
                 PlanImpl plan = null;
 
+                int isSuccess = 0;
+
                 try {
 
 
@@ -826,7 +835,7 @@ public class FlowProcessor extends ThreadGroup {
                             System.err.println(chk1 +" "+ chk2);
                             if (chk1 || chk2) {
                             */
-                        if (ctx.isExecuteImmediately() || remainMilliTime < plan.getPreemptiveMilliTime()) {
+                        if (ctx.isExecuteImmediately() || remainMilliTime <= plan.getPreemptiveMilliTime()) {
 
                             stoplessCount++;
 
@@ -850,7 +859,11 @@ public class FlowProcessor extends ThreadGroup {
                             try {
                                 runningCounter.addAndGet(1);
 
+                                //System.out.println("INFO >>> "+this.flowProcessor.workQueue.size() + " "+runningCounter.get());
+
                                 delaytime = workObject.execute(workEvent);
+
+                                System.out.println(Thread.currentThread().getId()+" RETURN === "+delaytime);
 
 
                                 while (delaytime == Work.LOOP && loopCount < 1000) {
@@ -878,16 +891,18 @@ public class FlowProcessor extends ThreadGroup {
                                 plan.adjustDelayTime(delaytime);
 
                                 if (delaytime > this.flowProcessor.configuration.getThresholdWaitTimeToReady()) {
+                                    System.out.println(Thread.currentThread().getId()+" >$$>1>              "+delaytime+" "+this.flowProcessor.configuration.getThresholdWaitTimeToReady());
                                     this.flowProcessor.workChecker
                                             .addWorkStatusWrapper(plan);
                                 } else {
+                                    System.out.println(Thread.currentThread().getId()+" >$$>2> ");
                                     this.flowProcessor.addWorkSchedule(plan);
                                 }
 
                             } else if (delaytime == Work.WAIT) {
                                 plan.adjustRepeatInterval(Work.WAIT);
-                            } else {
-                                plan.inactive();
+                            } else if (delaytime == Work.TERMINATE) {
+                                isSuccess = 1;
                             }
 
 
@@ -896,18 +911,25 @@ public class FlowProcessor extends ThreadGroup {
                             stoplessCount = 0;
 
                             if (remainMilliTime > this.flowProcessor.configuration.getThresholdWaitTimeToReady()) {
+                                System.out.println(Thread.currentThread().getId()+" >>XX> "+remainMilliTime + " "+ plan.getPreemptiveMilliTime() +" "+this.flowProcessor.configuration.getThresholdWaitTimeToReady());
+
                                 this.flowProcessor.workChecker
                                         .addWorkStatusWrapper(plan);
                             } else {
+                                if(remainMilliTime>0)
+                                    Thread.sleep(remainMilliTime);
+                                System.out.println(Thread.currentThread().getId()+" >>> "+remainMilliTime + " "+ plan.getPreemptiveMilliTime() +" "+this.flowProcessor.configuration.getThresholdWaitTimeToReady());
                                 this.flowProcessor
                                         .addWorkSchedule(plan);
                             }
 
                         } else {
-                            plan.inactive();
+                            // time over
+                            isSuccess = 2;
                         }
 
                     } else {
+                        System.out.println("INFO >:> "+this.flowProcessor.workQueue.size());
                         this.flowProcessor.workQueue.put(plan.enterQueue(false));
                     }
 
@@ -923,20 +945,25 @@ public class FlowProcessor extends ThreadGroup {
                     }
 
                 } catch (RuntimeException re) {
+                    isSuccess = 3;
                     re.printStackTrace();
-                    plan.inactive();
+
                 } catch (InterruptedException ite) {
-                    if (plan != null) {
-                        plan.inactive();
-                    }
+                    isSuccess = 4;
+
 
                     //ite.printStackTrace();
 
                 } catch (Throwable e) {
-                    if (plan != null) {
+                    isSuccess = 5;
+
+                    e.printStackTrace();
+
+                }finally {
+                    if(isSuccess>0 && plan != null) {
+                        System.out.println("END ===================== "+isSuccess);
                         plan.inactive();
                     }
-                    e.printStackTrace();
 
                 }
             }
@@ -1039,6 +1066,7 @@ public class FlowProcessor extends ThreadGroup {
 
 
                         } else {
+
 
                             Thread.sleep(1);
                             statusWrappers.add(workScheduleWrapper);

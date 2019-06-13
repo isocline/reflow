@@ -6,7 +6,7 @@ import isocline.reflow.log.XLogger;
 import isocline.reflow.pattern.CircuitBreaker;
 import org.junit.Test;
 
-import static isocline.reflow.WorkHelper.reflow;
+import static isocline.reflow.WorkHelper.Reflow;
 import static org.junit.Assert.assertEquals;
 
 public class CircuitBreaker2 {
@@ -102,7 +102,7 @@ public class CircuitBreaker2 {
     public void startTest() {
 
 
-        reflow(flow -> {
+        Reflow(flow -> {
 
             flow.pattern(
                     CircuitBreaker.create("xdR"), () -> {
@@ -110,7 +110,7 @@ public class CircuitBreaker2 {
                     }
             );
 
-        }).run();
+        });
     }
 
 

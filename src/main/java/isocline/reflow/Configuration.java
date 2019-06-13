@@ -30,7 +30,7 @@ package isocline.reflow;
  * FlowProcessor processor = FlowProcessorFactory.getProcessor("echo", Configuration.ECHO);
  *
  *
- * // user reflow
+ * // user Reflow
  * Configuration config = Configuration.createOrigin()
  *                          .setInitThreadWorkerSize(3)
  *                          .setMaxThreadWorkerSize(12)
@@ -56,7 +56,7 @@ public class Configuration {
 
     private long executeTimeout = 60 * Clock.SECOND;
 
-    private long thresholdWaitTimeToReady = 50;
+    private long thresholdWaitTimeToReady = 3                              ;
 
 
 

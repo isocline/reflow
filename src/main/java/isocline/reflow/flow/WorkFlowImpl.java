@@ -20,6 +20,7 @@ import isocline.reflow.WorkFlow;
 import isocline.reflow.WorkFlowPattern;
 import isocline.reflow.event.EventRepository;
 import isocline.reflow.event.SimultaneousEventSet;
+import isocline.reflow.event.WorkEventKey;
 import isocline.reflow.flow.func.*;
 
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ import java.util.function.Consumer;
 public class WorkFlowImpl<T> implements WorkFlow<T> {
 
 
-    private final static String KEYNAME_FUNC_EXEC_SEQ = "funcExecSeq";
+
 
 
     private int funcExecSequence = 0;
@@ -419,7 +420,7 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
 
             return this.fireEvent(eventName, time);
         } else {
-            throw new IllegalStateException("reflow position is not valid");
+            throw new IllegalStateException("Reflow position is not valid");
         }
     }
 
@@ -441,7 +442,7 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
             this.onError(uuid);
 
 
-            return processNext(null, prestepRegEventNameArray[0], true, false, delayTime, maxCount);
+            return processNext(null, prestepRegEventNameArray[0], true, false, delayTime, maxCount, null);
         } else {
             throw new IllegalStateException("retryOnError position is not valid");
         }
@@ -467,7 +468,7 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
         });
     }
 
-    public WorkFlowImpl next(Runnable execObject) {
+    public WorkFlowImpl next(ThrowableRunFunction execObject) {
         return processNext(execObject, null, false);
     }
 
@@ -475,7 +476,7 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
         return processNext(execObject, null, false);
     }
 
-    public WorkFlowImpl next(Runnable execObject, String eventName) {
+    public WorkFlowImpl next(ThrowableRunFunction execObject, String eventName) {
         return processNext(execObject, eventName, false);
     }
 
@@ -500,6 +501,32 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
         return processNext(execObject, eventName, false);
     }
 
+    @Override
+    public WorkFlow next(ThrowableRunFunction execObject, FnExecFeatureFunction fnExecFeatureFunction) {
+        return processNext(execObject, null, false , false, 0 , -1, fnExecFeatureFunction);
+    }
+
+
+    @Override
+    public WorkFlow next(Consumer<? super T> execObject, FnExecFeatureFunction fnExecFeatureFunction) {
+        return processNext(execObject, null, false , false, 0 , -1, fnExecFeatureFunction);
+    }
+
+    @Override
+    public WorkFlow next(WorkEventConsumer execObject, FnExecFeatureFunction fnExecFeatureFunction) {
+        return processNext(execObject, null, false , false, 0 , -1, fnExecFeatureFunction);
+    }
+
+    @Override
+    public WorkFlow next(WorkEventFunction execObject, FnExecFeatureFunction fnExecFeatureFunction) {
+        return processNext(execObject, null, false , false, 0 , -1, fnExecFeatureFunction);
+    }
+
+
+
+
+
+
 
     @Override
     public WorkFlow pattern(WorkFlowPattern pattern, WorkFlowPatternFunction... funcs) {
@@ -521,17 +548,50 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
 
 
     WorkFlowImpl processNext(Object functionalInterface, String fireEventName, boolean allowFuncInfNull, boolean isLastExecuteMethod, long delayTime) {
-        return processNext(functionalInterface, fireEventName, allowFuncInfNull, isLastExecuteMethod, delayTime, -1);
+        return processNext(functionalInterface, fireEventName, allowFuncInfNull, isLastExecuteMethod, delayTime, -1,null);
     }
 
 
-    WorkFlowImpl processNext(Object functionalInterface, String fireEventName, boolean allowFuncInfNull, boolean isLastExecuteMethod, long delayTime, int maxCallCount) {
+    static void processTimeout(WorkEvent event) {
+        Thread t = event.getTimeoutThread();
+        t.interrupt();
+    }
+
+    WorkFlowImpl processNext(Object functionalInterface, String fireEventName, boolean allowFuncInfNull, boolean isLastExecuteMethod, long delayTime, int maxCallCount, FnExecFeatureFunction featureFunction) {
 
         if (!allowFuncInfNull && functionalInterface == null) {
             throw new IllegalArgumentException("function interface is null");
         }
 
         FunctionExecutor newFuncExecutor = new FunctionExecutor(functionalInterface);
+
+        if(featureFunction!=null) {
+            featureFunction.apply(newFuncExecutor);
+        }
+
+        long timeout = newFuncExecutor.getTimeout();
+
+        if(timeout>0) {
+
+            FunctionExecutor timeoutProcess = new FunctionExecutor( (WorkEventConsumer) WorkFlowImpl::processTimeout);
+
+            String[] timeoutEventNames = newFuncExecutor.getTimeoutFireEventNames();
+
+            String firstTimeoutEventName = null;
+            if(timeoutEventNames!=null && timeoutEventNames.length>0) {
+                firstTimeoutEventName = timeoutEventNames[0];
+            }else {
+                firstTimeoutEventName = "timeout-"+hashCode();
+                newFuncExecutor.timeout(timeout, firstTimeoutEventName);
+
+                timeoutProcess.setLastExecutor(true);
+
+            }
+
+
+            bindEventRepository(firstTimeoutEventName, timeoutProcess);
+        }
+
         if (isLastExecuteMethod) {
             newFuncExecutor.setLastExecutor(true);
         }
@@ -583,7 +643,14 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
 
     public FunctionExecutor getNextExecutor(WorkEvent event) {
 
-        AtomicInteger counter = event.origin().getCounter(KEYNAME_FUNC_EXEC_SEQ);
+        String eventName = event.getEventName();
+        if(eventName!=null && (WorkFlow.FINISH.equals(eventName) || eventName.indexOf(WorkEventKey.PREFIX_FUNC_UUID)==0)) {
+            return null;
+        }
+
+
+
+        AtomicInteger counter = event.origin().getCounter(WorkEventKey.COUNTER_FUNC_EXEC);
 
         //IndexOutOfBoundsException
 
@@ -601,7 +668,7 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
     }
 
     public boolean existNextFunctionExecutor(WorkEvent event) {
-        AtomicInteger counter = event.origin().getCounter(KEYNAME_FUNC_EXEC_SEQ);
+        AtomicInteger counter = event.origin().getCounter(WorkEventKey.COUNTER_FUNC_EXEC);
 
         if (counter.get() < functionExecutorList.size()) {
             return true;
@@ -618,7 +685,7 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
         SimultaneousEventSet simultaneousEventSet = eventRepository.getSimultaneousEventSet(eventName);
 
         if (simultaneousEventSet == null || simultaneousEventSet.isRaiseEventReady(event, eventName)) {
-            FunctionExecutorList functionExecutorList = (FunctionExecutorList) event.origin().get("fnc::"+eventName);
+            FunctionExecutorList functionExecutorList = (FunctionExecutorList) event.origin().get(WorkEventKey.PREFIX_FUNCTION+eventName);
             if(functionExecutorList==null) {
                 List<FunctionExecutor> list =  this.eventRepository.get(eventName);
                 if(list==null) {
@@ -626,7 +693,7 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
                 }
 
                 functionExecutorList = new FunctionExecutorList(list, event, eventName);
-                event.origin().put("fnc::"+eventName, functionExecutorList);
+                event.origin().put(WorkEventKey.PREFIX_FUNCTION+eventName, functionExecutorList);
 
             }
 

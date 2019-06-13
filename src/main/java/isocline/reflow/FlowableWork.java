@@ -16,6 +16,7 @@
 package isocline.reflow;
 
 
+import isocline.reflow.event.WorkEventKey;
 import isocline.reflow.flow.FunctionExecutor;
 import isocline.reflow.flow.FunctionExecutorList;
 
@@ -40,7 +41,7 @@ public interface FlowableWork<T> extends Work {
 
     /**
      * It is a method that must be implemented in order to do flow control.
-     * 
+     * <p>
      * <strong>Example:</strong>
      * <blockquote>
      * <pre>
@@ -63,7 +64,7 @@ public interface FlowableWork<T> extends Work {
      *
      * @param flow WorkFlow instance
      */
-    void defineWorkFlow(WorkFlow<T> flow) ;
+    void defineWorkFlow(WorkFlow<T> flow);
 
 
     /**
@@ -76,16 +77,17 @@ public interface FlowableWork<T> extends Work {
     default long execute(WorkEvent event) throws InterruptedException {
 
 
-        final ActivatedPlan schedule = event.getPlan();
+        final ActivatedPlan plan = event.getPlan();
 
-        final WorkFlow flow = schedule.getWorkFlow();
+        final WorkFlow flow = plan.getWorkFlow();
 
         if (flow == null) {
             return TERMINATE;
         }
 
-
         final String eventName = event.getFireEventName();
+
+        System.out.println(Thread.currentThread().getId()+" RECV "+eventName + " "+event.origin().getCounter(WorkEventKey.COUNTER_FUNC_EXEC).get());
 
 
         FunctionExecutor executor = null;
@@ -103,7 +105,8 @@ public interface FlowableWork<T> extends Work {
                     executor = wrapper.getFunctionExecutor();
 
                     if (wrapper.hasNext()) {
-                        schedule.emit(event.createChild(eventName));
+                        //plan.emit(event.createChild(eventName));
+                        plan.emit(event);
                     }
 
                 }
@@ -122,79 +125,66 @@ public interface FlowableWork<T> extends Work {
 
             Throwable error = null;
 
-            boolean isFireEvent = false;
-
-            final String fireEventName = executor.getFireEventName();
 
             FunctionExecutor.ResultState rs = null;
 
             try {
-                if (event.getThrowable() != null) {
-                    isFireEvent = true;
+
+                WorkHelper.emitLocalEvent(plan, event, executor.getBeforeFireEventNames(), 0);
+
+                long timeout = executor.getTimeout();
+                if (timeout > 0) {
+                    WorkHelper.emitLocalEvent(plan, event, executor.getTimeoutFireEventNames(), timeout,
+                            new FlowProcessException("timeout"), Thread.currentThread());
                 }
 
 
                 //isFireEvent = executor.execute(event);;
                 rs = executor.execute(event);
 
+                WorkHelper.emitLocalEvent(plan, event, executor.getSucessFireEventNames(), 0);
+
             } catch (Throwable e) {
 
                 error = e;
 
-                String errClassEventName = "error::"+e.getClass().getName() ;
-
-                //WorkEvent errClsEvent = WorkEventFactory.createOrigin(errClassEventName);
-                //WorkEvent errClsEvent = WorkEventFactory.createWithOrigin(errClassEventName,event.origin());
-                WorkEvent errClsEvent = event.createChild(errClassEventName);
-                        errClsEvent.setThrowable(e);
-
-                schedule.emit(errClsEvent);
+                WorkHelper.emitLocalEvent(plan, event, executor.getFailFireEventNames(), error);
 
 
-                if (fireEventName != null) {
-                    String errEventName = "error::"+ fireEventName;
-
-                    //WorkEvent errEvent = WorkEventFactory.createOrigin(errEventName);
-                    WorkEvent errEvent = event.createChild(errEventName);
-                    errEvent.setThrowable(e);
-
-                    schedule.emit(errEvent);
-
-                }
-
-                String errEventName = "error::"+ executor.getFireEventUUID() ;
-
-                //final WorkEvent errEvent = WorkEventFactory.createOrigin(errEventName);
-                final WorkEvent errEvent = event.createChild(errEventName);
-                errEvent.setThrowable(e);
+                String errClassEventName = "error::" + e.getClass().getName();
+                WorkHelper.emitLocalEvent(plan, event, errClassEventName, 0, error);
 
 
-                schedule.emit(errEvent);
+                String errEventName = "error::" + executor.getFireEventUUID();
+                WorkHelper.emitLocalEvent(plan, event, errClassEventName, 0, error);
 
 
-                //final WorkEvent errEvent2 = WorkEventFactory.createOrigin(WorkFlow.ERROR);
-                final WorkEvent errEvent2 = event.createChild(errEventName);
-                errEvent2.setFireEventName(WorkFlow.ERROR);
-                errEvent2.setThrowable(e);
+                WorkHelper.emitLocalErrorEvent(plan, event, errEventName, 0, error);
 
-                schedule.emit(errEvent2);
+
             } finally {
-                if (rs!=null && rs.isProcessNext()) {
+                if (rs != null && rs.isProcessNext()) {
 
-                    WorkHelper.emitLocalEvent(schedule,event, rs.getFireEventUUID(),0);
+                    WorkHelper.emitLocalEvent(plan, event, rs.getFireEventUUID(), 0);
 
-                    WorkHelper.emitLocalEvent(schedule,event, rs.getFireEventName(),executor.getDelayTimeFireEvent());
+                    WorkHelper.emitLocalEvent(plan, event, rs.getFireEventName(), executor.getDelayTimeFireEvent());
 
+                    WorkHelper.emitLocalErrorEvent(plan, event, rs.getFireEventName(), executor.getDelayTimeFireEvent(), null);
                 }
+
+                WorkHelper.emitLocalEvent(plan, event, executor.getEndFireEventNames(), 0);
+
             }
 
 
             if (executor.isLastExecutor()) {
-                return TERMINATE;
-            }else {
 
-                if(error!=null) {
-                    schedule.setError(error);
+
+                return TERMINATE;
+            } else {
+
+                if (error != null) {
+                    plan.setError(error);
                 }
 
             }

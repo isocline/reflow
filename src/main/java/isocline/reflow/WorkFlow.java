@@ -188,7 +188,7 @@ public interface WorkFlow<T> {
      * @param execObject executable object
      * @return an instance of WorkFlow
      */
-    WorkFlow next(Runnable execObject);
+    WorkFlow next(ThrowableRunFunction execObject);
 
 
 
@@ -203,7 +203,7 @@ public interface WorkFlow<T> {
      * @param fireEventName name of event
      * @return an instance of WorkFlow
      */
-    WorkFlow next(Runnable execObject, String fireEventName);
+    WorkFlow next(ThrowableRunFunction execObject, String fireEventName);
 
 
     /**
@@ -213,6 +213,14 @@ public interface WorkFlow<T> {
      * @return an instance of WorkFlow
      */
     WorkFlow<Void> next(Consumer<? super T> execObject);
+
+
+
+
+    WorkFlow next(WorkEventConsumer execObject);
+
+    WorkFlow next(WorkEventFunction execObject);
+
 
 
     /**
@@ -226,23 +234,29 @@ public interface WorkFlow<T> {
     WorkFlow next(Consumer<? super T> execObject, String fireEventName);
 
 
-    WorkFlow next(WorkEventConsumer execObject);
-
-
-    /**
-     *  "{sucess:'ver', timeout:'erer', before:'324',  fail:'dfdf' }"
-     *
-     * @param execObject
-     * @param fireEventName
-     * @return
-     */
     WorkFlow next(WorkEventConsumer execObject, String fireEventName);
 
 
-    WorkFlow next(WorkEventFunction execObject);
-
 
     WorkFlow next(WorkEventFunction execObject, String fireEventName);
+
+
+
+    WorkFlow next(ThrowableRunFunction execObject, FnExecFeatureFunction fnExecFeatureFunction);
+
+
+    WorkFlow next(Consumer<? super T> execObject, FnExecFeatureFunction fnExecFeatureFunction);
+
+
+    WorkFlow next(WorkEventConsumer execObject, FnExecFeatureFunction fnExecFeatureFunction);
+
+
+
+    WorkFlow next(WorkEventFunction execObject, FnExecFeatureFunction fnExecFeatureFunction);
+
+
+
+
 
 
 

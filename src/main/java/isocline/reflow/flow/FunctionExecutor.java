@@ -19,10 +19,8 @@ import isocline.reflow.FunctionExecFeature;
 import isocline.reflow.WorkEvent;
 import isocline.reflow.WorkHelper;
 import isocline.reflow.event.WorkEventImpl;
-import isocline.reflow.flow.func.CheckFunction;
-import isocline.reflow.flow.func.ReturnEventFunction;
-import isocline.reflow.flow.func.WorkEventConsumer;
-import isocline.reflow.flow.func.WorkEventFunction;
+import isocline.reflow.event.WorkEventKey;
+import isocline.reflow.flow.func.*;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -48,14 +46,15 @@ public class FunctionExecutor implements FunctionExecFeature {
 
     private String fireEventName;
 
+    private String[] sucessFireEventNames = null;
 
-    private String[] sucessFireEventNames;
+    private String[] failFireEventNames = null;
 
-    private String[] failFireEventNames;
+    private String[] beforeFireEventNames = null;
 
-    private String[] beforeFireEventNames;
+    private String[] endFireEventNames = null;
 
-    private String[] timeoutFireEventNames;
+    private String[] timeoutFireEventNames = null;
 
     private long timeout = 0;
 
@@ -74,6 +73,8 @@ public class FunctionExecutor implements FunctionExecFeature {
 
     private Function function = null;
 
+
+    private ThrowableRunFunction throwableRunFunction = null;
 
     private WorkEventConsumer workEventConsumer = null;
 
@@ -111,7 +112,10 @@ public class FunctionExecutor implements FunctionExecFeature {
                 this.returnEventFunction = (ReturnEventFunction) obj;
             } else if (obj instanceof WorkEventFunction) {
                 this.workEventFunction = (WorkEventFunction) obj;
-            } else {
+            } else if (obj instanceof ThrowableRunFunction) {
+                this.throwableRunFunction = (ThrowableRunFunction) obj;
+            }
+            else {
                 throw new IllegalArgumentException("Not Support type");
             }
         }
@@ -122,7 +126,7 @@ public class FunctionExecutor implements FunctionExecFeature {
 
     private String getUUID() {
         nonce++;
-        String uuid = "U#"+nonce + "X" + String.valueOf(this.hashCode());
+        String uuid = WorkEventKey.PREFIX_FUNC_UUID+nonce + "x" + String.valueOf(this.hashCode());
         return uuid;
     }
 
@@ -239,6 +243,8 @@ public class FunctionExecutor implements FunctionExecFeature {
             }
 
 
+        }else if (throwableRunFunction != null) {
+            throwableRunFunction.run();
         }
 
 
@@ -250,29 +256,51 @@ public class FunctionExecutor implements FunctionExecFeature {
 
     @Override
     public FunctionExecFeature before(String... eventNames) {
+        if(this.beforeFireEventNames!=null) {
+            throw new IllegalStateException("The duplicate method call is not prohibited");
+        }
         this.beforeFireEventNames = eventNames;
         return this;
     }
 
     @Override
     public FunctionExecFeature success(String... eventNames) {
+        if(this.sucessFireEventNames!=null) {
+            throw new IllegalStateException("The duplicate method call is not prohibited");
+        }
         this.sucessFireEventNames = eventNames;
         return this;
     }
 
     @Override
     public FunctionExecFeature fail(String... eventNames) {
+        if(this.failFireEventNames!=null) {
+            throw new IllegalStateException("The duplicate method call is not prohibited");
+        }
         this.failFireEventNames = eventNames;
         return this;
     }
 
     @Override
     public FunctionExecFeature timeout(long timeout, String... eventNames) {
+
         this.timeout = timeout;
         this.timeoutFireEventNames = eventNames;
         return this;
     }
 
+    @Override
+    public FunctionExecFeature end(String... eventNames) {
+        if(this.endFireEventNames!=null) {
+            throw new IllegalStateException("The duplicate method call is not prohibited");
+        }
+        this.endFireEventNames = eventNames;
+        return this;
+    }
+
+    public long getTimeout() {
+        return this.timeout;
+    }
     public String[] getBeforeFireEventNames() {
         return this.beforeFireEventNames;
     }
@@ -284,6 +312,12 @@ public class FunctionExecutor implements FunctionExecFeature {
     public String[] getFailFireEventNames() {
         return this.failFireEventNames;
     }
+
+    public String[] getEndFireEventNames() {
+        return this.endFireEventNames;
+    }
+
+
 
     public String[] getTimeoutFireEventNames() {
         return this.timeoutFireEventNames;

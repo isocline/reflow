@@ -51,5 +51,9 @@ public interface ActivatedPlan {
 
     ActivatedPlan finishFromNow(long milliSeconds);
 
+    long getIntervalTime();
 
-}
+    long getNextExecDelayTime();
+
+
+    }

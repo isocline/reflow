@@ -12,6 +12,9 @@ public interface FunctionExecFeature {
     FunctionExecFeature fail(String... eventNames);
 
 
+    FunctionExecFeature end(String... eventNames);
+
+
     FunctionExecFeature timeout(long timeoutMillis, String... eventNames);
 
 

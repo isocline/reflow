@@ -4,7 +4,7 @@ import isocline.reflow.*;
 import isocline.reflow.log.XLogger;
 import org.junit.Test;
 
-import static isocline.reflow.WorkHelper.reflow;
+import static isocline.reflow.WorkHelper.Reflow;
 import static org.junit.Assert.assertEquals;
 
 public class AsyncAggregator implements FlowableWork {
@@ -94,7 +94,7 @@ public class AsyncAggregator implements FlowableWork {
 
     @Test
     public void startTest2() {
-        reflow(flow -> {
+        Reflow(flow -> {
             WorkFlow s1 = flow.next(this::init).fireEvent("timeout", 3000);
 
             WorkFlow p1 = flow.wait(s1).next(this::callService1);
@@ -107,6 +107,6 @@ public class AsyncAggregator implements FlowableWork {
             flow.onError("*").next(this::onError).finish();
             flow.wait("timeout").next(this::onTimeout).finish();
 
-        }).run();
+        });
     }
 }

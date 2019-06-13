@@ -96,6 +96,16 @@ public class PlanImpl implements Plan, ActivatedPlan {
 
     private Consumer consumer = null;
 
+    private boolean isFlowableWork = false;
+
+    private long nextDelayTime = 0;
+
+    PlanImpl(FlowProcessor flowProcessor, FlowableWork work) {
+        this(flowProcessor, (Work) work);
+
+        this.isFlowableWork = true;
+    }
+
     PlanImpl(FlowProcessor flowProcessor, Work work) {
         this.flowProcessor = flowProcessor;
         this.work = work;
@@ -151,6 +161,7 @@ public class PlanImpl implements Plan, ActivatedPlan {
         needWaiting = false;
 
         if (!isActivated) {
+            System.out.println("XXXXXXXXXX");
             return 0;
             //throw new RuntimeException("service end");
         }
@@ -363,6 +374,7 @@ public class PlanImpl implements Plan, ActivatedPlan {
      *
      * @return a milliseconds time for interval
      */
+    @Override
     public long getIntervalTime() {
         return this.intervalTime;
     }
@@ -379,11 +391,19 @@ public class PlanImpl implements Plan, ActivatedPlan {
 
         checkLocking();
 
-        this.intervalTime = intervalTime;
+        if(this.isFlowableWork) {
+            this.nextDelayTime = intervalTime;
+        }else {
+            this.intervalTime = intervalTime;
+        }
 
         return this;
     }
 
+
+    public long getNextExecDelayTime() {
+        return this.nextDelayTime;
+    }
 
     /**
      * @param intervalTime
@@ -633,6 +653,9 @@ public class PlanImpl implements Plan, ActivatedPlan {
         return this;
     }
 
+    void clearForLooping() {
+        this.originEvent = null;
+    }
 
     /**
      * Actives a {@link Plan}
@@ -679,6 +702,7 @@ public class PlanImpl implements Plan, ActivatedPlan {
             long startTime = Clock.nextSecond(900);
             this.setStartTime(startTime + this.waitingTime);
         } else if (this.waitingTime > 0) {
+            System.err.println("XXXXXXXXXXXX " + this.waitingTime);
             this.adjustDelayTime(this.waitingTime);
         }
 
@@ -729,11 +753,15 @@ public class PlanImpl implements Plan, ActivatedPlan {
     }
 
 
+    //public boolean checkFinsh() {}
+
     /**
      * inactive job
      */
     @Override
     synchronized public void inactive() {
+
+
         if (this.isActivated) {
             this.isActivated = false;
             this.flowProcessor.managedWorkCount.decrementAndGet();
@@ -744,6 +772,7 @@ public class PlanImpl implements Plan, ActivatedPlan {
             consumer.accept(result);
         }
         notifyAll();
+
         logger.debug("Plan is finished");
     }
 

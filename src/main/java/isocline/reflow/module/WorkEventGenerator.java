@@ -32,7 +32,7 @@ public class WorkEventGenerator implements Work {
 
     private int count = 0;
 
-    private String eventName = "reflow:signal";
+    private String eventName = "Reflow:signal";
 
 
     public void setEventName(String eventName) {

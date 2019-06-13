@@ -83,6 +83,9 @@ public interface WorkEvent {
     Object remove(String key);
 
 
+    void reset();
+
+
 
     AtomicInteger getCounter(String key);
 
@@ -127,6 +130,12 @@ public interface WorkEvent {
      * @return an instance of Throwable
      */
     Throwable getThrowable();
+
+
+    WorkEvent setTimeoutThread(Thread thread);
+
+
+    Thread getTimeoutThread();
 
 
     /**

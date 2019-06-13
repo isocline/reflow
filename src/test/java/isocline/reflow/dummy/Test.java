@@ -17,10 +17,10 @@ public class Test {
         for (int i = 0; i < 1; i++) {
 
             TestJob work = new TestJob(i);
-            //Plan schedule = processor.reflow(work).on("fire").setStartDelay(1000);
-            //Plan schedule = processor.reflow(work).on("fire").setStartDelay(Clock.milliseconds("2019-01-17T13:32:30+09:00"));
+            //Plan schedule = processor.Reflow(work).on("fire").setStartDelay(1000);
+            //Plan schedule = processor.Reflow(work).on("fire").setStartDelay(Clock.milliseconds("2019-01-17T13:32:30+09:00"));
             Plan schedule = processor.reflow(work).on("fire").strictMode();
-            //Plan schedule = processor.reflow(work).on("fire");
+            //Plan schedule = processor.Reflow(work).on("fire");
 
             schedule.activate();
 
