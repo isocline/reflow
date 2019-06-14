@@ -58,7 +58,7 @@ public class MultiAndSumFlow2 implements FlowableWork {
 
         flow.runAsync(this::async3).runAsync(this::async4);
 
-        flow.waitAll().next(this::sum2).finish();
+        flow.waitAll().next(this::sum2).end();
 
     }
 

@@ -97,7 +97,7 @@ public class OrderProcess2 implements FlowableWork {
                 .runAsync(this::checkSupplier, "checkSup")
 
 
-                .wait("checkStock&checkSup").next(this::makeMessage).next(this::test).finish();
+                .wait("checkStock&checkSup").next(this::makeMessage).next(this::test).end();
 
 
     }

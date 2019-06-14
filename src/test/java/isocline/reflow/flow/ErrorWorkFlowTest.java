@@ -70,9 +70,9 @@ public class ErrorWorkFlowTest implements FlowableWork {
 
         WorkFlow t2 = flow.wait(p1).next(this::sendStatusMsg).next(this::sendReportMsg);
 
-        flow.onError(t1).next(this::checkError).finish();
+        flow.onError(t1).next(this::checkError).end();
 
-        flow.waitAll(t1, t2).next(this::report).finish();
+        flow.waitAll(t1, t2).next(this::report).end();
     }
 
 
@@ -80,9 +80,8 @@ public class ErrorWorkFlowTest implements FlowableWork {
     public void testStartByEvent() {
         FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
-        processor.reflow(this).activate();
+        processor.reflow(this).activate().block();
 
-        processor.awaitShutdown();
 
         assertEquals(false, chk);
         assertEquals(true, chk2);

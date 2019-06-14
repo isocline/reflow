@@ -288,7 +288,7 @@ public interface WorkFlow<T> {
      *
      * @return an instance of WorkFlow
      */
-    WorkFlow finish();
+    WorkFlow end();
 
     /**
      * Check whether the execution completion status is set.

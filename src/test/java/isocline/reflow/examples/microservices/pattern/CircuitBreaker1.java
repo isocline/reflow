@@ -100,16 +100,16 @@ public class CircuitBreaker1 {
                                     .check(circuitBreaker::check)
                                     .next(this::callService1).cursor();
 
-                            flow.finish();
+                            flow.end();
 
 
-                            flow.onError(cursor).next(circuitBreaker::error).finish();
+                            flow.onError(cursor).next(circuitBreaker::error).end();
 
 
                             //flow.onError("*").next(this::onError2).inactive();
 
 
-                            flow.wait("test").finish();
+                            flow.wait("test").end();
                         });
 
 

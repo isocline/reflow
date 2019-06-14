@@ -57,7 +57,7 @@ public class ComplexWorkFlowTest implements FlowableWork {
 
         WorkFlow t2 = flow.wait(start).next(this::sendStatusMsg).next(this::sendReportMsg);
 
-        flow.waitAll(t1, t2).next(this::report).finish();
+        flow.waitAll(t1, t2).next(this::report).end();
     }
 
 

@@ -98,7 +98,7 @@ public class PlanImpl implements Plan, ActivatedPlan {
 
     private boolean isFlowableWork = false;
 
-    private long nextDelayTime = 0;
+    private long intervalTime4Flow = 0;
 
     PlanImpl(FlowProcessor flowProcessor, FlowableWork work) {
         this(flowProcessor, (Work) work);
@@ -165,7 +165,7 @@ public class PlanImpl implements Plan, ActivatedPlan {
             return 0;
             //throw new RuntimeException("service end");
         }
-        if (isOverEndTime()) {
+        if (isOveEndTimeOver()) {
             return Long.MAX_VALUE;
         }
 
@@ -204,7 +204,7 @@ public class PlanImpl implements Plan, ActivatedPlan {
     }
 
 
-    boolean isOverEndTime() {
+    boolean isOveEndTimeOver() {
         if (this.workEndTime > 0) {
             if (System.currentTimeMillis() >= this.workEndTime) {
 
@@ -391,9 +391,9 @@ public class PlanImpl implements Plan, ActivatedPlan {
 
         checkLocking();
 
-        if(this.isFlowableWork) {
-            this.nextDelayTime = intervalTime;
-        }else {
+        if (this.isFlowableWork) {
+            this.intervalTime4Flow = intervalTime;
+        } else {
             this.intervalTime = intervalTime;
         }
 
@@ -402,7 +402,7 @@ public class PlanImpl implements Plan, ActivatedPlan {
 
 
     public long getNextExecDelayTime() {
-        return this.nextDelayTime;
+        return this.intervalTime4Flow;
     }
 
     /**
@@ -672,7 +672,8 @@ public class PlanImpl implements Plan, ActivatedPlan {
         this.isActivated = true;
 
 
-        try {
+        if(this.isFlowableWork) {
+
             if (this.work instanceof FlowableWork) {
                 this.workFlow = WorkFlowFactory.createWorkFlow();
 
@@ -688,12 +689,10 @@ public class PlanImpl implements Plan, ActivatedPlan {
                 if (!this.isDaemonMode && !wf.isSetFinish()) {
 
                     wf.fireEvent(WorkFlow.FINISH, 0);
-                    wf.wait(WorkFlow.FINISH).finish();
+                    wf.wait(WorkFlow.FINISH).end();
                 }
 
             }
-
-        } catch (UnsupportedOperationException npe) {
 
         }
 
@@ -702,7 +701,6 @@ public class PlanImpl implements Plan, ActivatedPlan {
             long startTime = Clock.nextSecond(900);
             this.setStartTime(startTime + this.waitingTime);
         } else if (this.waitingTime > 0) {
-            System.err.println("XXXXXXXXXXXX " + this.waitingTime);
             this.adjustDelayTime(this.waitingTime);
         }
 
@@ -753,7 +751,11 @@ public class PlanImpl implements Plan, ActivatedPlan {
     }
 
 
-    //public boolean checkFinsh() {}
+    public long getIntervalTime4Flow() {
+        
+        return this.intervalTime4Flow;
+
+    }
 
     /**
      * inactive job
@@ -765,15 +767,16 @@ public class PlanImpl implements Plan, ActivatedPlan {
         if (this.isActivated) {
             this.isActivated = false;
             this.flowProcessor.managedWorkCount.decrementAndGet();
-        }
-        if (this.consumer != null) {
-            WorkEvent originEvent = this.getOriginWorkEvent();
-            Object result = WorkHelper.Get(originEvent);
-            consumer.accept(result);
-        }
-        notifyAll();
 
-        logger.debug("Plan is finished");
+            if (this.consumer != null) {
+                WorkEvent originEvent = this.getOriginWorkEvent();
+                Object result = WorkHelper.Get(originEvent);
+                consumer.accept(result);
+            }
+            notifyAll();
+
+            logger.debug("Plan is finished");
+        }
     }
 
 

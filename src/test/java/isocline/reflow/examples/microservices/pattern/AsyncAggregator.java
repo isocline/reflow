@@ -73,11 +73,11 @@ public class AsyncAggregator implements FlowableWork {
         WorkFlow p2 = flow.wait(s1).next(this::callService2);
         WorkFlow p3 = flow.wait(s1).next(this::callService3);
 
-        flow.waitAll(p1, p2, p3).next(this::finish).finish();
+        flow.waitAll(p1, p2, p3).next(this::finish).end();
 
 
-        flow.onError("*").next(this::onError).finish();
-        flow.wait("timeout").next(this::onTimeout).finish();
+        flow.onError("*").next(this::onError).end();
+        flow.wait("timeout").next(this::onTimeout).end();
 
     }
 
@@ -101,11 +101,11 @@ public class AsyncAggregator implements FlowableWork {
             WorkFlow p2 = flow.wait(s1).next(this::callService2);
             WorkFlow p3 = flow.wait(s1).next(this::callService3);
 
-            flow.waitAll(p1, p2, p3).next(this::finish).finish();
+            flow.waitAll(p1, p2, p3).next(this::finish).end();
 
 
-            flow.onError("*").next(this::onError).finish();
-            flow.wait("timeout").next(this::onTimeout).finish();
+            flow.onError("*").next(this::onError).end();
+            flow.wait("timeout").next(this::onTimeout).end();
 
         });
     }

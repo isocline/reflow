@@ -43,12 +43,8 @@ public class WorkFlowTest implements FlowableWork {
 
 
     public void report() {
-        logger.debug("");
-        try {
-            Thread.sleep(2000);
-        } catch (Exception e) {
 
-        }
+
         logger.debug("************ invoke - report************");
 
     }
@@ -66,7 +62,7 @@ public class WorkFlowTest implements FlowableWork {
 
         flow.wait("mail").next(this::report,"x2");
 
-        flow.waitAll("x1","x2","qq").finish();
+        flow.waitAll("x1","x2","qq").end();
 
 
         flow.wait("error").next(this::report);
@@ -80,10 +76,11 @@ public class WorkFlowTest implements FlowableWork {
 
         flow.wait("mail").next(this::report,"x2");
 
-        flow.waitAll("x1","x2").finish();
+        flow.waitAll("x1","x2").next(this::report).end();
 
 
     }
+
 
     public void defineWorkFlow_XX(WorkFlow flow) {
 
@@ -93,7 +90,7 @@ public class WorkFlowTest implements FlowableWork {
 
 
 
-        flow.wait("qq").finish();
+        flow.wait("qq").end();
 
 
     }
@@ -104,9 +101,9 @@ public class WorkFlowTest implements FlowableWork {
 
         flow.wait("mail").next(this::sendMail).fireEvent("qq",2000);
 
-        flow.wait("timeout").next(this::timeout).finish();
+        flow.wait("timeout").next(this::timeout).end();
 
-        flow.waitAll("qq").next(this::report).finish();
+        flow.waitAll("qq").next(this::report).end();
 
 
     }
@@ -135,7 +132,7 @@ public class WorkFlowTest implements FlowableWork {
 
         WorkEventGenerator gen = new WorkEventGenerator();
         gen.setEventName("start");
-        gen.setRepeatTime(Work.TERMINATE);
+        gen.setIntervalTime(Work.TERMINATE);
 
         processor.reflow(gen).startDelayTime(1000).activate();
 

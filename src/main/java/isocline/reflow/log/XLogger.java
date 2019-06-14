@@ -1,6 +1,7 @@
 package isocline.reflow.log;
 
-import org.apache.logging.log4j.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.logging.Level;
 
@@ -57,6 +58,15 @@ public class XLogger {
             log4jLogger.error(msg);
         } else if (javaLogger != null) {
             javaLogger.log(Level.WARNING, msg.toString());
+        }
+    }
+
+    public void error(String msg, Throwable err) {
+        if (log4jLogger != null) {
+            log4jLogger.error(msg,err);
+        } else if (javaLogger != null) {
+            javaLogger.log(Level.WARNING, msg,err);
+
         }
     }
 }

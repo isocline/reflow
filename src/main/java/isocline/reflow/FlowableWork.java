@@ -87,7 +87,7 @@ public interface FlowableWork<T> extends Work {
 
         final String eventName = event.getFireEventName();
 
-        System.out.println(Thread.currentThread().getId()+" RECV "+eventName + " "+event.origin().getCounter(WorkEventKey.COUNTER_FUNC_EXEC).get());
+        //XLogger.getLogger(this.getClass()).debug(Thread.currentThread().getId()+" RECV ["+eventName + "] "+event);
 
 
         FunctionExecutor executor = null;
@@ -96,6 +96,7 @@ public interface FlowableWork<T> extends Work {
 
         if (eventName != null) {
             FunctionExecutorList functionExecutorList = flow.getFunctionExecutorList(event, eventName);
+
             if (functionExecutorList != null) {
 
                 FunctionExecutorList.Wrapper wrapper = functionExecutorList.getNextstepFunctionExecutor();
@@ -103,6 +104,7 @@ public interface FlowableWork<T> extends Work {
                 if (wrapper != null) {
 
                     executor = wrapper.getFunctionExecutor();
+                    //XLogger.getLogger(this.getClass()).error( Thread.currentThread().getId() + " "+eventName+" RECV<< "+functionExecutorList.size());
 
                     if (wrapper.hasNext()) {
                         //plan.emit(event.createChild(eventName));
@@ -144,22 +146,22 @@ public interface FlowableWork<T> extends Work {
 
                 WorkHelper.emitLocalEvent(plan, event, executor.getSucessFireEventNames(), 0);
 
-            } catch (Throwable e) {
+            } catch (Throwable err) {
 
-                error = e;
+                error = err;
 
-                WorkHelper.emitLocalEvent(plan, event, executor.getFailFireEventNames(), error);
-
-
-                String errClassEventName = "error::" + e.getClass().getName();
-                WorkHelper.emitLocalEvent(plan, event, errClassEventName, 0, error);
+                WorkHelper.emitLocalEvent(plan, event, executor.getFailFireEventNames(), err);
 
 
-                String errEventName = "error::" + executor.getFireEventUUID();
-                WorkHelper.emitLocalEvent(plan, event, errClassEventName, 0, error);
+                String errClassEventName = WorkEventKey.PREFIX_ERROR + err.getClass().getName();
+                WorkHelper.emitLocalEvent(plan, event, errClassEventName, 0, err);
 
 
-                WorkHelper.emitLocalErrorEvent(plan, event, errEventName, 0, error);
+                String errEventName = WorkEventKey.PREFIX_ERROR + executor.getFireEventUUID();
+                WorkHelper.emitLocalEvent(plan, event, errClassEventName, 0, err);
+
+
+                WorkHelper.emitLocalErrorEvent(plan, event, errEventName, 0, err);
 
 
             } finally {

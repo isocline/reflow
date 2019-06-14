@@ -302,8 +302,8 @@ public class WorkFlowWrapper<T> implements WorkFlow<T> {
     }
 
     @Override
-    public WorkFlow finish() {
-        this.workFlowInstance.finish();
+    public WorkFlow end() {
+        this.workFlowInstance.end();
         return new WorkFlowWrapper(this.workFlowInstance);
 
     }

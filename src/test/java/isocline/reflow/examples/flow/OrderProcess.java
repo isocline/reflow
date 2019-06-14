@@ -78,7 +78,7 @@ public class OrderProcess implements FlowableWork {
                 .next(this::checkSupplier, "checkSup");
 
         flow
-                .wait("checkStock&checkSup").next(this::makeMessage).finish();
+                .wait("checkStock&checkSup").next(this::makeMessage).end();
 
 
     }

@@ -8,9 +8,12 @@ public class WorkEventKey {
 
     public final static String PREFIX_ERROR = "error::";
 
-    public final static String PREFIX_FUNC_UUID = "U#v::";
+    public final static String PREFIX_FUNC_UUID = "U#:";
 
 
     public final static String PREFIX_FUNCTION = "fnc::";
+
+
+    public final static String PREFIX_EVENT_SET = "eset::";
 
 }

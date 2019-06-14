@@ -40,7 +40,7 @@ public class SimultaneousEventSet  {
      */
     public SimultaneousEventSet(String eventSetName) {
         this.eventSetName = eventSetName;
-        this.eventNameForEventSet = "eset::" + eventSetName;
+        this.eventNameForEventSet = WorkEventKey.PREFIX_EVENT_SET+ eventSetName;
 
         String[] eventNames = eventSetName.split("&");
 

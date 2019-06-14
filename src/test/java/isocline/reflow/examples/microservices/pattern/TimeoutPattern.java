@@ -39,7 +39,7 @@ public class TimeoutPattern {
 
                     flow.pattern(
                             Timeout.setup(6000), () -> {
-                                flow.next(this::callService1).finish();
+                                flow.next(this::callService1).end();
                             }
                     );
 

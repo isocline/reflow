@@ -409,14 +409,6 @@ public class FlowProcessor extends ThreadGroup {
 
     boolean addWorkSchedule(PlanImpl plan, boolean isUserEvent) {
 
-
-        logger.debug("ADD 1 > " + Thread.currentThread().getId());
-        try{
-            throw new RuntimeException("zz");
-        }catch (Exception e) {
-            e.printStackTrace(System.out);
-        }
-
         boolean result = this.workQueue.offer(plan.enterQueue(isUserEvent));
         if (result) {
 
@@ -596,9 +588,12 @@ public class FlowProcessor extends ThreadGroup {
 
         return this;
     }
+    public FlowProcessor emit(String eventName,   WorkEvent event) {
+        return emit(eventName, null, event);
 
+    }
 
-    public FlowProcessor emit(String eventName, WorkEvent event) {
+    public FlowProcessor emit(String eventName, String internalTargetEventName, WorkEvent event) {
 
         WorkScheduleList workScheduleList = getWorkScheduleList(eventName, false);
 
@@ -613,8 +608,7 @@ public class FlowProcessor extends ThreadGroup {
         // for FlowableWork
         //workEvent.setFireEventName( WorkFlow.START );
 
-        //if (workScheduleList != null)
-        {
+        if (workScheduleList != null) {
 
             PlanImpl[] array = workScheduleList.getPlanArray();
             for (PlanImpl schedule : array) {
@@ -632,6 +626,11 @@ public class FlowProcessor extends ThreadGroup {
 
                     }
                     //schedule.emit(newWorkEvent);
+
+                    if(internalTargetEventName!=null) {
+                        newWorkEvent.setFireEventName(internalTargetEventName);
+                    }
+
                     this.workQueue.offer(schedule.enterQueue(true, newWorkEvent));
 
                 }
@@ -753,13 +752,14 @@ public class FlowProcessor extends ThreadGroup {
         }
 
 
-        private boolean check(PlanImpl plan, long time) throws InterruptedException {
+        private boolean check(PlanImpl plan, long time) throws InterruptedException, FlowProcessException {
 
             if (!plan.isActivated()) {
-                return false;
+                //return false;
+                throw new FlowProcessException("inactive");
             }
 
-            if (plan.isOverEndTime()) {
+            if (plan.isOveEndTimeOver()) {
                 throw new InterruptedException("time out");
             }
 
@@ -784,186 +784,222 @@ public class FlowProcessor extends ThreadGroup {
             return false;
         }
 
+
+        private final static short RUNNING = 0;
+        private final static short TERMINATE_BY_USER = 1;
+        private final static short TERMINATE_BY_TIMEOVER = 2;
+        private final static short TERMINATE_BY_ERROR = 3;
+        private final static short TERMINATE_BY_FLOW = 4;
+
+
+        private final static short ENTER_MONITOR_QUEUE = 11;
+        private final static short ENTER_EXEC_QUEUE = 12;
+        private final static short ENTER_EXEC_QUEUE2 = 13;
+
+
+        private void adjustThread(int runningCount) {
+            if (timeoutCount > 10) {
+                this.flowProcessor.removeThreadWorker();
+                timeoutCount = 0;
+            } else if (runningCount > 3 * (this.flowProcessor.getCurrentThreadWorkerCount() / 4)) {
+                stoplessCount = 0;
+                this.flowProcessor.addThreadWorker(6);
+            }
+        }
+
+
+        private int count = 0;
+
+        private boolean checkExecuteContext(PlanImpl.ExecuteContext ctx) throws InterruptedException {
+            if (ctx == null) {
+                return false;
+            } else if (count == 5000) {
+                Thread.sleep(0, 1);
+            } else if (count == 10000) {
+                Thread.sleep(10);
+                count = 0;
+            } else {
+                count++;
+            }
+
+            return true;
+        }
+
+
+        private long checkNextIntervalTime(long nextIntervalTime, PlanImpl plan) {
+
+            long intervalTime = nextIntervalTime;
+
+            if (nextIntervalTime == Work.LOOP) {
+                intervalTime = Clock.SECOND;
+
+            } else if (nextIntervalTime == Work.WAIT) {
+
+                long configIntervalTime = plan.getIntervalTime();
+
+                if (configIntervalTime > 0) {
+                    intervalTime = configIntervalTime;
+                }
+            }
+
+            if (intervalTime > 0 || intervalTime == Work.WAIT) {
+                plan.adjustDelayTime(intervalTime);
+            }
+
+            return intervalTime;
+        }
+
+        /**
+         *
+         */
         public void run() {
 
             isThreadRunning = true;
 
 
-            int count = 0;
-
             while (isWorking()) {
 
                 PlanImpl plan = null;
 
-                int isSuccess = 0;
+                short stateMode = RUNNING;
+
 
                 try {
-
 
                     final PlanImpl.ExecuteContext ctx = this.flowProcessor.workQueue.poll(maxWaitTime,
                             TimeUnit.MILLISECONDS);
 
-                    if (ctx == null) {
+                    if (!checkExecuteContext(ctx)) {
                         continue;
-                    } else if (count == 5000) {
-                        Thread.sleep(0, 1);
-                    } else if (count == 10000) {
-                        Thread.sleep(10);
-                        count = 0;
-                    } else {
-                        count++;
                     }
 
                     plan = ctx.getPlan();
                     if (plan == null) continue;
 
-                    this.lastWorkTime = System.currentTimeMillis();
-
                     timeoutCount = 0;
-
 
                     Work workObject = plan.getWorkObject();
 
+                    this.lastWorkTime = System.currentTimeMillis();
 
                     if (check(plan, this.lastWorkTime)) {
 
-                        long remainMilliTime = plan.checkRemainMilliTime();
+                        long remainTime = plan.checkRemainMilliTime();
 
-                            /*
-                            boolean chk1 = ctx.isExecuteImmediately();
-                            boolean chk2 = (remainMilliTime < plan.getPreemptiveMilliTime());
-                            System.err.println(chk1 +" "+ chk2);
-                            if (chk1 || chk2) {
-                            */
-                        if (ctx.isExecuteImmediately() || remainMilliTime <= plan.getPreemptiveMilliTime()) {
+                        //logger.error("** "+remainTime + " "+plan.getPreemptiveMilliTime());
+                        if (remainTime < 1 || ctx.isExecuteImmediately() || remainTime < plan.getPreemptiveMilliTime()) {
 
                             stoplessCount++;
 
                             WorkEvent workEvent = plan.getOriginWorkEvent(ctx.getWorkEvent());
-                            /*
-                            WorkEvent workEvent = ctx.getWorkEvent();
-                            if (workEvent == null) {
-                                workEvent = plan.getOriginWorkEvent();
 
-                            } else {
-                                workEvent.setPlan(plan);
-                            }
-                            */
 
 
                             plan.adjustWaiting();
 
-                            int loopCount = 0;
-                            long delaytime = 0;
+                            long nextIntervalTime;
 
                             try {
                                 runningCounter.addAndGet(1);
 
-                                //System.out.println("INFO >>> "+this.flowProcessor.workQueue.size() + " "+runningCounter.get());
+                                nextIntervalTime = workObject.execute(workEvent);
 
-                                delaytime = workObject.execute(workEvent);
-
-                                System.out.println(Thread.currentThread().getId()+" RETURN === "+delaytime);
-
-
-                                while (delaytime == Work.LOOP && loopCount < 1000) {
-                                    delaytime = workObject.execute(workEvent);
+                                int loopCount = 0;
+                                while (nextIntervalTime == Work.LOOP && loopCount < 1000) {
+                                    nextIntervalTime = workObject.execute(workEvent);
                                     loopCount++;
                                 }
                             } finally {
                                 runningCounter.addAndGet(-1);
                             }
 
-                            if (delaytime == Work.LOOP) {
-                                delaytime = 1 * Clock.SECOND;
+                            nextIntervalTime = checkNextIntervalTime(nextIntervalTime, plan);
 
-                            } else if (delaytime == Work.WAIT) {
+                            if (nextIntervalTime == Work.TERMINATE) {
+                                stateMode = TERMINATE_BY_USER;
 
-                                long repeatInterval = plan.getIntervalTime();
+                            } else if (nextIntervalTime > this.flowProcessor.configuration.getThresholdWaitTimeToReady()) {
+                                stateMode = ENTER_MONITOR_QUEUE;
 
-                                if (repeatInterval > 0) {
-                                    delaytime = repeatInterval;
-                                }
-                            }
-
-                            if (delaytime > 0) {
-
-                                plan.adjustDelayTime(delaytime);
-
-                                if (delaytime > this.flowProcessor.configuration.getThresholdWaitTimeToReady()) {
-                                    System.out.println(Thread.currentThread().getId()+" >$$>1>              "+delaytime+" "+this.flowProcessor.configuration.getThresholdWaitTimeToReady());
-                                    this.flowProcessor.workChecker
-                                            .addWorkStatusWrapper(plan);
-                                } else {
-                                    System.out.println(Thread.currentThread().getId()+" >$$>2> ");
-                                    this.flowProcessor.addWorkSchedule(plan);
-                                }
-
-                            } else if (delaytime == Work.WAIT) {
-                                plan.adjustRepeatInterval(Work.WAIT);
-                            } else if (delaytime == Work.TERMINATE) {
-                                isSuccess = 1;
+                            } else if (nextIntervalTime > 0) {
+                                stateMode = ENTER_EXEC_QUEUE;
                             }
 
 
-                        } else if (!plan.isOverEndTime()) {
+                        } else if (!plan.isOveEndTimeOver()) {
                             timeoutCount++;
                             stoplessCount = 0;
 
-                            if (remainMilliTime > this.flowProcessor.configuration.getThresholdWaitTimeToReady()) {
-                                System.out.println(Thread.currentThread().getId()+" >>XX> "+remainMilliTime + " "+ plan.getPreemptiveMilliTime() +" "+this.flowProcessor.configuration.getThresholdWaitTimeToReady());
-
-                                this.flowProcessor.workChecker
-                                        .addWorkStatusWrapper(plan);
+                            if (remainTime > this.flowProcessor.configuration.getThresholdWaitTimeToReady()) {
+                                stateMode = ENTER_MONITOR_QUEUE;
                             } else {
-                                if(remainMilliTime>0)
-                                    Thread.sleep(remainMilliTime);
-                                System.out.println(Thread.currentThread().getId()+" >>> "+remainMilliTime + " "+ plan.getPreemptiveMilliTime() +" "+this.flowProcessor.configuration.getThresholdWaitTimeToReady());
-                                this.flowProcessor
-                                        .addWorkSchedule(plan);
+                                stateMode = ENTER_EXEC_QUEUE;
                             }
 
                         } else {
                             // time over
-                            isSuccess = 2;
+                            stateMode = TERMINATE_BY_TIMEOVER;
                         }
 
                     } else {
-                        System.out.println("INFO >:> "+this.flowProcessor.workQueue.size());
-                        this.flowProcessor.workQueue.put(plan.enterQueue(false));
+                        stateMode = ENTER_EXEC_QUEUE2;
                     }
 
+                    adjustThread(runningCounter.get());
 
-                    if (timeoutCount > 10) {
-                        this.flowProcessor.removeThreadWorker();
-                        timeoutCount = 0;
-                    } else if (runningCounter.get() > 3 * (this.flowProcessor.getCurrentThreadWorkerCount() / 4)) {
-                        //System.out.println(this.hashCode() +" >>> "+this.stoplessCount + " "+runningCounter.get()+ " "+this.flowProcessor.getCurrentThreadWorkerCount());
-                        stoplessCount = 0;
-                        this.flowProcessor.addThreadWorker(6);
 
-                    }
+                } catch (FlowProcessException fpe) {
+                    stateMode = TERMINATE_BY_FLOW;
+                    //logger.error("InterruptedException", ite);
 
                 } catch (RuntimeException re) {
-                    isSuccess = 3;
-                    re.printStackTrace();
+                    stateMode = TERMINATE_BY_ERROR;
+                    logger.error("runtime error", re);
 
                 } catch (InterruptedException ite) {
-                    isSuccess = 4;
-
-
-                    //ite.printStackTrace();
+                    stateMode = TERMINATE_BY_TIMEOVER;
+                    //logger.error("InterruptedException", ite);
 
                 } catch (Throwable e) {
-                    isSuccess = 5;
+                    stateMode = TERMINATE_BY_ERROR;
 
-                    e.printStackTrace();
+                    logger.error("error", e);
 
-                }finally {
-                    if(isSuccess>0 && plan != null) {
-                        System.out.println("END ===================== "+isSuccess);
-                        plan.inactive();
+                } finally {
+
+                    if (plan != null) {
+
+                        switch (stateMode) {
+                            case TERMINATE_BY_ERROR:
+                            case TERMINATE_BY_USER:
+                            case TERMINATE_BY_TIMEOVER:
+                            case TERMINATE_BY_FLOW:
+
+                                plan.inactive();
+
+                                break;
+
+                            case ENTER_EXEC_QUEUE:
+                                this.flowProcessor.addWorkSchedule(plan);
+                                break;
+
+                            case ENTER_MONITOR_QUEUE:
+                                this.flowProcessor.workChecker.addWorkStatusWrapper(plan);
+                                break;
+
+                            case ENTER_EXEC_QUEUE2:
+                                try {
+                                    this.flowProcessor.workQueue.put(plan.enterQueue(false));
+                                } catch (InterruptedException ite) {
+
+                                }
+
+                        }
                     }
+
+
+                    //if(plan!=null)
+                    // logger.debug(maxWaitTime+" "+stateMode+">> "+this.flowProcessor.workQueue.size() + " / "+this.flowProcessor.workChecker.statusWrappers.size());
 
                 }
             }

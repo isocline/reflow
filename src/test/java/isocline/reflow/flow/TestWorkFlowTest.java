@@ -53,7 +53,7 @@ public class TestWorkFlowTest implements FlowableWork {
 
         WorkFlow t2 = flow.wait(p1).next(this::sendStatusMsg).next(this::sendReportMsg);
 
-        flow.waitAll( t2).next(this::report).finish();
+        flow.waitAll( t2).next(this::report).end();
     }
 
 

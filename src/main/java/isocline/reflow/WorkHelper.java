@@ -1,5 +1,7 @@
 package isocline.reflow;
 
+import isocline.reflow.event.WorkEventKey;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -85,7 +87,7 @@ public class WorkHelper {
     }
 
     static void emitLocalErrorEvent(ActivatedPlan plan, WorkEvent event, String eventName, long delayTime, Throwable error) {
-        if (eventName != null && eventName.indexOf("error::") == 0) {
+        if (eventName != null && eventName.indexOf(WorkEventKey.PREFIX_ERROR) == 0) {
             final WorkEvent we = event.createChild(eventName);
             if (error != null) {
                 we.setThrowable(error);
@@ -120,6 +122,7 @@ public class WorkHelper {
         }
 
         plan.emit(emitEvent, delayTime);
+
 
     }
 

@@ -44,11 +44,11 @@ public class FnExecFeatureFunctionTest {
         Reflow(flow -> {
                     flow.next(this::test2, e -> e.timeout(3000, "tt"));
 
-                    flow.wait("tt").next((WorkEvent e)->{e.getThrowable().printStackTrace();}).finish();
+                    flow.wait("tt").next((WorkEvent e)->{e.getThrowable().printStackTrace();}).end();
                 }
 
-                        //.wait("tt").next((WorkEvent e)->e.getThrowable().printStackTrace()).finish()
-                //.wait("tt").next(this::catchEvent).finish()
+                        //.wait("tt").next((WorkEvent e)->e.getThrowable().printStackTrace()).end()
+                //.wait("tt").next(this::catchEvent).end()
         );
 
 
@@ -62,7 +62,7 @@ public class FnExecFeatureFunctionTest {
                         .next(this::test2, exec ->
                                 exec.before("b1", "b2").success("s1", "s2").fail("f1").end("e1").timeout(3000))
                         .wait("b1", "b2", "s1", "s2", "f1", "e1").next(this::catchEvent)
-                        .wait("x").finish())
+                        .wait("x").end())
 
                 .activate();
 

@@ -7,11 +7,17 @@ import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class FlowableWorkTest {
 
     private XLogger logger = XLogger.getLogger(FlowableWorkTest.class);
+
+    private int count4case0_result = 0;
+    private int count4case0 = 0;
+    private int count4case1 = 0;
+    private int count4case2 = 0;
 
 
     /**
@@ -38,67 +44,90 @@ public class FlowableWorkTest {
     }
 
 
+    private void case0(WorkEvent e) {
+        count4case0++;
+        logger.debug("invoke case0 " + e.origin().get("result"));
+
+        if (e.origin().get("result") != null) {
+            count4case0_result++;
+        }
+    }
+
     private void case1(WorkEvent e) {
-        logger.debug("case1 >>" + e.get("result"));
+        count4case1++;
+        logger.debug("invoke case1");
     }
 
     private void case2() {
-        logger.debug("case2");
+        count4case2++;
+        logger.debug("invoke case2");
+    }
+
+    private void reset() {
+        count4case0_result = 0;
+        count4case0 = 0;
+        count4case1 = 0;
+        count4case2 = 0;
     }
 
     @Test
     public void testBasic() {
 
-        FlowProcessor.core().reflow(f -> {
-            f
-                    .applyAsync(e -> getExhangeRate(1000 * Math.random(), 3, 5))
-                    .applyAsync(e -> getExhangeRate(2000, 4, 2))
-                    .applyAsync(e -> getExhangeRate(5000 * Math.random(), 3, 4))
-                    .waitAll().next((WorkEvent e) -> e.getDoubleStream().sum());
-        }).activate(this::check).block();
+        FlowProcessor.core()
+                .reflow(f -> {
+                    f
+                            .applyAsync(e -> getExhangeRate(1000 * Math.random(), 3, 5))
+                            .applyAsync(e -> getExhangeRate(2000, 4, 2))
+                            .applyAsync(e -> getExhangeRate(5000 * Math.random(), 3, 4))
+                            .waitAll()
+                            .next((WorkEvent e) -> e.getDoubleStream().sum());
+                })
+                .activate(this::check).block();
 
     }
 
 
     @Test
-    public void testBasic2() throws Exception {
+    public void testAsyncCalcByExternalEvent() throws Exception {
         AtomicInteger count = new AtomicInteger(0);
 
-        FlowProcessor.core().reflow(f -> {
-            f
-                    .applyAsync(e -> getExhangeRate(1000 * Math.random(), 3, 5))
-                    .applyAsync(e -> getExhangeRate(2000 * Math.random(), 4, 2))
-                    .applyAsync(e -> getExhangeRate(5000 * Math.random(), 3, 4))
-                    .waitAll().next((WorkEvent e) -> e.getDoubleStream().sum()).next((WorkEvent e) -> {
-                count.addAndGet(1);
-                logger.info("RESULT = " + e.getResult());
-            });
-        })
+        FlowProcessor.core()
+                .reflow(f -> {
+                    f
+                            .applyAsync(e -> getExhangeRate(1000, 3, 5))
+                            .applyAsync(e -> getExhangeRate(2000, 4, 2))
+                            .applyAsync(e -> getExhangeRate(5000, 3, 4))
+                            .waitAll()
+                            .next((WorkEvent e) -> e.getDoubleStream().sum())
+                            .next((WorkEvent e) -> {
+                                count.addAndGet(1);
+                                double result = (double) e.getResult();
+                                logger.info("RESULT = " + result);
+                            });
+                })
                 .daemonMode()
-                .on("xxx")
+                .on("calc")
                 .activate(logger::debug);
 
-        WorkEventGenerator generator = new WorkEventGenerator();
-        generator.setEventName("xxx");
-        generator.setRepeatTime(10);
+        WorkEventGenerator generator = new WorkEventGenerator("calc", 500);
 
         FlowProcessor.core()
                 .reflow(generator)
                 .startTime(Clock.nextSecond())
-                .finishTimeFromStart(2 * Clock.SECOND)
+                .finishTimeFromStart(5 * Clock.SECOND)
                 .strictMode()
                 .activate();
 
+        logger.debug("flow define completed");
 
-        logger.debug("END ======");
         long t1 = System.currentTimeMillis();
         Thread.sleep(2000);
-        for (int i = 0; i < 200; i++) {
+        for (int i = 0; i < 40; i++) {
             int crntCount = count.get();
 
             logger.debug(crntCount + "/" + generator.getCount() + " " + (System.currentTimeMillis() - t1));
 
-            if (generator.getCount() != 0 && crntCount == generator.getCount()) {
+            if (crntCount > 7 && generator.getCount() != 0 && crntCount == generator.getCount()) {
                 return;
             }
             Thread.sleep(500);
@@ -108,10 +137,11 @@ public class FlowableWorkTest {
     }
 
     @Test
-    public void testBasic3() throws Exception {
+    public void testFlowCalcLogic() throws Exception {
         AtomicInteger count = new AtomicInteger(0);
 
-        FlowableWork flow = (f) -> { f
+        FlowableWork flow = (f) -> {
+            f
 
                     .applyAsync(e -> getExhangeRate(1000 * Math.random(), 3, 5))
                     .applyAsync(e -> getExhangeRate(2000 * Math.random(), 4, 2))
@@ -121,45 +151,68 @@ public class FlowableWorkTest {
                     .next((WorkEvent e) -> {
                         count.addAndGet(1);
                         logger.info("RESULT = " + e.getResult());
-                    }).finish();
+                    }).end();
         };
 
 
         FlowProcessor.core()
                 .reflow(flow)
                 .interval(2000)
+                .activate(logger::error).block();
 
-                .activate(logger::debug).block();
-
-
-       // TestUtil.waiting(200000);
     }
 
 
+    /***
+     * Test for event emiting frame external flow process
+     *
+     * @throws Exception
+     */
     @Test
-    public void testBasic4() throws Exception {
-        FlowProcessor.core().reflow(f -> {
-            f.wait("case1").next(this::case1);
-            f.wait("case2").next(this::case2);
-        }).on("x").daemonMode().activate();
+    public void testEmitEventFromExternal() throws Exception {
+
+        reset();
+
+        FlowProcessor.core()
+                .reflow(f -> {
+                    f.next(this::case0);
+                    f.wait("case1").next(this::case1);
+                    f.wait("case2").next(this::case2);
+                })
+                .on("ev")
+                .daemonMode()
+                .activate();
 
 
-        FlowProcessor.core().reflow((WorkEvent e) -> {
+        FlowProcessor.core()
+                .reflow((WorkEvent e) -> {
 
-            e.setFireEventName("case1");
-            e.put("result", "skkim");
+                    e.put("result", "skkim");
 
-            e.getPlan().getFlowProcessor()
+                    WorkEvent e2 = WorkEventFactory.createOrigin("x").setFireEventName("case2");
 
-                    .emit("x", e)
-                    .emit("x", WorkEventFactory.createOrigin("x").setFireEventName("case2"));
+                    logger.debug("fire1 " + e);
+                    logger.debug("fire2 " + e2);
+                    e.getPlan().getFlowProcessor()
 
+                            .emit("ex", e)
+                            .emit("ev", e)
+                            .emit("ev", e2)
+                            .emit("ev", "case1", e2)
+                            .emit("ev", "case2", e2);
+                    return Work.TERMINATE;
+                })
+                .activate().block();
 
-            return Work.TERMINATE;
-        }).startDelayTime(2 * Clock.SECOND).activate().block();
+        FlowProcessor.core()
+                .shutdown(300);
 
-        Thread.sleep(3000);
+        assertEquals(1, this.count4case0_result);
+        assertEquals(2, this.count4case0);
+        assertEquals(1, this.count4case1);
+        assertEquals(1, this.count4case2);
     }
+
 
 }
 

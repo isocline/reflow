@@ -88,7 +88,7 @@ public class RetryPattern {
 
             flow.onError(RuntimeException.class).next(this::onError2);
 
-            flow.wait("success").finish();
+            flow.wait("success").end();
 
             flow.fireEvent("check", 0);
 

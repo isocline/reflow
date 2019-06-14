@@ -318,17 +318,27 @@ public class WorkEventImpl implements WorkEvent {
 
     @Override
     public String toString() {
-        if(this==this.originWorkEvent) {
-            return "WorkEventImpl:origin{" +
-                    "eventName='" + eventName + '\'' +
-                    "hash='" + hashCode() + '\'' +
+        String fireInfo="";
+        if(this.fireEventName!=null) {
+            fireInfo = "fire:'" + fireEventName + "', ";
+        }
 
+        if(this==this.originWorkEvent) {
+            return "{" +
+                    "hid:'" + hashCode() + "', " +
+                    fireInfo+
+                    "name:'" + eventName + "'" +
                     '}';
         }
-        return "WorkEventImpl{" +
-                "eventName='" + eventName + '\'' +
-                "hash='" + hashCode() + '\'' +
-                "origin='" + this.originWorkEvent + '\'' +
+
+
+
+        return "WorkEventImpl:{" +
+
+                "hid:'" + hashCode() + "', " +
+                fireInfo +
+                "name:'" + eventName + "', " +
+                "origin: " + this.originWorkEvent  +
                 '}';
     }
 }

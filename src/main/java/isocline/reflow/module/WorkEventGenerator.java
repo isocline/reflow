@@ -28,19 +28,28 @@ public class WorkEventGenerator implements Work {
 
     private static XLogger logger = XLogger.getLogger(WorkEventGenerator.class);
 
-    private long timeGap = 1000;
+    private long intervalTime = 1000;
 
     private int count = 0;
 
     private String eventName = "Reflow:signal";
+
+    public WorkEventGenerator() {
+
+    }
+
+    public WorkEventGenerator(String eventName, long intervalTime) {
+        this.eventName = eventName;
+        this.intervalTime = intervalTime;
+    }
 
 
     public void setEventName(String eventName) {
         this.eventName = eventName;
     }
 
-    public void setRepeatTime(long repeatTime) {
-        this.timeGap = repeatTime;
+    public void setIntervalTime(long intervalTime) {
+        this.intervalTime = intervalTime;
     }
 
     @Override
@@ -57,9 +66,9 @@ public class WorkEventGenerator implements Work {
         //event.getPlan().getFlowProcessor().emit(eventName, event);
         //FlowProcessorFactory.getProcessor().emit(eventName, newEvent);
 
-        logger.info("fire event [" + eventName+"]");
+        logger.error("fire event [" + eventName+"] nexttime:"+ intervalTime);
 
-        return timeGap;
+        return intervalTime;
     }
 
     public int getCount() {

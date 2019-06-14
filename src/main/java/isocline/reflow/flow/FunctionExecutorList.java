@@ -47,25 +47,23 @@ public class FunctionExecutorList {
         }
 
         FunctionExecutor functionExecutor = this.functionExecutorList.get(index);
-        boolean hasNext = hasNext();
+        boolean hasNext = hasNext(index);
 
         return new Wrapper(functionExecutor, hasNext);
 
     }
 
 
-    private boolean hasNext() {
-        int size = this.functionExecutorList.size();
-
-        final int index = this.counter.get();
+    private boolean hasNext(int index) {
+        final int size = this.functionExecutorList.size();
 
 
-        if (size > 0 && index < size) {
+        final int nextIndex = index+1;
+
+        if (size > 0 && nextIndex < size) {
             return true;
         }
 
-
-        this.counter.set(-1);
 
         return false;
     }

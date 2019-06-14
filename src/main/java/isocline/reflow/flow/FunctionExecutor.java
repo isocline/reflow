@@ -48,7 +48,7 @@ public class FunctionExecutor implements FunctionExecFeature {
 
     private String[] sucessFireEventNames = null;
 
-    private String[] failFireEventNames = null;
+    private String[] failFireEventNames = new String[1];
 
     private String[] beforeFireEventNames = null;
 
@@ -88,6 +88,8 @@ public class FunctionExecutor implements FunctionExecFeature {
 
     FunctionExecutor() {
         this.fireEventUUID = getUUID();
+
+        addFailFireEventName(WorkEventKey.PREFIX_ERROR + this.fireEventUUID);
     }
 
 
@@ -122,6 +124,7 @@ public class FunctionExecutor implements FunctionExecFeature {
 
 
         this.fireEventUUID = getUUID();
+        addFailFireEventName(WorkEventKey.PREFIX_ERROR + this.fireEventUUID);
     }
 
     private String getUUID() {
@@ -145,12 +148,28 @@ public class FunctionExecutor implements FunctionExecFeature {
 
     public void setFireEventName(String eventName) {
         this.fireEventName = eventName;
-        this.sucessFireEventNames = new String[1];
-        this.sucessFireEventNames[0] = eventName;
 
-        this.failFireEventNames = new String[1];
-        this.failFireEventNames[0] = "error::"+ eventName;
 
+        addFailFireEventName(WorkEventKey.PREFIX_ERROR + eventName);
+
+
+
+    }
+
+    private void addFailFireEventName(String... failEventName) {
+        if(failFireEventNames==null) {
+            failFireEventNames = failEventName;
+
+        }else {
+            final int oldSize = failFireEventNames.length;
+            final int newSize = failFireEventNames.length+failEventName.length;
+            String[] newFailFireEventNames = new String[newSize];
+
+            System.arraycopy(failFireEventNames, 0, newFailFireEventNames,0, failFireEventNames.length);
+            System.arraycopy(failEventName, 0, newFailFireEventNames,oldSize, failEventName.length);
+
+            failFireEventNames = newFailFireEventNames;
+        }
     }
 
     public void setRecvEventName(String eventName) {
@@ -274,10 +293,7 @@ public class FunctionExecutor implements FunctionExecFeature {
 
     @Override
     public FunctionExecFeature fail(String... eventNames) {
-        if(this.failFireEventNames!=null) {
-            throw new IllegalStateException("The duplicate method call is not prohibited");
-        }
-        this.failFireEventNames = eventNames;
+        addFailFireEventName(eventNames);
         return this;
     }
 

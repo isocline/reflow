@@ -76,11 +76,11 @@ public class AsyncAggregator2 implements FlowableWork {
                 .runAsync(this::callService2, "p2")
                 .runAsync(this::callService3, "p3");
 
-        flow.waitAll("p1", "p2", "p3").next(this::finish).finish();
+        flow.waitAll("p1", "p2", "p3").next(this::finish).end();
 
 
         flow.onError("*").next(this::onError);
-        flow.wait("timeout").next(this::onTimeout).finish();
+        flow.wait("timeout").next(this::onTimeout).end();
 
     }
 

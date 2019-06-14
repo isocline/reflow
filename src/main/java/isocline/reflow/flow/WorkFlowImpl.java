@@ -83,7 +83,7 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
     public WorkFlow onError(String... eventNames) {
         String[] inputEventNameArray = eventNames;
         for (int i = 0; i < inputEventNameArray.length; i++) {
-            inputEventNameArray[i] = "error::" + inputEventNameArray[i];
+            inputEventNameArray[i] = WorkEventKey.PREFIX_ERROR + inputEventNameArray[i];
         }
 
         wait(inputEventNameArray);
@@ -631,7 +631,7 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
         return this;
     }
 
-    public WorkFlowImpl finish() {
+    public WorkFlowImpl end() {
         this.isSetFinish = true;
         return processNext(null, null, true, true, 0);
     }
