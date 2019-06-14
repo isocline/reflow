@@ -863,6 +863,7 @@ public class FlowProcessor extends ThreadGroup {
 
                 short stateMode = RUNNING;
 
+                WorkEvent workEvent = null;
 
                 try {
 
@@ -891,9 +892,10 @@ public class FlowProcessor extends ThreadGroup {
 
                             stoplessCount++;
 
-                            WorkEvent workEvent = plan.getOriginWorkEvent(ctx.getWorkEvent());
+                            workEvent = plan.getOriginWorkEvent(ctx.getWorkEvent());
 
 
+                            //logger.error("event==="+workEvent);
 
                             plan.adjustWaiting();
 
@@ -975,7 +977,26 @@ public class FlowProcessor extends ThreadGroup {
                             case TERMINATE_BY_TIMEOVER:
                             case TERMINATE_BY_FLOW:
 
-                                plan.inactive();
+                                long intervalTime4Flow = plan.getIntervalTime4Flow();
+                                if(intervalTime4Flow>0 && workEvent!=null) {
+                                    /*
+                                    WorkEvent newEvent = WorkEventFactory.createOrigin() ;
+                                    newEvent.setFireTime(intervalTime4Flow);
+                                    this.flowProcessor.addWorkSchedule(plan, newEvent, intervalTime4Flow);
+                                    */
+                                    //WorkEvent newEvent = WorkEventFactory.createOrigin() ;
+                                    WorkEvent origin = workEvent.origin();
+                                    origin.reset();
+                                    WorkEvent newEvent = WorkEventFactory.createWithOrigin(null, origin);
+
+
+
+                                    this.flowProcessor.addWorkSchedule(plan, newEvent, intervalTime4Flow);
+
+
+                                }else {
+                                    plan.inactive();
+                                }
 
                                 break;
 

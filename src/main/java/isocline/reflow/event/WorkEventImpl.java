@@ -45,7 +45,7 @@ public class WorkEventImpl implements WorkEvent {
 
     private Map<String,AtomicInteger> counterMap = new HashMap<>();
 
-    private ActivatedPlan schedule;
+    private ActivatedPlan activatedPlan;
 
     private WorkEvent originWorkEvent;
 
@@ -102,7 +102,7 @@ public class WorkEventImpl implements WorkEvent {
 
 
     public void setPlan(ActivatedPlan plan) {
-        this.schedule = plan;
+        this.activatedPlan = plan;
     }
 
 
@@ -111,7 +111,7 @@ public class WorkEventImpl implements WorkEvent {
      */
     public ActivatedPlan getPlan() {
 
-        return this.schedule;
+        return this.activatedPlan;
     }
 
 
@@ -135,8 +135,13 @@ public class WorkEventImpl implements WorkEvent {
 
     @Override
     public void reset() {
+
         this.attributeMap.clear();
         this.counterMap.clear();
+
+        fireEventName=null;
+        originWorkEvent = null;
+
     }
 
     @Override
@@ -168,7 +173,7 @@ public class WorkEventImpl implements WorkEvent {
      */
     public void copyTo(WorkEvent event) {
         WorkEventImpl event2 = (WorkEventImpl) event;
-        event2.schedule = this.schedule;
+        event2.activatedPlan = this.activatedPlan;
         event2.attributeMap = this.attributeMap;
     }
 
@@ -188,7 +193,7 @@ public class WorkEventImpl implements WorkEvent {
 
         WorkEventImpl newEvent = new WorkEventImpl(eventName, this.originWorkEvent);
         //newEvent.attributeMap = this.attributeMap;
-        newEvent.schedule = this.schedule;
+        newEvent.activatedPlan = this.activatedPlan;
 
 
         return newEvent;

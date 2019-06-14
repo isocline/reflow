@@ -71,9 +71,9 @@ public class FlowableWorkTest {
     }
 
     private void print() {
-        System.out.println(count4case0_result );
-        System.out.println(count4case0 );
-        System.out.println(count4case1 );
+        System.out.println(count4case0_result);
+        System.out.println(count4case0);
+        System.out.println(count4case1);
         System.out.println(count4case2);
     }
 
@@ -86,11 +86,11 @@ public class FlowableWorkTest {
                     f
 
                             .next(this::case0)
-                            .delay(1000)
+                            .delay(100)
                             .fireEvent("s1", 0)
                             .wait("s1")
                             .next(this::case1)
-                            .delay(1000)
+                            .delay(200)
                             .next(this::case2)
 
                             .branch((WorkEvent event) -> {
@@ -108,9 +108,9 @@ public class FlowableWorkTest {
 
         print();
 
-        assertEquals(this.count4case0,1);
-        assertEquals(this.count4case1,6);
-        assertEquals(this.count4case2,6);
+        assertEquals(this.count4case0, 1);
+        assertEquals(this.count4case1, 6);
+        assertEquals(this.count4case2, 6);
 
 
     }
@@ -124,11 +124,11 @@ public class FlowableWorkTest {
                 .reflow(f -> {
                     f
                             .next(this::case0)
-                            .delay(1000)
+                            .delay(200)
 
                             .flag("s1")
                             .next(this::case1)
-                            .delay(1000)
+                            .delay(100)
                             .next(this::case2)
 
                             .branch((WorkEvent event) -> {
@@ -143,9 +143,9 @@ public class FlowableWorkTest {
                 .activate().block();
 
         print();
-        assertEquals(this.count4case0,1);
-        assertEquals(this.count4case1,6);
-        assertEquals(this.count4case2,6);
+        assertEquals(this.count4case0, 1);
+        assertEquals(this.count4case1, 6);
+        assertEquals(this.count4case2, 6);
 
     }
 
@@ -188,12 +188,12 @@ public class FlowableWorkTest {
                 .on("calc")
                 .activate(logger::debug);
 
-        WorkEventGenerator generator = new WorkEventGenerator("calc", 500);
+        WorkEventGenerator generator = new WorkEventGenerator("calc", 400);
 
         FlowProcessor.core()
                 .reflow(generator)
                 .startTime(Clock.nextSecond())
-                .finishTimeFromStart(5 * Clock.SECOND)
+                .finishTimeFromStart(3 * Clock.SECOND)
                 .strictMode()
                 .activate();
 
@@ -206,7 +206,7 @@ public class FlowableWorkTest {
 
             logger.debug(crntCount + "/" + generator.getCount() + " " + (System.currentTimeMillis() - t1));
 
-            if (crntCount > 7 && generator.getCount() != 0 && crntCount == generator.getCount()) {
+            if (crntCount > 3 && generator.getCount() != 0 && crntCount == generator.getCount()) {
                 return;
             }
             Thread.sleep(500);
@@ -216,7 +216,7 @@ public class FlowableWorkTest {
     }
 
     @Test
-    public void testFlowCalcLogic() throws Exception {
+    public void testSelfRepeatFlow() throws Exception {
         AtomicInteger count = new AtomicInteger(0);
 
         FlowableWork flow = (f) -> {
@@ -234,10 +234,15 @@ public class FlowableWorkTest {
         };
 
 
-        FlowProcessor.core()
+        ActivatedPlan plan = FlowProcessor.core()
                 .reflow(flow)
                 .interval(2000)
+                .finishTimeFromNow(Clock.SECOND *10)
                 .activate(logger::error).block();
+
+        Thread.sleep(7000);
+
+        plan.inactive();
 
     }
 
