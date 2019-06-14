@@ -123,6 +123,8 @@ public class WorkHelper {
 
         plan.emit(emitEvent, delayTime);
 
+        //XLogger.getLogger(WorkHelper.class).error(" ______________________ "+eventName);
+
 
     }
 

@@ -65,6 +65,7 @@ public class FunctionExecutorList {
         }
 
 
+        this.counter.set(-1);
         return false;
     }
 

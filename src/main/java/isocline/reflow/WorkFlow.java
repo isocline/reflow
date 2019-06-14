@@ -193,8 +193,6 @@ public interface WorkFlow<T> {
 
 
 
-
-
     /**
      * Execute the corresponding method at completion of the previous step method execution.
      * Raises an event after completion of method execution.
@@ -261,6 +259,13 @@ public interface WorkFlow<T> {
 
 
     WorkFlow pattern(WorkFlowPattern pattern, WorkFlowPatternFunction... func);
+
+
+    WorkFlow delay(long delayTime);
+
+
+    WorkFlow flag(String eventName);
+
 
 
 

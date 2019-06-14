@@ -70,6 +70,85 @@ public class FlowableWorkTest {
         count4case2 = 0;
     }
 
+    private void print() {
+        System.out.println(count4case0_result );
+        System.out.println(count4case0 );
+        System.out.println(count4case1 );
+        System.out.println(count4case2);
+    }
+
+    @Test
+    public void testLooping() {
+        reset();
+
+        FlowProcessor.core()
+                .reflow(f -> {
+                    f
+
+                            .next(this::case0)
+                            .delay(1000)
+                            .fireEvent("s1", 0)
+                            .wait("s1")
+                            .next(this::case1)
+                            .delay(1000)
+                            .next(this::case2)
+
+                            .branch((WorkEvent event) -> {
+                                if (event.count() > 5) {
+                                    return "end";
+                                }
+                                return "s1";
+                            });
+
+
+                    f.wait("end").end();
+
+                })
+                .activate().block();
+
+        print();
+
+        assertEquals(this.count4case0,1);
+        assertEquals(this.count4case1,6);
+        assertEquals(this.count4case2,6);
+
+
+    }
+
+
+    @Test
+    public void testLooping2() {
+        reset();
+
+        FlowProcessor.core()
+                .reflow(f -> {
+                    f
+                            .next(this::case0)
+                            .delay(1000)
+
+                            .flag("s1")
+                            .next(this::case1)
+                            .delay(1000)
+                            .next(this::case2)
+
+                            .branch((WorkEvent event) -> {
+                                if (event.count() > 5) {
+                                    return "end";
+                                }
+                                return "s1";
+                            })
+                            .flag("end").end();
+
+                })
+                .activate().block();
+
+        print();
+        assertEquals(this.count4case0,1);
+        assertEquals(this.count4case1,6);
+        assertEquals(this.count4case2,6);
+
+    }
+
     @Test
     public void testBasic() {
 

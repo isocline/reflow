@@ -98,6 +98,7 @@ public interface FlowableWork<T> extends Work {
             FunctionExecutorList functionExecutorList = flow.getFunctionExecutorList(event, eventName);
 
             if (functionExecutorList != null) {
+                //XLogger.getLogger(this.getClass()).error( Thread.currentThread().getId() + " "+eventName+" SIZE << "+functionExecutorList.size());
 
                 FunctionExecutorList.Wrapper wrapper = functionExecutorList.getNextstepFunctionExecutor();
 

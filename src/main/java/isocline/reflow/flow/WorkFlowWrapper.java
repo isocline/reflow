@@ -269,6 +269,19 @@ public class WorkFlowWrapper<T> implements WorkFlow<T> {
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
+
+    @Override
+    public WorkFlow delay(long delayTime) {
+        this.workFlowInstance.delay(delayTime);
+        return new WorkFlowWrapper(this.workFlowInstance);
+    }
+
+    @Override
+    public WorkFlow flag(String eventName) {
+        this.workFlowInstance.flag(eventName);
+        return new WorkFlowWrapper(this.workFlowInstance);
+    }
+
     @Override
     public WorkFlow pattern(WorkFlowPattern pattern, WorkFlowPatternFunction... functions) {
         this.workFlowInstance.pattern(pattern, functions);

@@ -523,10 +523,17 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
     }
 
 
+    @Override
+    public WorkFlow delay(long delayTime) {
+        String newEventName="tmp::"+Math.random();
+        this.fireEvent(newEventName, delayTime);
+        return wait(newEventName);
+    }
 
-
-
-
+    @Override
+    public WorkFlow flag(String eventName) {
+        return fireEvent(eventName, 0).wait(eventName);
+    }
 
     @Override
     public WorkFlow pattern(WorkFlowPattern pattern, WorkFlowPatternFunction... funcs) {
