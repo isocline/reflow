@@ -44,7 +44,7 @@ public class PlanImpl implements Plan, ActivatedPlan {
     private static final long PREEMPTIVE_CHECK_MILLITIME = 2;
 
 
-    private String workUUID;
+    private final String uuid;
 
     private long waitingTime = 0;
 
@@ -85,7 +85,7 @@ public class PlanImpl implements Plan, ActivatedPlan {
 
     private FlowProcessor flowProcessor = null;
 
-    private LinkedList<WorkEvent> eventList = new LinkedList<WorkEvent>();
+    private LinkedList<WorkEvent> eventList = new LinkedList<>();
 
 
     private WorkFlow workFlow = null;
@@ -110,7 +110,7 @@ public class PlanImpl implements Plan, ActivatedPlan {
         this.flowProcessor = flowProcessor;
         this.work = work;
 
-        this.workUUID = UUID.randomUUID().toString();
+        this.uuid = UUID.randomUUID().toString();
     }
 
 
@@ -121,7 +121,7 @@ public class PlanImpl implements Plan, ActivatedPlan {
      */
     @Override
     public String getId() {
-        return this.workUUID;
+        return this.uuid;
     }
 
     //
@@ -136,7 +136,7 @@ public class PlanImpl implements Plan, ActivatedPlan {
     void adjustWaiting() throws InterruptedException {
         if (this.isStrictMode && needWaiting) {
 
-            synchronized (workUUID) {
+            synchronized (uuid) {
                 for (int i = 0; i < 10000000; i++) {
 
                     if (nextExecuteTime <= System.currentTimeMillis()) {
@@ -357,8 +357,6 @@ public class PlanImpl implements Plan, ActivatedPlan {
             if (this.nextExecuteTime < chkTime) {
                 setStartTime(chkTime);
 
-            } else {
-                //System.err.println("overtime : "+this.nextExecuteTime);
             }
 
 
@@ -813,12 +811,12 @@ public class PlanImpl implements Plan, ActivatedPlan {
 
         PlanImpl plan = (PlanImpl) o;
 
-        return workUUID.equals(plan.workUUID);
+        return uuid.equals(plan.uuid);
     }
 
     @Override
     public int hashCode() {
-        return workUUID.hashCode();
+        return uuid.hashCode();
     }
 
 
@@ -835,11 +833,8 @@ public class PlanImpl implements Plan, ActivatedPlan {
     }
 
     boolean isExecuteEnable(long time) {
-        if (this.executeEventChecker != null) {
-            return this.executeEventChecker.check(time);
-        }
+        return this.executeEventChecker == null || this.executeEventChecker.check(time);
 
-        return true;
     }
 
     @Override
@@ -864,7 +859,7 @@ public class PlanImpl implements Plan, ActivatedPlan {
 
     WorkEvent getOriginWorkEvent(WorkEvent inputWorkEvent) {
 
-        WorkEvent event = null;
+        WorkEvent event;
 
         if (inputWorkEvent == null) {
             //System.err.println("== 0 ===============");

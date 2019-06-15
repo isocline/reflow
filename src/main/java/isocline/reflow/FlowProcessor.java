@@ -50,7 +50,7 @@ public class FlowProcessor extends ThreadGroup {
 
     private Configuration configuration;
 
-    private List<ThreadWorker> threadWorkers = new ArrayList<ThreadWorker>();
+    private List<ThreadWorker> threadWorkers = new ArrayList<>();
 
     private AtomicInteger currentThreadWorkerCount = new AtomicInteger(0);
 
@@ -58,7 +58,7 @@ public class FlowProcessor extends ThreadGroup {
 
     private WorkChecker workChecker;
 
-    private Map<String, WorkScheduleList> eventMap = new ConcurrentHashMap<String, WorkScheduleList>();
+    private Map<String, WorkScheduleList> eventMap = new ConcurrentHashMap<>();
 
 
     AtomicInteger managedWorkCount = new AtomicInteger(0);
@@ -66,7 +66,7 @@ public class FlowProcessor extends ThreadGroup {
 
     private static FlowProcessor defaultFlowProcessor;
 
-    private static Map<String, FlowProcessor> processorMap = new HashMap<String, FlowProcessor>();
+    private static Map<String, FlowProcessor> processorMap = new HashMap<>();
 
 
     public static FlowProcessor core() {
@@ -111,7 +111,7 @@ public class FlowProcessor extends ThreadGroup {
             this.checkpointWorkQueueSize = 500;
         }
 
-        this.workQueue = new LinkedBlockingQueue<PlanImpl.ExecuteContext>(this.configuration.getMaxWorkQueueSize());
+        this.workQueue = new LinkedBlockingQueue<>(this.configuration.getMaxWorkQueueSize());
 
         init(true);
 
@@ -534,15 +534,7 @@ public class FlowProcessor extends ThreadGroup {
     private WorkScheduleList getWorkScheduleList(String eventName, boolean isCreate) {
         WorkScheduleList workScheduleList = eventMap.get(eventName);
         if (isCreate && workScheduleList == null) {
-
-            synchronized (this) {
-                workScheduleList = eventMap.get(eventName);
-                if (workScheduleList == null) {
-                    workScheduleList = new WorkScheduleList();
-
-                    eventMap.put(eventName, workScheduleList);
-                }
-            }
+            workScheduleList = eventMap.computeIfAbsent(eventName, k -> new WorkScheduleList());
         }
         return workScheduleList;
     }
@@ -597,7 +589,7 @@ public class FlowProcessor extends ThreadGroup {
 
         WorkScheduleList workScheduleList = getWorkScheduleList(eventName, false);
 
-        WorkEvent workEvent = event;
+        WorkEvent workEvent;
         if (event == null) {
             workEvent = WorkEventFactory.createOrigin();
         } else {
@@ -777,11 +769,8 @@ public class FlowProcessor extends ThreadGroup {
 
             long t1 = System.currentTimeMillis() - this.lastWorkTime;
 
-            if (t1 > executeTimeout) {
-                return true;
-            }
+            return t1 > executeTimeout;
 
-            return false;
         }
 
 
@@ -1073,7 +1062,7 @@ public class FlowProcessor extends ThreadGroup {
 
         private FlowProcessor flowProcessor;
 
-        private BlockingQueue<WorkScheduleWrapper> statusWrappers = new LinkedBlockingQueue<WorkScheduleWrapper>();
+        private BlockingQueue<WorkScheduleWrapper> statusWrappers = new LinkedBlockingQueue<>();
 
         WorkChecker(FlowProcessor flowProcessor) {
             this.flowProcessor = flowProcessor;

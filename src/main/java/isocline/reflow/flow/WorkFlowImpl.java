@@ -55,7 +55,7 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
 
     private EventRepository<String, List<FunctionExecutor>> eventRepository = new EventRepository();
 
-    private List<FunctionExecutor> functionExecutorList = new ArrayList<FunctionExecutor>();
+    private List<FunctionExecutor> functionExecutorList = new ArrayList<>();
 
 
     WorkFlowImpl() {
@@ -70,11 +70,7 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
     private void bindEventRepository(String eventName, FunctionExecutor functionExecutor) {
 
 
-        List<FunctionExecutor> functionExecutorList = this.eventRepository.get(eventName);
-        if (functionExecutorList == null) {
-            functionExecutorList = new ArrayList<>();
-            this.eventRepository.put(eventName, functionExecutorList);
-        }
+        List<FunctionExecutor> functionExecutorList = this.eventRepository.computeIfAbsent(eventName, k -> new ArrayList<>());
 
         functionExecutorList.add(functionExecutor);
 
@@ -98,7 +94,7 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
         String[] inputEventNameArray = eventNames;
 
 
-        String[] newEventNameArray = null;
+        String[] newEventNameArray;
         if (regReadyEventNameArray != null) {
             newEventNameArray = new String[regReadyEventNameArray.length + inputEventNameArray.length];
 
@@ -132,21 +128,21 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
 
         clearLastFunctionExecutor();
 
-        String fullEventName = "";
+        StringBuilder fullEventName = new StringBuilder();
         for (int i = 0; i < eventNames.length; i++) {
 
-            fullEventName = fullEventName + eventNames[i];
+            fullEventName.append(eventNames[i]);
 
             if (i < (eventNames.length - 1)) {
-                fullEventName = fullEventName + "&";
+                fullEventName.append("&");
             }
         }
 
 
         String[] newEventNameArray = new String[1];
-        newEventNameArray[0] = fullEventName;
+        newEventNameArray[0] = fullEventName.toString();
 
-        newEventNameArray[newEventNameArray.length - 1] = fullEventName;
+        newEventNameArray[newEventNameArray.length - 1] = fullEventName.toString();
 
         regReadyEventNameArray = newEventNameArray;
 
@@ -373,7 +369,6 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
     private WorkFlowImpl processRunAsync(Object execObject, String eventName) {
 
         final FunctionExecutor asyncFunc = new FunctionExecutor(execObject);
-        ;
         this.lastFuncExecutor = asyncFunc;
         if (eventName != null) {
             this.lastFuncExecutor.setFireEventName(eventName);
@@ -462,10 +457,7 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
 
     @Override
     public WorkFlow limit(int maxCount) {
-        return when(event -> {
-            if (event.count() <= maxCount) return true;
-            else return false;
-        });
+        return when(event -> event.count() <= maxCount);
     }
 
     public WorkFlowImpl next(ThrowableRunFunction execObject) {
@@ -584,7 +576,7 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
 
             String[] timeoutEventNames = newFuncExecutor.getTimeoutFireEventNames();
 
-            String firstTimeoutEventName = null;
+            String firstTimeoutEventName;
             if(timeoutEventNames!=null && timeoutEventNames.length>0) {
                 firstTimeoutEventName = timeoutEventNames[0];
             }else {
@@ -661,7 +653,7 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
 
         //IndexOutOfBoundsException
 
-        FunctionExecutor exec = null;
+        FunctionExecutor exec;
         try {
             exec = functionExecutorList.get(counter.get());
         } catch (IndexOutOfBoundsException ie) {
@@ -677,11 +669,8 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
     public boolean existNextFunctionExecutor(WorkEvent event) {
         AtomicInteger counter = event.origin().getCounter(WorkEventKey.COUNTER_FUNC_EXEC);
 
-        if (counter.get() < functionExecutorList.size()) {
-            return true;
-        }
+        return counter.get() < functionExecutorList.size();
 
-        return false;
     }
 
 
@@ -705,9 +694,7 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
             }
 
 
-            if (functionExecutorList != null) {
-                return functionExecutorList;
-            }
+            return functionExecutorList;
 
         }
 

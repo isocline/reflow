@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
 public class WorkHelper {
 
 
@@ -13,6 +14,7 @@ public class WorkHelper {
         return FlowProcessor.core().reflow(workFlow).activate().block();
     }
 
+    @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
     public static List GetResultList(WorkEvent e) {
 
         WorkEvent event = e.origin();
@@ -22,7 +24,7 @@ public class WorkHelper {
 
         String resultKey = "result::" + event.hashCode();
 
-        List list = null;
+        List list;
         synchronized (event) {
             list = (List) event.get(resultKey);
             if (list == null) {
@@ -66,7 +68,7 @@ public class WorkHelper {
 
         event.put(resultKey + "<Mono>", result);
 
-        List list = null;
+        List list;
         synchronized (event) {
             list = (List) event.get(resultKey);
             if (list == null) {
@@ -104,11 +106,12 @@ public class WorkHelper {
         emitLocalEvent(plan, event, eventName, delayTime, error, null);
     }
 
+    @SuppressWarnings("StatementWithEmptyBody")
     static void emitLocalEvent(ActivatedPlan plan, WorkEvent event, String eventName, long delayTime, Throwable error, Thread currentThread) {
 
         if (eventName == null) return;
 
-        WorkEvent emitEvent = null;
+        WorkEvent emitEvent;
         emitEvent = event.createChild(eventName);
         if (error == null) {
             //emitEvent = event.createChild(eventName);

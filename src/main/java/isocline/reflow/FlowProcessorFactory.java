@@ -30,7 +30,7 @@ public class FlowProcessorFactory {
 
     private static FlowProcessor flowProcessor;
 
-    private static Map<String, FlowProcessor> processorMap = new HashMap<String, FlowProcessor>();
+    private static Map<String, FlowProcessor> processorMap = new HashMap<>();
 
 
     /**

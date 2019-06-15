@@ -22,12 +22,7 @@ public class CircuitBreaker {
 
     public static CircuitBreaker create(String id) {
 
-        CircuitBreaker circuitBreaker = map.get(id);
-
-        if (circuitBreaker == null) {
-            circuitBreaker = new CircuitBreaker(id);
-            map.put(id, circuitBreaker);
-        }
+        CircuitBreaker circuitBreaker = map.computeIfAbsent(id, CircuitBreaker::new);
 
         return circuitBreaker;
     }

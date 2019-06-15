@@ -36,7 +36,7 @@ public interface WorkEvent {
      *
      * @return name of event
      */
-    public String getEventName();
+    String getEventName();
 
 
     int count();

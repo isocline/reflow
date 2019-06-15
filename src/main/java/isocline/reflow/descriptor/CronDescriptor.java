@@ -156,7 +156,7 @@ public class CronDescriptor implements PlanDescriptor {
                 return;
             }
 
-            List<Integer> list = new ArrayList<Integer>();
+            List<Integer> list = new ArrayList<>();
 
             String[] items = text.split(",");
 

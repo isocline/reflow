@@ -147,7 +147,7 @@ public class Clock {
      */
     public static Date toDate(String isoDateTime) throws java.text.ParseException {
 
-        final String isoDateTimeTxt = isoDateTime.replaceAll("\\+0([0-9]){1}\\:00", "+0$100");
+        @SuppressWarnings("Annotator") final String isoDateTimeTxt = isoDateTime.replaceAll("\\+0([0-9]){1}\\:00", "+0$100");
 
         SimpleDateFormat form;
 
