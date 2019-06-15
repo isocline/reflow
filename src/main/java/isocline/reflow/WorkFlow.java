@@ -177,9 +177,9 @@ public interface WorkFlow<T> {
     WorkFlow branch(ReturnEventFunction execObject);
 
 
-    WorkFlow check(CheckFunction execObject);
+    WorkFlow when(CheckFunction execObject);
 
-    WorkFlow check(int maxCount);
+    WorkFlow limit(int maxCount);
 
 
     /**

@@ -43,7 +43,7 @@ public class WorkEventImpl implements WorkEvent {
 
     private Map<String, Object> attributeMap = new Hashtable();
 
-    private Map<String,AtomicInteger> counterMap = new HashMap<>();
+    private final Map<String,AtomicInteger> counterMap = new HashMap<>();
 
     private ActivatedPlan activatedPlan;
 
@@ -91,10 +91,12 @@ public class WorkEventImpl implements WorkEvent {
         this.emitCount = emitCount;
     }
 
+    /*
     public WorkEventImpl setEventName(String eventName) {
         this.eventName = eventName;
         return this;
     }
+    */
 
     public String getEventName() {
         return this.eventName;
@@ -146,11 +148,7 @@ public class WorkEventImpl implements WorkEvent {
 
     @Override
     public synchronized AtomicInteger getCounter(String key) {
-        AtomicInteger counter = counterMap.get(key);
-        if(counter==null) {
-            counter = new AtomicInteger(0);
-            counterMap.put(key, counter);
-        }
+        AtomicInteger counter = counterMap.computeIfAbsent(key, k -> new AtomicInteger(0));
 
         return counter;
     }
@@ -242,9 +240,11 @@ public class WorkEventImpl implements WorkEvent {
         return this.originWorkEvent;
     }
 
+    /*
     void setOriginWorkEvent(WorkEvent originWorkEvent) {
         this.originWorkEvent = originWorkEvent;
     }
+    */
 
     @Override
     public String getFireEventName() {
@@ -270,10 +270,11 @@ public class WorkEventImpl implements WorkEvent {
 
         String resultKey = "result::" + event.hashCode();
 
-        List list = null;
+        List list;
+        //noinspection SynchronizationOnLocalVariableOrMethodParameter
         synchronized (event) {
             List newList = Collections.synchronizedList(new ArrayList<>());
-            ;
+
             list = (List) event.get(resultKey);
             if (list == null) {
                 list = newList;
@@ -284,10 +285,8 @@ public class WorkEventImpl implements WorkEvent {
             }
         }
 
-        Stream stream = list.stream();
 
-
-        return stream;
+        return list.stream();
     }
 
 
@@ -316,9 +315,7 @@ public class WorkEventImpl implements WorkEvent {
 
         String resultKey = "result::" + event.hashCode() + "<Mono>";
 
-        final Object result = event.get(resultKey);
-
-        return result;
+        return event.get(resultKey);
     }
 
     @Override

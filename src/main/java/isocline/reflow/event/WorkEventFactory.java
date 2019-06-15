@@ -35,9 +35,8 @@ public class WorkEventFactory {
         event.setOriginWorkEvent(inEvent);
         event.setEventName(eventName);
         */
-        WorkEventImpl event = new WorkEventImpl(eventName,originEvent);
 
-        return event;
+        return new WorkEventImpl(eventName,originEvent);
     }
 
 
@@ -48,10 +47,10 @@ public class WorkEventFactory {
      * @param eventName
      * @return
      */
+    @SuppressWarnings("JavaDoc")
     public static WorkEvent createOrigin(String eventName) {
-        WorkEventImpl event = new WorkEventImpl(eventName);
 
-        return event;
+        return new WorkEventImpl(eventName);
     }
 
 
@@ -62,9 +61,8 @@ public class WorkEventFactory {
      * @return
      */
     public static WorkEvent createOrigin() {
-        WorkEventImpl event = new WorkEventImpl();
 
 
-        return event;
+        return new WorkEventImpl();
     }
 }

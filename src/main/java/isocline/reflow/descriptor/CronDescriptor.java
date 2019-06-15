@@ -116,7 +116,7 @@ public class CronDescriptor implements PlanDescriptor {
             int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) - 1;
 
 
-            //System.out.println( dayOfWeek + " "+weekChk.check(dayOfWeek));
+            //System.out.println( dayOfWeek + " "+weekChk.when(dayOfWeek));
 
             return weekChk.check(dayOfWeek) && monChk.check(month) && dayChk.check(dayOfMon) && hourChk.check(hour)
                     && minChk.check(min);

@@ -79,7 +79,7 @@ public class RetryPattern {
                 .reflow(flow -> {
 
             flow.wait("check")
-                    .check(Count.max(3))
+                    .when(Count.max(3))
                     .next(this::callService1, "success")
                     .fireEventOnError("check", 2000);
 

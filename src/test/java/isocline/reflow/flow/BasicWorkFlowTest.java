@@ -19,11 +19,11 @@ public class BasicWorkFlowTest implements FlowableWork {
 
 
     public void checkMemory() {
-        log("check MEMORY");
+        log("when MEMORY");
     }
 
     public void checkStorage() {
-        log("check STORAGE");
+        log("when STORAGE");
     }
 
     public void sendSignal() {

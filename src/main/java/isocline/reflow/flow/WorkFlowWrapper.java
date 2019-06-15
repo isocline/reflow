@@ -179,14 +179,14 @@ public class WorkFlowWrapper<T> implements WorkFlow<T> {
     }
 
     @Override
-    public WorkFlow check(CheckFunction execObject) {
-        this.workFlowInstance.check(execObject);
+    public WorkFlow when(CheckFunction execObject) {
+        this.workFlowInstance.when(execObject);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
     @Override
-    public WorkFlow check(int maxCount) {
-        this.workFlowInstance.check(maxCount);
+    public WorkFlow limit(int maxCount) {
+        this.workFlowInstance.limit(maxCount);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 

@@ -96,7 +96,7 @@ public class Bulkhead implements WorkFlowPattern {
     @Override
     public void startFlow(WorkFlow flow) {
 
-        flow.check(this::check);
+        flow.when(this::check);
     }
 
 

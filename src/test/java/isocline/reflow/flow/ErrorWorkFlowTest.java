@@ -18,11 +18,11 @@ public class ErrorWorkFlowTest implements FlowableWork {
 
 
     public void checkMemory() {
-        log("check MEMORY");
+        log("when MEMORY");
     }
 
     public void checkStorage() {
-        log("check STORAGE");
+        log("when STORAGE");
     }
 
     public void sendSignal() {
@@ -44,7 +44,7 @@ public class ErrorWorkFlowTest implements FlowableWork {
     }
 
     private void checkError(WorkEvent event) {
-        logger.error("check ERROR[1]");
+        logger.error("when ERROR[1]");
 
         try {
             String eventNm = event.getEventName();
@@ -53,7 +53,7 @@ public class ErrorWorkFlowTest implements FlowableWork {
 
             e.printStackTrace();
 
-            logger.error("check ERROR[2]" + e);
+            logger.error("when ERROR[2]" + e);
 
             chk2 = true;
         } catch (Exception e) {

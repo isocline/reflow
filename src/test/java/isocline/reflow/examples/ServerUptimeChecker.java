@@ -13,7 +13,7 @@ import java.net.URL;
 
 
 /**
- * This program is an automatic server health check program.
+ * This program is an automatic server health when program.
  * Checked web server is busy then this program checks more slowly.
  * and web server has a good response time  then the program checks more often.
  *
@@ -36,7 +36,7 @@ public class ServerUptimeChecker  implements Work {
 
 
         try {
-            logger.debug(" check");
+            logger.debug(" when");
             long t1 = System.currentTimeMillis();
 
             long tt2 = System.nanoTime();

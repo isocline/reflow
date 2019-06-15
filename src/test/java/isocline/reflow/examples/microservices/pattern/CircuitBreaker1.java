@@ -97,7 +97,7 @@ public class CircuitBreaker1 {
 
 
                             String cursor = flow.fireEvent("error::timeout", 3000)
-                                    .check(circuitBreaker::check)
+                                    .when(circuitBreaker::check)
                                     .next(this::callService1).cursor();
 
                             flow.end();

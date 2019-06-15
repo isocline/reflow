@@ -7,8 +7,8 @@ import isocline.reflow.log.XLogger;
 
 /**
  * This program is an indicator program which checks the water level periodically.
- * The water level grows up then Program check more often,
- * but it was a level down then check sometimes.
+ * The water level grows up then Program when more often,
+ * but it was a level down then when sometimes.
  */
 public class MultiStepSchedule   {
 

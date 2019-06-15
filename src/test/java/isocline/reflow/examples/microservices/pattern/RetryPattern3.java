@@ -77,7 +77,7 @@ public class RetryPattern3 {
 
         FlowProcessor.core().reflow(flow -> {
 
-            flow.check(e -> {
+            flow.when(e -> {
                 if (e.count() == 4) return false;
                 return true;
             })

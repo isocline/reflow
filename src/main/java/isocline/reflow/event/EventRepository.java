@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class EventRepository<K,V> extends HashMap<K,V> {
 
-    private Map<String, SimultaneousEventSet> eventMap = new ConcurrentHashMap<>();
+    private final Map<String, SimultaneousEventSet> eventMap = new ConcurrentHashMap<>();
 
 
     public String[] setBindEventNames(String eventNameMeta) {
@@ -54,8 +54,7 @@ public class EventRepository<K,V> extends HashMap<K,V> {
     }
 
     public SimultaneousEventSet getSimultaneousEventSet(String eventName) {
-        SimultaneousEventSet simultaneousEventSet = eventMap.get(eventName);
 
-        return simultaneousEventSet;
+        return eventMap.get(eventName);
     }
 }

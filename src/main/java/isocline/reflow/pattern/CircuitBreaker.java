@@ -99,7 +99,7 @@ public class CircuitBreaker implements WorkFlowPattern {
     public void startFlow(WorkFlow flow) {
         System.err.println("1 ---"+this.timeoutEventName);
         flow.fireEvent("error::"+timeoutEventName, this.timeout)
-                .check(this::check);
+                .when(this::check);
     }
 
     @Override

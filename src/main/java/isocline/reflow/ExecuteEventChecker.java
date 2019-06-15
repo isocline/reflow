@@ -18,8 +18,8 @@ package isocline.reflow;
 
 /**
  *
- * Provides the function to check whether method is executed every time execution event occurs.
- * It is used when the user wants to check whether it is executed according to the situation.
+ * Provides the function to when whether method is executed every time execution event occurs.
+ * It is used when the user wants to when whether it is executed according to the situation.
  *
  * @see Plan
  *

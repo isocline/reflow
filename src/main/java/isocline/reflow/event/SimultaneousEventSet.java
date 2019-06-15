@@ -25,9 +25,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class SimultaneousEventSet  {
 
-    private String eventSetName;
+    private final String eventSetName;
 
-    private String eventNameForEventSet;
+    private final String eventKeyNameForEventSet;
 
     private int sumOfHashcode = 0;
 
@@ -40,7 +40,7 @@ public class SimultaneousEventSet  {
      */
     public SimultaneousEventSet(String eventSetName) {
         this.eventSetName = eventSetName;
-        this.eventNameForEventSet = WorkEventKey.PREFIX_EVENT_SET+ eventSetName;
+        this.eventKeyNameForEventSet = WorkEventKey.PREFIX_EVENT_SET+ eventSetName;
 
         String[] eventNames = eventSetName.split("&");
 
@@ -72,7 +72,7 @@ public class SimultaneousEventSet  {
         int hashCode = eventName.hashCode();
 
 
-        AtomicInteger integer = event.origin().getCounter(this.eventNameForEventSet);
+        AtomicInteger integer = event.origin().getCounter(this.eventKeyNameForEventSet);
 
         if (integer.get() == this.sumOfHashcode) {
             return false;
@@ -80,12 +80,7 @@ public class SimultaneousEventSet  {
         int sum = integer.addAndGet(hashCode);
 
 
-
-        if (sum == this.sumOfHashcode) {
-            return true;
-        } else {
-            return false;
-        }
+        return sum == this.sumOfHashcode;
 
 
     }

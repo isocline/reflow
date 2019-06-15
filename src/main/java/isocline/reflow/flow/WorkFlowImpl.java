@@ -456,13 +456,13 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
     }
 
     @Override
-    public WorkFlow check(CheckFunction execObject) {
+    public WorkFlow when(CheckFunction execObject) {
         return processNext(execObject, null, false);
     }
 
     @Override
-    public WorkFlow check(int maxCount) {
-        return check(event -> {
+    public WorkFlow limit(int maxCount) {
+        return when(event -> {
             if (event.count() <= maxCount) return true;
             else return false;
         });

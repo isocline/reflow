@@ -741,7 +741,7 @@ public class PlanImpl implements Plan, ActivatedPlan {
 
 
     /**
-     * check activated
+     * when activated
      *
      * @return True if Plan is activated
      */
