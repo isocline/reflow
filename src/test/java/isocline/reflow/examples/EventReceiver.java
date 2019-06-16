@@ -35,21 +35,21 @@ public class EventReceiver implements Work {
 
 
         EventReceiver checker = new EventReceiver();
-        Plan schedule = processor.reflow(checker).finishTimeFromNow(30 * Clock.SECOND).on("test").daemonMode();
+        Plan schedule = processor.reflow(checker).finishTimeFromNow(30 * Time.SECOND).on("test").daemonMode();
         schedule.activate();
 
 
         WorkEventGenerator gen = new WorkEventGenerator();
         gen.setEventName("test");
 
-        long startTime = Clock.nextSecond(900);
+        long startTime = Time.nextSecond(900);
 
 
 
-        processor.reflow(gen).finishTimeFromNow(30 * Clock.SECOND).strictMode().startTime
+        processor.reflow(gen).finishTimeFromNow(30 * Time.SECOND).strictMode().startTime
                 (startTime).activate();
 
 
-        processor.shutdown(20 * Clock.SECOND);
+        processor.shutdown(20 * Time.SECOND);
     }
 }

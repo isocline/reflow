@@ -54,7 +54,7 @@ public class Configuration {
 
     private int maxWorkQueueSize = 512 * 512 * 512 * 8;
 
-    private long executeTimeout = 60 * Clock.SECOND;
+    private long executeTimeout = 60 * Time.SECOND;
 
     private long thresholdWaitTimeToReady = 3                              ;
 

@@ -11,4 +11,5 @@ public interface WorkFlowPattern {
 
 
     void endFlow(WorkFlow flow);
+
 }

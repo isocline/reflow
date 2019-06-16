@@ -10,9 +10,9 @@ import java.util.Date;
 import static org.junit.Assert.assertEquals;
 
 
-public class ClockTest {
+public class TimeTest {
 
-    private static XLogger logger = XLogger.getLogger(ClockTest.class);
+    private static XLogger logger = XLogger.getLogger(TimeTest.class);
 
 
     @Before
@@ -28,9 +28,9 @@ public class ClockTest {
     @Test
     public void testTime() throws Exception {
 
-        long p = 2 * Clock.HOUR + 3 * Clock.MINUTE + 7 * Clock.SECOND;
+        long p = 2 * Time.HOUR + 3 * Time.MINUTE + 7 * Time.SECOND;
 
-        long q = Clock.milliseconds(2, 3, 7);
+        long q = Time.milliseconds(2, 3, 7);
 
         assertEquals(p, q);
 
@@ -41,10 +41,10 @@ public class ClockTest {
     public void testISOTime() throws Exception {
 
         String isoTime = "2029-05-14T11:59:59+09:00";
-        Date d = Clock.toDate(isoTime);
+        Date d = Time.toDate(isoTime);
 
 
-        long p = Clock.milliseconds(isoTime);
+        long p = Time.milliseconds(isoTime);
 
 
         System.err.println(d);
@@ -58,11 +58,11 @@ public class ClockTest {
     @Test
     public void nextSecond() throws Exception {
 
-        System.out.println(Clock.toDateFormat(System.currentTimeMillis()));
+        System.out.println(Time.toDateFormat(System.currentTimeMillis()));
 
-        long t = Clock.nextSecond();
+        long t = Time.nextSecond();
 
-        System.out.println(Clock.toDateFormat(t));
+        System.out.println(Time.toDateFormat(t));
 
     }
 
@@ -70,13 +70,13 @@ public class ClockTest {
     @Test
     public void nextMinutes() throws Exception {
 
-        String t1 = Clock.toDateFormat(System.currentTimeMillis());
+        String t1 = Time.toDateFormat(System.currentTimeMillis());
 
         System.out.println(t1);
 
-        long t = Clock.nextMinutes();
+        long t = Time.nextMinutes();
 
-        String t2 = Clock.toDateFormat(t);
+        String t2 = Time.toDateFormat(t);
 
         System.out.println(t2);
 

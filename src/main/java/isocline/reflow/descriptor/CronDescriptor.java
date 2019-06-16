@@ -51,12 +51,12 @@ public class CronDescriptor implements PlanDescriptor {
     @Override
     public void build(Plan planning) {
 
-        long t1 = Clock.nextMinutes();
+        long t1 = Time.nextMinutes();
 
-        //System.err.println("--- "+Clock.toDateFormat(t1));
+        //System.err.println("--- "+Time.toDateFormat(t1));
 
         planning.startTime(t1);
-        planning.interval(Clock.MINUTE);
+        planning.interval(Time.MINUTE);
         planning.eventChecker(this.checker);
 
 

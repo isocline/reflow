@@ -10,7 +10,7 @@ import java.util.List;
 public class WorkHelper {
 
 
-    public static ActivatedPlan Reflow(FlowableWork workFlow) {
+    public static Activity Reflow(FlowableWork workFlow) {
         return FlowProcessor.core().reflow(workFlow).activate().block();
     }
 
@@ -82,13 +82,13 @@ public class WorkHelper {
     }
 
 
-    static void emitLocalEvent(ActivatedPlan plan, WorkEvent event, String eventName, long delayTime) {
+    static void emitLocalEvent(Activity plan, WorkEvent event, String eventName, long delayTime) {
 
         emitLocalEvent(plan, event, eventName, delayTime, null);
 
     }
 
-    static void emitLocalErrorEvent(ActivatedPlan plan, WorkEvent event, String eventName, long delayTime, Throwable error) {
+    static void emitLocalErrorEvent(Activity plan, WorkEvent event, String eventName, long delayTime, Throwable error) {
         if (eventName != null && eventName.indexOf(WorkEventKey.PREFIX_ERROR) == 0) {
             final WorkEvent we = event.createChild(eventName);
             if (error != null) {
@@ -102,12 +102,12 @@ public class WorkHelper {
 
     }
 
-    static void emitLocalEvent(ActivatedPlan plan, WorkEvent event, String eventName, long delayTime, Throwable error) {
+    static void emitLocalEvent(Activity plan, WorkEvent event, String eventName, long delayTime, Throwable error) {
         emitLocalEvent(plan, event, eventName, delayTime, error, null);
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
-    static void emitLocalEvent(ActivatedPlan plan, WorkEvent event, String eventName, long delayTime, Throwable error, Thread currentThread) {
+    static void emitLocalEvent(Activity plan, WorkEvent event, String eventName, long delayTime, Throwable error, Thread currentThread) {
 
         if (eventName == null) return;
 
@@ -131,7 +131,7 @@ public class WorkHelper {
 
     }
 
-    static void emitLocalEvent(ActivatedPlan plan, WorkEvent event, String[] eventNames, long delayTime,Throwable error, Thread currentThread) {
+    static void emitLocalEvent(Activity plan, WorkEvent event, String[] eventNames, long delayTime, Throwable error, Thread currentThread) {
 
         if (eventNames == null || delayTime < 1) return;
 
@@ -140,7 +140,7 @@ public class WorkHelper {
         }
     }
 
-    static void emitLocalEvent(ActivatedPlan plan, WorkEvent event, String[] eventNames, long delayTime) {
+    static void emitLocalEvent(Activity plan, WorkEvent event, String[] eventNames, long delayTime) {
 
         if (eventNames == null) return;
 
@@ -149,7 +149,7 @@ public class WorkHelper {
         }
     }
 
-    static void emitLocalEvent(ActivatedPlan plan, WorkEvent event, String[] eventNames, Throwable error) {
+    static void emitLocalEvent(Activity plan, WorkEvent event, String[] eventNames, Throwable error) {
 
         if (eventNames == null) return;
 

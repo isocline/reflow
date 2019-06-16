@@ -62,11 +62,11 @@ public class Test2 {
 
 
             if (count % 3 == 0) {
-                return 2 * Clock.SECOND;
+                return 2 * Time.SECOND;
             } else if (count >3) {
                 return TERMINATE;
             } else {
-                return Clock.SECOND;
+                return Time.SECOND;
             }
 
 

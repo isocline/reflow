@@ -24,7 +24,7 @@ public class MaxCountTermination implements Work {
             return TERMINATE;
         }
 
-        return Clock.SECOND;
+        return Time.SECOND;
 
     }
 

@@ -25,7 +25,7 @@ public class MultiStepSchedule   {
         schedule.activate();
 
 
-        processor.shutdown(20 * Clock.SECOND);
+        processor.shutdown(20 * Time.SECOND);
     }
 
     public static class Step1Schedule implements Work {
@@ -44,7 +44,7 @@ public class MultiStepSchedule   {
 
                 return TERMINATE;
             } else {
-                return 1 * Clock.SECOND;
+                return 1 * Time.SECOND;
             }
 
         }
@@ -63,7 +63,7 @@ public class MultiStepSchedule   {
             }
 
 
-            return 3*Clock.SECOND;
+            return 3* Time.SECOND;
 
 
         }

@@ -81,11 +81,11 @@ public class ServerUptimeChecker  implements Work {
             logger.debug(this.url.toString() +" OK. connection time="+timeGap);
 
             if(timeGap<100) {
-                return 2*Clock.SECOND;
+                return 2* Time.SECOND;
             }else if(timeGap>=10 && timeGap<1000) {
-                return 5*Clock.SECOND;
+                return 5* Time.SECOND;
             }else {
-                return 10*Clock.SECOND;
+                return 10* Time.SECOND;
             }
 
         }catch (IOException ioe) {
@@ -95,7 +95,7 @@ public class ServerUptimeChecker  implements Work {
             if(failCount>10) {
                 return TERMINATE;
             }
-            return 30*Clock.SECOND;
+            return 30* Time.SECOND;
 
         }
 
@@ -115,6 +115,6 @@ public class ServerUptimeChecker  implements Work {
 
 
 
-       processor.shutdown(20*Clock.SECOND);
+       processor.shutdown(20* Time.SECOND);
    }
 }

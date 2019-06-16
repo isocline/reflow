@@ -30,7 +30,7 @@ public class CrontSchedule implements Work {
                 .describe(new CronDescriptor("* * * * *"))
                 .activate();
 
-        FlowProcessor.core().shutdown(10*Clock.SECOND);
+        FlowProcessor.core().shutdown(10* Time.SECOND);
 
 
     }
@@ -45,7 +45,7 @@ public class CrontSchedule implements Work {
 
         schedule.activate();
 
-        processor.shutdown(Clock.MINUTE);
+        processor.shutdown(Time.MINUTE);
 
 
     }

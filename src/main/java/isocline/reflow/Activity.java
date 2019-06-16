@@ -21,15 +21,15 @@ import java.util.Date;
  *
  * @see Plan
  */
-public interface ActivatedPlan {
+public interface Activity {
 
 
 
     void inactive();
 
-    ActivatedPlan block();
+    Activity block();
 
-    ActivatedPlan block(long timeout);
+    Activity block(long timeout);
 
     Throwable getError();
 
@@ -37,19 +37,19 @@ public interface ActivatedPlan {
 
     WorkFlow getWorkFlow();
 
-    ActivatedPlan emit(WorkEvent event);
+    Activity emit(WorkEvent event);
 
-    ActivatedPlan emit(WorkEvent event, long delayTime);
+    Activity emit(WorkEvent event, long delayTime);
 
 
     FlowProcessor getFlowProcessor();
 
 
-    ActivatedPlan finish(String isoDateTime) throws java.text.ParseException;
+    Activity finish(String isoDateTime) throws java.text.ParseException;
 
-    ActivatedPlan finish(Date endDateTime);
+    Activity finish(Date endDateTime);
 
-    ActivatedPlan finishFromNow(long milliSeconds);
+    Activity finishFromNow(long milliSeconds);
 
     long getIntervalTime();
 

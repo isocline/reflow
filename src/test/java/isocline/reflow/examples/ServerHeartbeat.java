@@ -49,13 +49,13 @@ public class ServerHeartbeat implements Work {
         logger.info("LEVEL : " + waterLevel);
 
         if (waterLevel >= DANGER) {
-            return 1 * Clock.SECOND;
+            return 1 * Time.SECOND;
 
         } else if (waterLevel >= WARN) {
-            return 2 * Clock.SECOND;
+            return 2 * Time.SECOND;
 
         } else {
-            return 3 * Clock.SECOND;
+            return 3 * Time.SECOND;
         }
 
 
@@ -69,6 +69,6 @@ public class ServerHeartbeat implements Work {
         schedule.activate();
 
 
-        processor.shutdown(20 * Clock.SECOND);
+        processor.shutdown(20 * Time.SECOND);
     }
 }

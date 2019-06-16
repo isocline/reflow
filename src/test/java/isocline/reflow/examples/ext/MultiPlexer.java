@@ -66,7 +66,7 @@ public class MultiPlexer implements Work {
     public static void main(String[] args) throws Exception {
         FlowProcessor processor = FlowProcessorFactory.getProcessor("perform", Configuration.PERFORMANCE);
 
-        long startTime = Clock.nextSecond();
+        long startTime = Time.nextSecond();
 
         System.out.println(startTime);
         System.out.println(System.currentTimeMillis());
@@ -95,7 +95,7 @@ public class MultiPlexer implements Work {
 
 
 
-        processor.shutdown(600 * Clock.SECOND);
+        processor.shutdown(600 * Time.SECOND);
     }
 
 }

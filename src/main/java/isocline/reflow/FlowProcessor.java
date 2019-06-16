@@ -183,13 +183,7 @@ public class FlowProcessor extends ThreadGroup {
 
     public Plan reflow(PlanDescriptor config, Runnable runnable) {
 
-        Work work = (WorkEvent e) -> {
-            runnable.run();
-
-            return Work.TERMINATE;
-        };
-
-        Plan plan = new PlanImpl(this, work);
+        Plan plan = new PlanImpl(this, runnable);
         if (config != null) {
             plan.describe(config);
         }
@@ -239,11 +233,11 @@ public class FlowProcessor extends ThreadGroup {
     }
 
 
-    public ActivatedPlan execute(Work work) {
+    public Activity execute(Work work) {
         return execute(work, 0);
     }
 
-    public ActivatedPlan execute(Work work, long startDelayTime) {
+    public Activity execute(Work work, long startDelayTime) {
         Plan plan = new PlanImpl(this, work);
         if (startDelayTime > 0) {
             plan.startDelayTime(startDelayTime);
@@ -820,7 +814,7 @@ public class FlowProcessor extends ThreadGroup {
             long intervalTime = nextIntervalTime;
 
             if (nextIntervalTime == Work.LOOP) {
-                intervalTime = Clock.SECOND;
+                intervalTime = Time.SECOND;
 
             } else if (nextIntervalTime == Work.WAIT) {
 
@@ -968,17 +962,9 @@ public class FlowProcessor extends ThreadGroup {
 
                                 long intervalTime4Flow = plan.getIntervalTime4Flow();
                                 if(intervalTime4Flow>0 && workEvent!=null) {
-                                    /*
-                                    WorkEvent newEvent = WorkEventFactory.createOrigin() ;
-                                    newEvent.setFireTime(intervalTime4Flow);
-                                    this.flowProcessor.addWorkSchedule(plan, newEvent, intervalTime4Flow);
-                                    */
-                                    //WorkEvent newEvent = WorkEventFactory.createOrigin() ;
                                     WorkEvent origin = workEvent.origin();
                                     origin.reset();
                                     WorkEvent newEvent = WorkEventFactory.createWithOrigin(null, origin);
-
-
 
                                     this.flowProcessor.addWorkSchedule(plan, newEvent, intervalTime4Flow);
 
@@ -1101,7 +1087,11 @@ public class FlowProcessor extends ThreadGroup {
                             nextExecuteTime = plan.getNextExecuteTime();
                         }
 
-                        long gap = (System.currentTimeMillis() + thresholdWaitTimeToReady) - nextExecuteTime;
+
+                        long gap = System.currentTimeMillis()  - nextExecuteTime;
+                        if(plan.isStrictMode()) {
+                            gap = gap + thresholdWaitTimeToReady;
+                        }
                         if (gap >= 0) {
 
                             if (event != null) {

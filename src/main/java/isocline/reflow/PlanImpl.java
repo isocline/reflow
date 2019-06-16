@@ -34,7 +34,7 @@ import java.util.function.Consumer;
  *
  * @see isocline.reflow.Work
  */
-public class PlanImpl implements Plan, ActivatedPlan {
+public class PlanImpl implements Plan, Activity {
 
     protected static XLogger logger = XLogger.getLogger(Plan.class);
 
@@ -74,7 +74,15 @@ public class PlanImpl implements Plan, ActivatedPlan {
 
     private boolean isDaemonMode = false;
 
-    private boolean isFinished = false;
+
+
+    private boolean isFlowableWork = false;
+
+    private boolean isRunnable = false;
+
+    private long intervalTime4Runnable = Work.TERMINATE;
+
+    private long intervalTime4Flow = 0;
 
 
     private Work work;
@@ -96,9 +104,21 @@ public class PlanImpl implements Plan, ActivatedPlan {
 
     private Consumer consumer = null;
 
-    private boolean isFlowableWork = false;
 
-    private long intervalTime4Flow = 0;
+    PlanImpl(FlowProcessor flowProcessor, Runnable runnable) {
+        Work work = (WorkEvent e) -> {
+            runnable.run();
+
+            return intervalTime;
+        };
+        this.flowProcessor = flowProcessor;
+        this.work = work;
+        this.uuid = UUID.randomUUID().toString();
+
+        this.isRunnable = true;
+        this.intervalTime = Work.TERMINATE;
+    }
+
 
     PlanImpl(FlowProcessor flowProcessor, FlowableWork work) {
         this(flowProcessor, (Work) work);
@@ -161,7 +181,6 @@ public class PlanImpl implements Plan, ActivatedPlan {
         needWaiting = false;
 
         if (!isActivated) {
-            System.out.println("XXXXXXXXXX");
             return 0;
             //throw new RuntimeException("service end");
         }
@@ -195,7 +214,7 @@ public class PlanImpl implements Plan, ActivatedPlan {
         }
 
 
-        return Clock.HOUR;
+        return Time.HOUR;
     }
 
 
@@ -389,9 +408,10 @@ public class PlanImpl implements Plan, ActivatedPlan {
 
         checkLocking();
 
+
         if (this.isFlowableWork) {
             this.intervalTime4Flow = intervalTime;
-        } else {
+        }else {
             this.intervalTime = intervalTime;
         }
 
@@ -429,7 +449,7 @@ public class PlanImpl implements Plan, ActivatedPlan {
 
         this.isDefinedStartTime = true;
 
-        return startTime(Clock.toDate(isoDateTime));
+        return startTime(Time.toDate(isoDateTime));
     }
 
 
@@ -459,7 +479,7 @@ public class PlanImpl implements Plan, ActivatedPlan {
     @Override
     public Plan finishTime(String isoDateTime) throws java.text.ParseException {
 
-        return finishTime(Clock.toDate(isoDateTime));
+        return finishTime(Time.toDate(isoDateTime));
     }
 
 
@@ -501,18 +521,18 @@ public class PlanImpl implements Plan, ActivatedPlan {
 
 
     @Override
-    public ActivatedPlan finish(String isoDateTime) throws ParseException {
-        return (ActivatedPlan) finishTime(isoDateTime);
+    public Activity finish(String isoDateTime) throws ParseException {
+        return (Activity) finishTime(isoDateTime);
     }
 
     @Override
-    public ActivatedPlan finish(Date endDateTime) {
-        return (ActivatedPlan) finishTime(endDateTime);
+    public Activity finish(Date endDateTime) {
+        return (Activity) finishTime(endDateTime);
     }
 
     @Override
-    public ActivatedPlan finishFromNow(long milliSeconds) {
-        return (ActivatedPlan) finishTimeFromNow(milliSeconds);
+    public Activity finishFromNow(long milliSeconds) {
+        return (Activity) finishTimeFromNow(milliSeconds);
     }
 
     /**
@@ -567,7 +587,7 @@ public class PlanImpl implements Plan, ActivatedPlan {
 
 
     @Override
-    public ActivatedPlan emit(WorkEvent event) {
+    public Activity emit(WorkEvent event) {
 
         this.flowProcessor.addWorkSchedule(this, event);
 
@@ -577,7 +597,7 @@ public class PlanImpl implements Plan, ActivatedPlan {
 
 
     @Override
-    public ActivatedPlan emit(WorkEvent event, long delayTime) {
+    public Activity emit(WorkEvent event, long delayTime) {
 
         if (delayTime > 0) {
             //this.flowProcessor.workChecker
@@ -616,6 +636,12 @@ public class PlanImpl implements Plan, ActivatedPlan {
         return this;
     }
 
+
+    public boolean isStrictMode() {
+        return this.isStrictMode;
+    }
+
+
     @Override
     public Plan setBetweenStartTimeMode(boolean isBetweenStartTimeMode) {
         checkLocking();
@@ -634,13 +660,15 @@ public class PlanImpl implements Plan, ActivatedPlan {
     public Plan daemonMode() {
         checkLocking();
         this.startDelayTime(Work.WAIT);
+
+        this.intervalTime = Work.WAIT;
         this.isDaemonMode = true;
         return this;
     }
 
 
     @Override
-    public ActivatedPlan activate() {
+    public Activity activate() {
         return activate(null);
     }
 
@@ -662,7 +690,7 @@ public class PlanImpl implements Plan, ActivatedPlan {
      * @return an instance of Plan
      */
     @Override
-    public ActivatedPlan activate(Consumer consumer) {
+    public Activity activate(Consumer consumer) {
         if (isActivated) {
             throw new RuntimeException("Already activate!");
         }
@@ -696,7 +724,7 @@ public class PlanImpl implements Plan, ActivatedPlan {
 
         if (this.isStrictMode && !this.isDefinedStartTime) {
 
-            long startTime = Clock.nextSecond(900);
+            long startTime = Time.nextSecond(900);
             this.setStartTime(startTime + this.waitingTime);
         } else if (this.waitingTime > 0) {
             this.adjustDelayTime(this.waitingTime);
@@ -722,8 +750,8 @@ public class PlanImpl implements Plan, ActivatedPlan {
      * @return
      */
     @Override
-    public ActivatedPlan run() {
-        ActivatedPlan schedule = activate();
+    public Activity run() {
+        Activity schedule = activate();
 
         schedule.block();
 
@@ -778,7 +806,7 @@ public class PlanImpl implements Plan, ActivatedPlan {
     }
 
 
-    synchronized public ActivatedPlan block(long timeout) {
+    synchronized public Activity block(long timeout) {
 
         try {
 
@@ -793,7 +821,7 @@ public class PlanImpl implements Plan, ActivatedPlan {
     }
 
 
-    synchronized public ActivatedPlan block() {
+    synchronized public Activity block() {
         try {
             if (this.isActivated) {
                 wait();

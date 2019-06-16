@@ -2,7 +2,7 @@ package isocline.reflow;
 
 import isocline.reflow.log.XLogger;
 import org.junit.After;
-import org.junit.Before;
+import org.junit.Assert;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -16,30 +16,23 @@ public class WorkTest {
 
     private FlowProcessor flowProcessor;
 
-    @Before
-    public void before() {
-        seq = 0;
-
-        flowProcessor = FlowProcessorFactory.getProcessor();
-    }
 
     @After
     public void after() {
 
-        flowProcessor.shutdown(1000);
+        //FlowProcessor.core().shutdown(3000);
     }
 
     @Test
     public void executeSimple() throws Exception {
 
 
-        FlowProcessor.core()
-                .reflow(e -> {
-                    seq++;
-                    logger.debug("exec " + seq);
+        Re.flow(e -> {
+            seq++;
+            logger.debug("exec " + seq);
 
-                    return Work.TERMINATE;
-                }).activate().block();
+            return Work.TERMINATE;
+        }).activate().block();
 
 
         assertEquals(1, seq);
@@ -50,14 +43,13 @@ public class WorkTest {
     public void executeSimple2() throws Exception {
 
 
-        FlowProcessor.core()
-                .reflow(e -> {
-                    seq++;
-                    logger.debug("exec " + seq);
+        Re.flow(e -> {
+            seq++;
+            logger.debug("exec " + seq);
 
-                    return Work.TERMINATE;
-                }).activate(e->{
-                    logger.debug(e);
+            return Work.TERMINATE;
+        }).activate(e -> {
+            logger.debug(e);
         }).block();
 
 
@@ -65,26 +57,72 @@ public class WorkTest {
 
     }
 
+    private int count = 0;
+
+    @Test
+    public void executeSimple3() throws Exception {
+
+        count = 0;
+
+        Re.flow(() -> {
+            count++;
+            logger.debug("Hello Re.flow ! ");
+        })
+                .interval(1000)
+                .finishTimeFromNow(Time.SECOND * 3)
+                .activate().block();
+
+        Assert.assertEquals(3, count);
+    }
+
+
+    @Test
+    public void executeSimple4() throws Exception {
+
+        count = 0;
+
+        Re.flow((WorkEvent e) -> {
+            count++;
+            logger.debug("Hello Re.flow ! "
+                    + e.get("z"));
+            return Work.WAIT;
+        })
+                .on("test")
+                .daemonMode()
+                .activate();
+
+
+        Re.flow(() -> {
+            System.out.println("FIRE");
+            Re.lease("test", e -> e.put("z", "zz").put("z", "sdf"));
+        })
+                .interval(1000)
+                .startDelayTime(2 * Time.SECOND)
+                .finishTimeFromStart(5 * Time.SECOND)
+                .activate().block();
+
+        Assert.assertEquals(3, count);
+    }
+
+
     @Test
     public void executeByEvent() throws Exception {
 
-        ActivatedPlan plan =
+        Activity plan = Re.flow((WorkEvent event) -> {
+            seq++;
+            logger.debug("exec " + seq + " event:" + event.getEventName());
 
-                flowProcessor.reflow((WorkEvent event) -> {
-                    seq++;
-                    logger.debug("exec " + seq + " event:" + event.getEventName());
-
-                    return Work.WAIT;
-                }, "testEvent").activate();
+            return Work.WAIT;
+        }, "testEvent").activate();
 
 
-        flowProcessor.execute((WorkEvent event) -> {
+        Re.flow((WorkEvent event) -> {
             logger.debug("fire event:" + event.getEventName());
 
             event.getPlan().getFlowProcessor().emit("testEvent", event);
 
             return Work.TERMINATE;
-        });
+        }).activate().block();
 
         plan.block(1000);
 
@@ -98,14 +136,12 @@ public class WorkTest {
     public void executeOneTime() throws Exception {
 
 
-        Plan plan =
+        Plan plan = Re.flow((WorkEvent event) -> {
+            seq++;
+            logger.debug("exec " + seq);
 
-                flowProcessor.reflow((WorkEvent event) -> {
-                    seq++;
-                    logger.debug("exec " + seq);
-
-                    return Work.TERMINATE;
-                });
+            return Work.TERMINATE;
+        });
 
         plan.activate().block(1000);
 
@@ -117,14 +153,12 @@ public class WorkTest {
     @Test
     public void executeSleep() throws Exception {
 
-        Plan plan =
+        Plan plan = Re.flow((WorkEvent event) -> {
+            seq++;
+            logger.debug("exec " + seq);
 
-                flowProcessor.reflow((WorkEvent event) -> {
-                    seq++;
-                    logger.debug("exec " + seq);
-
-                    return Work.WAIT;
-                });
+            return Work.WAIT;
+        });
 
         plan.activate().block(100);
 
@@ -135,18 +169,16 @@ public class WorkTest {
     @Test
     public void executeLoop() throws Exception {
 
-        Plan plan =
+        Plan plan = Re.flow((WorkEvent event) -> {
+            seq++;
+            logger.debug("exec " + seq);
 
-                flowProcessor.reflow((WorkEvent event) -> {
-                    seq++;
-                    logger.debug("exec " + seq);
+            if (seq == 10) {
+                return Work.TERMINATE;
+            }
 
-                    if (seq == 10) {
-                        return Work.TERMINATE;
-                    }
-
-                    return Work.LOOP;
-                });
+            return Work.LOOP;
+        });
 
 
         plan.activate().block(100);
@@ -160,15 +192,14 @@ public class WorkTest {
     public void executeRunnable() throws Exception {
 
         seq = 0;
-        Runnable runnable = ()-> {
+        Runnable runnable = () -> {
             logger.debug("runnable");
             seq++;
         };
 
 
-        FlowProcessor.core()
-                .reflow(runnable)
-                .startDelayTime(2*Clock.SECOND)
+        Re.flow(runnable)
+                .startDelayTime(2 * Time.SECOND)
                 .activate()
                 .block();
 

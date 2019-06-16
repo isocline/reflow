@@ -49,8 +49,8 @@ public class EventReceiver implements Work {
         processor.reflow(gen)
 
                 .strictMode()
-                .startTime(Clock.nextSecond())
-                .finishTimeFromNow(30 * Clock.SECOND)
+                .startTime(Time.nextSecond())
+                .finishTimeFromNow(30 * Time.SECOND)
                 .activate();
 
 
@@ -74,8 +74,8 @@ public class EventReceiver implements Work {
         WorkEventGenerator gen = new WorkEventGenerator();
         gen.setEventName("example-event");
 
-        processor.reflow(gen).finishTimeFromNow(30 * Clock.SECOND).strictMode().startTime
-                (Clock.nextSecond()).activate();
+        processor.reflow(gen).finishTimeFromNow(30 * Time.SECOND).strictMode().startTime
+                (Time.nextSecond()).activate();
 
 
         processor.shutdown(TestConfiguration.TIMEOUT);

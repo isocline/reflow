@@ -63,7 +63,7 @@ public class ComplexWorkFlow implements FlowableWork {
     @Test
     public void test() throws InterruptedException {
 
-        ActivatedPlan schedule = start();
+        Activity schedule = start();
 
         schedule.block();
 

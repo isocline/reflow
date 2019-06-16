@@ -24,7 +24,7 @@ import java.util.Date;
  * @author Richard Dean Kim
  * @see Plan
  */
-public class Clock {
+public class Time {
 
     /**
      * right now

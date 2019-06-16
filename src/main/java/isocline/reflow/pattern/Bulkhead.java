@@ -1,6 +1,6 @@
 package isocline.reflow.pattern;
 
-import isocline.reflow.Clock;
+import isocline.reflow.Time;
 import isocline.reflow.WorkEvent;
 import isocline.reflow.WorkFlow;
 import isocline.reflow.WorkFlowPattern;
@@ -18,7 +18,7 @@ public class Bulkhead implements WorkFlowPattern {
 
     private int maxFailCount = 3;
 
-    private long retryTimeGap = Clock.SECOND * 10;
+    private long retryTimeGap = Time.SECOND * 10;
 
     private long timeout = 3000;
 

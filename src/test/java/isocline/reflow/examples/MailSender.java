@@ -11,7 +11,7 @@ public class MailSender implements Work {
 
     private static XLogger logger = XLogger.getLogger(MailSender.class);
 
-    long timeUnit = Clock.SECOND;
+    long timeUnit = Time.SECOND;
 
     private String email;
     private String title;
@@ -74,6 +74,6 @@ public class MailSender implements Work {
 
 
 
-       processor.shutdown(20*Clock.SECOND);
+       processor.shutdown(20* Time.SECOND);
    }
 }

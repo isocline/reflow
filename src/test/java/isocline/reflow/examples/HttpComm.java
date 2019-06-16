@@ -72,7 +72,7 @@ public class HttpComm implements Work {
     public static void main(String[] args) throws Exception {
         FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
-        long startTime = Clock.nextSecond();
+        long startTime = Time.nextSecond();
 
         for(int i=0;i<20;i++) {
             HttpComm work = new HttpComm("https://www.google.com");

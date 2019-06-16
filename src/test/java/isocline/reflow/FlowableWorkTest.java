@@ -120,26 +120,25 @@ public class FlowableWorkTest {
     public void testLooping2() {
         reset();
 
-        FlowProcessor.core()
-                .reflow(f -> {
-                    f
-                            .next(this::case0)
-                            .delay(200)
+        Re.flow(f -> {
+            f
+                    .next(this::case0)
+                    .delay(200)
 
-                            .flag("s1")
-                            .next(this::case1)
-                            .delay(100)
-                            .next(this::case2)
+                    .flag("s1")
+                    .next(this::case1)
+                    .delay(100)
+                    .next(this::case2)
 
-                            .branch((WorkEvent event) -> {
-                                if (event.count() > 5) {
-                                    return "end";
-                                }
-                                return "s1";
-                            })
-                            .flag("end").end();
+                    .branch((WorkEvent event) -> {
+                        if (event.count() > 5) {
+                            return "end";
+                        }
+                        return "s1";
+                    })
+                    .flag("end").end();
 
-                })
+        })
                 .activate().block();
 
         print();
@@ -152,15 +151,14 @@ public class FlowableWorkTest {
     @Test
     public void testBasic() {
 
-        FlowProcessor.core()
-                .reflow(f -> {
-                    f
-                            .applyAsync(e -> getExhangeRate(1000 * Math.random(), 3, 5))
-                            .applyAsync(e -> getExhangeRate(2000, 4, 2))
-                            .applyAsync(e -> getExhangeRate(5000 * Math.random(), 3, 4))
-                            .waitAll()
-                            .next((WorkEvent e) -> e.getDoubleStream().sum());
-                })
+        Re.flow(f -> {
+            f
+                    .applyAsync(e -> getExhangeRate(1000 * Math.random(), 3, 5))
+                    .applyAsync(e -> getExhangeRate(2000, 4, 2))
+                    .applyAsync(e -> getExhangeRate(5000 * Math.random(), 3, 4))
+                    .waitAll()
+                    .next((WorkEvent e) -> e.getDoubleStream().sum());
+        })
                 .activate(this::check).block();
 
     }
@@ -170,30 +168,28 @@ public class FlowableWorkTest {
     public void testAsyncCalcByExternalEvent() throws Exception {
         AtomicInteger count = new AtomicInteger(0);
 
-        FlowProcessor.core()
-                .reflow(f -> {
-                    f
-                            .applyAsync(e -> getExhangeRate(1000, 3, 5))
-                            .applyAsync(e -> getExhangeRate(2000, 4, 2))
-                            .applyAsync(e -> getExhangeRate(5000, 3, 4))
-                            .waitAll()
-                            .next((WorkEvent e) -> e.getDoubleStream().sum())
-                            .next((WorkEvent e) -> {
-                                count.addAndGet(1);
-                                double result = (double) e.getResult();
-                                logger.info("RESULT = " + result);
-                            });
-                })
+        Re.flow(f -> {
+            f
+                    .applyAsync(e -> getExhangeRate(1000, 3, 5))
+                    .applyAsync(e -> getExhangeRate(2000, 4, 2))
+                    .applyAsync(e -> getExhangeRate(5000, 3, 4))
+                    .waitAll()
+                    .next((WorkEvent e) -> e.getDoubleStream().sum())
+                    .next((WorkEvent e) -> {
+                        count.addAndGet(1);
+                        double result = (double) e.getResult();
+                        logger.info("RESULT = " + result);
+                    });
+        })
                 .daemonMode()
                 .on("calc")
                 .activate(logger::debug);
 
         WorkEventGenerator generator = new WorkEventGenerator("calc", 400);
 
-        FlowProcessor.core()
-                .reflow(generator)
-                .startTime(Clock.nextSecond())
-                .finishTimeFromStart(3 * Clock.SECOND)
+        Re.flow(generator)
+                .startTime(Time.nextSecond())
+                .finishTimeFromStart(3 * Time.SECOND)
                 .strictMode()
                 .activate();
 
@@ -234,10 +230,9 @@ public class FlowableWorkTest {
         };
 
 
-        ActivatedPlan plan = FlowProcessor.core()
-                .reflow(flow)
+        Activity plan = Re.flow(flow)
                 .interval(2000)
-                .finishTimeFromNow(Clock.SECOND *10)
+                .finishTimeFromNow(Time.SECOND * 10)
                 .activate(logger::error).block();
 
         Thread.sleep(7000);
@@ -257,35 +252,33 @@ public class FlowableWorkTest {
 
         reset();
 
-        FlowProcessor.core()
-                .reflow(f -> {
-                    f.next(this::case0);
-                    f.wait("case1").next(this::case1);
-                    f.wait("case2").next(this::case2);
-                })
+        Re.flow(f -> {
+            f.next(this::case0);
+            f.wait("case1").next(this::case1);
+            f.wait("case2").next(this::case2);
+        })
                 .on("ev")
                 .daemonMode()
                 .activate();
 
 
-        FlowProcessor.core()
-                .reflow((WorkEvent e) -> {
+        Re.flow((WorkEvent e) -> {
 
-                    e.put("result", "skkim");
+            e.put("result", "skkim");
 
-                    WorkEvent e2 = WorkEventFactory.createOrigin("x").setFireEventName("case2");
+            WorkEvent e2 = WorkEventFactory.createOrigin("x").setFireEventName("case2");
 
-                    logger.debug("fire1 " + e);
-                    logger.debug("fire2 " + e2);
-                    e.getPlan().getFlowProcessor()
+            logger.debug("fire1 " + e);
+            logger.debug("fire2 " + e2);
+            e.getPlan().getFlowProcessor()
 
-                            .emit("ex", e)
-                            .emit("ev", e)
-                            .emit("ev", e2)
-                            .emit("ev", "case1", e2)
-                            .emit("ev", "case2", e2);
-                    return Work.TERMINATE;
-                })
+                    .emit("ex", e)
+                    .emit("ev", e)
+                    .emit("ev", e2)
+                    .emit("ev", "case1", e2)
+                    .emit("ev", "case2", e2);
+            return Work.TERMINATE;
+        })
                 .activate().block();
 
         FlowProcessor.core()

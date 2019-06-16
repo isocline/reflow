@@ -18,7 +18,7 @@ public class Test {
 
             TestJob work = new TestJob(i);
             //Plan schedule = processor.Reflow(work).on("fire").setStartDelay(1000);
-            //Plan schedule = processor.Reflow(work).on("fire").setStartDelay(Clock.milliseconds("2019-01-17T13:32:30+09:00"));
+            //Plan schedule = processor.Reflow(work).on("fire").setStartDelay(Time.milliseconds("2019-01-17T13:32:30+09:00"));
             Plan schedule = processor.reflow(work).on("fire").strictMode();
             //Plan schedule = processor.Reflow(work).on("fire");
 
@@ -78,9 +78,9 @@ public class Test {
 
 
             if (count <= 3) {
-                return Clock.SECOND;
+                return Time.SECOND;
             } else if (count >3 && count<6) {
-                return 2*Clock.SECOND;
+                return 2* Time.SECOND;
             } else if(count >= 6) {
                 return WAIT;
             }else {

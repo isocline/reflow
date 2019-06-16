@@ -67,11 +67,11 @@ public interface Plan {
 
     Plan describe(PlanDescriptor descriptor);
 
-    ActivatedPlan activate();
+    Activity activate();
 
-    ActivatedPlan activate(Consumer consumer);
+    Activity activate(Consumer consumer);
 
-    ActivatedPlan run();
+    Activity run();
 
     boolean isActivated();
 
