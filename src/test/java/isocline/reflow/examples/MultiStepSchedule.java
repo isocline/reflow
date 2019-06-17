@@ -40,7 +40,7 @@ public class MultiStepSchedule   {
 
             if (count > 5) {
 
-                event.getPlan().getFlowProcessor().emit(WorkEventFactory.createOrigin("fireEvent"));
+                event.getActivity().getFlowProcessor().emit(WorkEventFactory.createOrigin("fireEvent"));
 
                 return TERMINATE;
             } else {

@@ -103,7 +103,7 @@ public class WorkEventImpl implements WorkEvent {
     }
 
 
-    public void setPlan(Activity plan) {
+    public void setActivity(Activity plan) {
         this.activity = plan;
     }
 
@@ -111,7 +111,7 @@ public class WorkEventImpl implements WorkEvent {
     /**
      * @return
      */
-    public Activity getPlan() {
+    public Activity getActivity() {
 
         return this.activity;
     }
@@ -190,8 +190,9 @@ public class WorkEventImpl implements WorkEvent {
 
 
         WorkEventImpl newEvent = new WorkEventImpl(eventName, this.originWorkEvent);
-        //newEvent.attributeMap = this.attributeMap;
+        newEvent.attributeMap = this.attributeMap;
         newEvent.activity = this.activity;
+
 
 
         return newEvent;
@@ -268,7 +269,7 @@ public class WorkEventImpl implements WorkEvent {
             event = this;
         }
 
-        String resultKey = "result::" + event.hashCode();
+        String resultKey = WorkEventKey.PREFIX_RESULT + event.hashCode();
 
         List list;
         //noinspection SynchronizationOnLocalVariableOrMethodParameter
@@ -313,7 +314,7 @@ public class WorkEventImpl implements WorkEvent {
             event = this;
         }
 
-        String resultKey = "result::" + event.hashCode() + "<Mono>";
+        String resultKey = WorkEventKey.PREFIX_RESULT + event.hashCode() + "<Mono>";
 
         return event.get(resultKey);
     }

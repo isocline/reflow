@@ -22,7 +22,7 @@ public class WorkHelper {
             event = e;
         }
 
-        String resultKey = "result::" + event.hashCode();
+        String resultKey = WorkEventKey.PREFIX_RESULT + event.hashCode();
 
         List list;
         synchronized (event) {
@@ -49,7 +49,7 @@ public class WorkHelper {
             event = e;
         }
 
-        String resultKey = "result::" + event.hashCode() + "<Mono>";
+        String resultKey = WorkEventKey.PREFIX_RESULT + event.hashCode() + "<Mono>";
 
 
         return event.get(resultKey);
@@ -64,7 +64,7 @@ public class WorkHelper {
             event = e;
         }
 
-        String resultKey = "result::" + event.hashCode();
+        String resultKey = WorkEventKey.PREFIX_RESULT + event.hashCode();
 
         event.put(resultKey + "<Mono>", result);
 

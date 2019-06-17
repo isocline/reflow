@@ -27,7 +27,7 @@ public class Timeout implements WorkFlowPattern {
 
 
     public void timeout(WorkEvent e) {
-        e.getPlan().setError(new FlowProcessException("timeout"));
+        e.getActivity().setError(new FlowProcessException("timeout"));
     }
 
 

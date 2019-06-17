@@ -893,7 +893,7 @@ public class PlanImpl implements Plan, Activity {
             //System.err.println("== 0 ===============");
             if (originEvent == null) {
                 originEvent = WorkEventFactory.createOrigin();
-                originEvent.setPlan(this);
+                originEvent.setActivity(this);
                 //System.err.println("== 1");
             } else {
                 //System.err.println("== 2 "+originEvent.getEventName());
@@ -908,7 +908,7 @@ public class PlanImpl implements Plan, Activity {
             }
 
             event = inputWorkEvent;
-            event.setPlan(this);
+            event.setActivity(this);
         }
 
         return event;
@@ -991,7 +991,7 @@ public class PlanImpl implements Plan, Activity {
 
             /*
             if(event!=null) {
-                event.setPlan(plan);
+                event.setActivity(plan);
 
             }
             */

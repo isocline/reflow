@@ -46,7 +46,7 @@ public class WorkEventTest {
         WorkEvent event2 =event.createChild("evt2");
         assertEquals("evt2", event2.getEventName());
 
-        assertEquals(null, event2.get("key1"));
+        assertEquals("val1", event2.get("key1"));
 
 
         //event2.put("key1", "val2");

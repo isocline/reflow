@@ -16,4 +16,6 @@ public class WorkEventKey {
 
     public final static String PREFIX_EVENT_SET = "eset::";
 
+    public final static String PREFIX_RESULT = "result::";
+
 }

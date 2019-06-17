@@ -77,7 +77,7 @@ public interface FlowableWork<T> extends Work {
     default long execute(WorkEvent event) throws InterruptedException {
 
 
-        final Activity plan = event.getPlan();
+        final Activity plan = event.getActivity();
 
         final WorkFlow flow = plan.getWorkFlow();
 

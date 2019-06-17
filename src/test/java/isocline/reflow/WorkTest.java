@@ -84,7 +84,7 @@ public class WorkTest {
         Re.flow((WorkEvent e) -> {
             count++;
             logger.debug("Hello Re.flow ! "
-                    + e.get("z"));
+                    + e.origin().get("z"));
             return Work.WAIT;
         })
                 .on("test")
@@ -94,7 +94,7 @@ public class WorkTest {
 
         Re.flow(() -> {
             System.out.println("FIRE");
-            Re.lease("test", e -> e.put("z", "zz").put("z", "sdf"));
+            Re.quest("test", e -> e.put("z", "zz").put("z", "sdf"));
         })
                 .interval(1000)
                 .startDelayTime(2 * Time.SECOND)
@@ -119,7 +119,7 @@ public class WorkTest {
         Re.flow((WorkEvent event) -> {
             logger.debug("fire event:" + event.getEventName());
 
-            event.getPlan().getFlowProcessor().emit("testEvent", event);
+            event.getActivity().getFlowProcessor().emit("testEvent", event);
 
             return Work.TERMINATE;
         }).activate().block();

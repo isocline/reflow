@@ -42,19 +42,19 @@ public interface WorkEvent {
     int count();
 
     /**
-     * Set the Plan object.
+     * Set the Activity object.
      *
-     * @param plan instance of Plan
+     * @param activity instance of Activity
      */
-    void setPlan(Activity plan);
+    void setActivity(Activity activity);
 
 
     /**
-     * Returns the Plan object.
+     * Returns the Activity object.
      *
-     * @return instance of Plan
+     * @return instance of Activity
      */
-    Activity getPlan();
+    Activity getActivity();
 
 
     /**

@@ -82,7 +82,7 @@ public class CircuitBreaker implements WorkFlowPattern {
             System.err.println("___ OK");
             return true;
         } else {
-            event.getPlan().setError(new RuntimeException("circuit open"));
+            event.getActivity().setError(new RuntimeException("circuit open"));
             System.err.println("? === FAIL 1");
             return false;
         }

@@ -270,7 +270,7 @@ public class FlowableWorkTest {
 
             logger.debug("fire1 " + e);
             logger.debug("fire2 " + e2);
-            e.getPlan().getFlowProcessor()
+            e.getActivity().getFlowProcessor()
 
                     .emit("ex", e)
                     .emit("ev", e)

@@ -28,10 +28,10 @@ import java.util.function.Consumer;
 
 public interface WorkFlow<T> {
 
-    String START = "CLOCKWORK::start";
+    String START = "ReFlow::start";
 
 
-    String FINISH = "CLOCKWORK::inactive";
+    String FINISH = "ReFlow::inactive";
 
 
     String ERROR = "error::*";

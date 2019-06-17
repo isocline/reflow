@@ -24,12 +24,12 @@ public class Re {
         return FlowProcessor.core().reflow(work, eventNames);
     }
 
-    public static FlowProcessor lease(WorkEvent event) {
+    public static FlowProcessor quest(WorkEvent event) {
         return FlowProcessor.core().emit(event);
     }
 
 
-    public static FlowProcessor lease(String evnetName, WorkEventConsumer consumer) {
+    public static FlowProcessor quest(String evnetName, WorkEventConsumer consumer) {
         WorkEvent event = WorkEventFactory.createOrigin(evnetName);
         try {
             consumer.accept(event);
