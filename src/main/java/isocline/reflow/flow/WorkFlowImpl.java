@@ -297,11 +297,11 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
 
 
     @Override
-    public WorkFlow runAsync(WorkEventConsumer... execObject) {
+    public WorkFlow runAsync(WorkEventPublisher... execObject) {
 
 
 
-        for(WorkEventConsumer c:execObject) {
+        for(WorkEventPublisher c:execObject) {
 
             processRunAsync(c, null);
         }
@@ -310,12 +310,12 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
     }
 
     @Override
-    public WorkFlow runAsync(WorkEventConsumer execObject, String fireEventName) {
+    public WorkFlow runAsync(WorkEventPublisher execObject, String fireEventName) {
         return processRunAsync(execObject, fireEventName);
     }
 
     @Override
-    public WorkFlow runAsync(WorkEventConsumer execObject, int count) {
+    public WorkFlow runAsync(WorkEventPublisher execObject, int count) {
         WorkFlow workFlow = null;
         for (int i = 0; i < count; i++) {
             workFlow = processRunAsync(execObject, null);
@@ -477,11 +477,11 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
     }
 
 
-    public WorkFlowImpl next(WorkEventConsumer execObject) {
+    public WorkFlowImpl next(WorkEventPublisher execObject) {
         return processNext(execObject, null, false);
     }
 
-    public WorkFlowImpl next(WorkEventConsumer execObject, String eventName) {
+    public WorkFlowImpl next(WorkEventPublisher execObject, String eventName) {
         return processNext(execObject, eventName, false);
     }
 
@@ -505,7 +505,7 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
     }
 
     @Override
-    public WorkFlow next(WorkEventConsumer execObject, FnExecFeatureFunction fnExecFeatureFunction) {
+    public WorkFlow next(WorkEventPublisher execObject, FnExecFeatureFunction fnExecFeatureFunction) {
         return processNext(execObject, null, false , false, 0 , -1, fnExecFeatureFunction);
     }
 
@@ -572,7 +572,7 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
 
         if(timeout>0) {
 
-            FunctionExecutor timeoutProcess = new FunctionExecutor( (WorkEventConsumer) WorkFlowImpl::processTimeout);
+            FunctionExecutor timeoutProcess = new FunctionExecutor( (WorkEventPublisher) WorkFlowImpl::processTimeout);
 
             String[] timeoutEventNames = newFuncExecutor.getTimeoutFireEventNames();
 

@@ -960,8 +960,11 @@ public class FlowProcessor extends ThreadGroup {
                             case TERMINATE_BY_TIMEOVER:
                             case TERMINATE_BY_FLOW:
 
+                                if(workEvent!=null)
+                                    workEvent.origin().complete();
+
                                 long intervalTime4Flow = plan.getIntervalTime4Flow();
-                                if(intervalTime4Flow>0 && workEvent!=null) {
+                                if( workEvent!=null && intervalTime4Flow>0 ) {
                                     WorkEvent origin = workEvent.origin();
                                     origin.reset();
                                     WorkEvent newEvent = WorkEventFactory.createWithOrigin(null, origin);
@@ -969,6 +972,8 @@ public class FlowProcessor extends ThreadGroup {
                                     this.flowProcessor.addWorkSchedule(plan, newEvent, intervalTime4Flow);
 
 
+                                }else if (plan.isDaemonMode()) {
+                                    this.flowProcessor.workChecker.addWorkStatusWrapper(plan);
                                 }else {
                                     plan.inactive();
                                 }

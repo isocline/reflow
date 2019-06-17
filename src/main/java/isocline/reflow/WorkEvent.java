@@ -15,6 +15,8 @@
  */
 package isocline.reflow;
 
+import isocline.reflow.flow.func.WorkEventConsumer;
+
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
@@ -176,5 +178,13 @@ public interface WorkEvent {
 
     DoubleStream getDoubleStream();
 
+
+
+    void setCosumer(WorkEventConsumer consumer);
+
+
+    void complete();
+
+    void block();
 
 }

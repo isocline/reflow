@@ -290,6 +290,54 @@ public class FlowableWorkTest {
         assertEquals(1, this.count4case2);
     }
 
+    private void test1(WorkEvent e) {
+        logger.debug("test1 ");
+    }
 
+    public void test2(WorkEvent e) {
+
+        logger.debug("test2");
+
+
+        TestUtil.waiting(500);
+        e.origin().put("price", Math.random());
+    }
+
+    @Test
+    public void testRequest() throws Exception {
+
+        FlowableWork flowableWork = f -> {
+            f
+                    .next(this::test1)
+                    .next(this::test2)
+                    .end();
+
+
+        };
+
+
+        Re.flow(flowableWork)
+                .on("chk")
+                .daemonMode()
+                .activate();
+
+        Thread.sleep(1000);
+
+        for(int i=0;i<500;i++)
+        {
+
+            Re.quest("chk",
+                    e -> {
+                        e.put("ip", "192.168.0.1");
+                    },
+                    e -> {
+                        Double z = (Double) e.get("price");
+                        logger.debug(z);
+                    });
+        }
+
+        Thread.sleep(1000);
+
+    }
 }
 

@@ -60,6 +60,7 @@ public interface Plan {
 
     Plan daemonMode();
 
+    boolean isDaemonMode() ;
 
 
     Plan eventChecker(ExecuteEventChecker checker);

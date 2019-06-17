@@ -2,6 +2,7 @@ package isocline.reflow;
 
 import isocline.reflow.event.WorkEventFactory;
 import isocline.reflow.flow.func.WorkEventConsumer;
+import isocline.reflow.flow.func.WorkEventPublisher;
 
 public class Re {
 
@@ -29,7 +30,7 @@ public class Re {
     }
 
 
-    public static FlowProcessor quest(String evnetName, WorkEventConsumer consumer) {
+    public static FlowProcessor quest(String evnetName, WorkEventPublisher consumer) {
         WorkEvent event = WorkEventFactory.createOrigin(evnetName);
         try {
             consumer.accept(event);
@@ -37,5 +38,21 @@ public class Re {
             throw new RuntimeException(e);
         }
         return FlowProcessor.core().emit(evnetName, event);
+    }
+
+    public static FlowProcessor quest(String evnetName, WorkEventPublisher eventPublisher, WorkEventConsumer eventConsumer) {
+        WorkEvent event = WorkEventFactory.createOrigin(evnetName);
+
+        event.setCosumer(eventConsumer);
+        try {
+            eventPublisher.accept(event);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+        FlowProcessor pr= FlowProcessor.core().emit(evnetName, event);
+
+        //event.block();
+
+        return pr;
     }
 }

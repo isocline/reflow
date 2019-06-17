@@ -161,9 +161,9 @@ public interface WorkFlow<T> {
     //WorkFlow applyAsync(Consumer<? extends T> execObject, int count);
 
 
-    WorkFlow runAsync(WorkEventConsumer... execObject);
-    WorkFlow runAsync(WorkEventConsumer execObject, String fireEventName);
-    WorkFlow runAsync(WorkEventConsumer execObject, int count);
+    WorkFlow runAsync(WorkEventPublisher... execObject);
+    WorkFlow runAsync(WorkEventPublisher execObject, String fireEventName);
+    WorkFlow runAsync(WorkEventPublisher execObject, int count);
 
 
     WorkFlow applyAsync(WorkEventFunction... execObject);
@@ -215,7 +215,7 @@ public interface WorkFlow<T> {
 
 
 
-    WorkFlow next(WorkEventConsumer execObject);
+    WorkFlow next(WorkEventPublisher execObject);
 
     WorkFlow next(WorkEventFunction execObject);
 
@@ -232,7 +232,7 @@ public interface WorkFlow<T> {
     WorkFlow next(Consumer<? super T> execObject, String fireEventName);
 
 
-    WorkFlow next(WorkEventConsumer execObject, String fireEventName);
+    WorkFlow next(WorkEventPublisher execObject, String fireEventName);
 
 
 
@@ -246,7 +246,7 @@ public interface WorkFlow<T> {
     WorkFlow next(Consumer<? super T> execObject, FnExecFeatureFunction fnExecFeatureFunction);
 
 
-    WorkFlow next(WorkEventConsumer execObject, FnExecFeatureFunction fnExecFeatureFunction);
+    WorkFlow next(WorkEventPublisher execObject, FnExecFeatureFunction fnExecFeatureFunction);
 
 
 

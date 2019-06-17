@@ -17,6 +17,7 @@ package isocline.reflow.event;
 
 import isocline.reflow.Activity;
 import isocline.reflow.WorkEvent;
+import isocline.reflow.flow.func.WorkEventConsumer;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -317,6 +318,38 @@ public class WorkEventImpl implements WorkEvent {
         String resultKey = WorkEventKey.PREFIX_RESULT + event.hashCode() + "<Mono>";
 
         return event.get(resultKey);
+    }
+
+
+    private WorkEventConsumer consumer;
+
+    @Override
+    public void setCosumer(WorkEventConsumer consumer) {
+
+        this.consumer = consumer;
+    }
+
+
+    private boolean isComplete = false;
+    @Override
+    public synchronized void complete() {
+        if(this.consumer!=null) {
+            consumer.accept(this);
+        }
+        isComplete = true;
+        notifyAll();
+
+    }
+
+    @Override
+    public synchronized void block() {
+        try {
+            if (!this.isComplete) {
+                wait();
+            }
+        } catch (InterruptedException ie) {
+
+        }
     }
 
     @Override

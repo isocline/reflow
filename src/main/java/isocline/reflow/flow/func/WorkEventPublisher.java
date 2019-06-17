@@ -15,14 +15,14 @@ import isocline.reflow.WorkEvent;
  * @since 1.8
  */
 @FunctionalInterface
-public interface WorkEventConsumer {
+public interface WorkEventPublisher {
 
     /**
      * Performs this operation on the given argument.
      *
      * @param e the input argument
      */
-    void accept(WorkEvent e) ;
+    void accept(WorkEvent e);
 
 
 

@@ -122,19 +122,19 @@ public class WorkFlowWrapper<T> implements WorkFlow<T> {
     }
 
     @Override
-    public WorkFlow runAsync(WorkEventConsumer... execObject) {
+    public WorkFlow runAsync(WorkEventPublisher... execObject) {
         this.workFlowInstance.runAsync(execObject);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
     @Override
-    public WorkFlow runAsync(WorkEventConsumer execObject, String fireEventName) {
+    public WorkFlow runAsync(WorkEventPublisher execObject, String fireEventName) {
         this.workFlowInstance.runAsync(execObject, fireEventName);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
     @Override
-    public WorkFlow runAsync(WorkEventConsumer execObject, int count) {
+    public WorkFlow runAsync(WorkEventPublisher execObject, int count) {
         this.workFlowInstance.runAsync(execObject, count);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
@@ -221,13 +221,13 @@ public class WorkFlowWrapper<T> implements WorkFlow<T> {
 
 
     @Override
-    public WorkFlow next(WorkEventConsumer execObject) {
+    public WorkFlow next(WorkEventPublisher execObject) {
         this.workFlowInstance.next(execObject);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
     @Override
-    public WorkFlow next(WorkEventConsumer execObject, String eventName) {
+    public WorkFlow next(WorkEventPublisher execObject, String eventName) {
         this.workFlowInstance.next(execObject, eventName);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
@@ -258,7 +258,7 @@ public class WorkFlowWrapper<T> implements WorkFlow<T> {
     }
 
     @Override
-    public WorkFlow next(WorkEventConsumer execObject, FnExecFeatureFunction fnExecFeatureFunction) {
+    public WorkFlow next(WorkEventPublisher execObject, FnExecFeatureFunction fnExecFeatureFunction) {
         this.workFlowInstance.next(execObject, fnExecFeatureFunction);
         return new WorkFlowWrapper(this.workFlowInstance);
     }

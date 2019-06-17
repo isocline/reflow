@@ -76,7 +76,7 @@ public class FunctionExecutor implements FunctionExecFeature {
 
     private ThrowableRunFunction throwableRunFunction = null;
 
-    private WorkEventConsumer workEventConsumer = null;
+    private WorkEventPublisher workEventPublisher = null;
 
     private WorkEventFunction workEventFunction = null;
 
@@ -102,8 +102,8 @@ public class FunctionExecutor implements FunctionExecFeature {
 
                 this.consumer = (Consumer) obj;
 
-            } else if (obj instanceof WorkEventConsumer) {
-                this.workEventConsumer = (WorkEventConsumer) obj;
+            } else if (obj instanceof WorkEventPublisher) {
+                this.workEventPublisher = (WorkEventPublisher) obj;
             } else if (obj instanceof Supplier) {
                 this.supplier = (Supplier) obj;
             } else if (obj instanceof Function) {
@@ -242,8 +242,8 @@ public class FunctionExecutor implements FunctionExecFeature {
 
 
             consumer.accept(rootEvent.getAttributeMap());
-        } else if (workEventConsumer != null) {
-            workEventConsumer.accept(event);
+        } else if (workEventPublisher != null) {
+            workEventPublisher.accept(event);
         } else if (workEventFunction != null) {
             Object result = workEventFunction.apply(event);
             WorkHelper.Return(event, result);

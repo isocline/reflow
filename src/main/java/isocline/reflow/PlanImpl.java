@@ -668,6 +668,19 @@ public class PlanImpl implements Plan, Activity {
 
 
     @Override
+    public boolean isDaemonMode() {
+
+        if(intervalTime4Flow>0) {
+            return true;
+        }
+
+        if(isEventBindding) {
+            return true;
+        }
+        return this.isDaemonMode;
+    }
+
+    @Override
     public Activity activate() {
         return activate(null);
     }
