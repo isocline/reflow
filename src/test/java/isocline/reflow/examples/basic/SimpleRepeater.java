@@ -26,7 +26,7 @@ public class SimpleRepeater implements Work {
 
 
         Plan Plan = FlowProcessor.core()
-                .reflow(new SimpleRepeater())
+                .task(new SimpleRepeater())
                 .interval(1 * Time.SECOND)
                 .finishTimeFromNow(5 * Time.SECOND);
 
@@ -45,7 +45,7 @@ public class SimpleRepeater implements Work {
         FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-        Plan schedule = processor.reflow(SimpleRepeater.class);
+        Plan schedule = processor.task(SimpleRepeater.class);
 
         schedule.interval(1 * Time.SECOND);
         schedule.activate();
@@ -60,7 +60,7 @@ public class SimpleRepeater implements Work {
         FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-        Plan schedule = processor.reflow(SimpleRepeater.class);
+        Plan schedule = processor.task(SimpleRepeater.class);
 
         schedule.interval(1 * Time.SECOND);
         schedule.strictMode();
@@ -76,10 +76,10 @@ public class SimpleRepeater implements Work {
         FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-        Plan schedule = processor.reflow(SimpleRepeater.class);
+        Plan schedule = processor.task(SimpleRepeater.class);
 
         schedule.interval(1 * Time.SECOND);
-        schedule.startDelayTime(Time.milliseconds(0, 0, 2));
+        schedule.initialDelay(Time.milliseconds(0, 0, 2));
         schedule.activate();
 
 
@@ -93,7 +93,7 @@ public class SimpleRepeater implements Work {
         FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-        Plan schedule = processor.reflow(SimpleRepeater.class);
+        Plan schedule = processor.task(SimpleRepeater.class);
 
         schedule.interval(1 * Time.SECOND);
         schedule.startTime(Time.nextSecond() + Time.SECOND * 2);

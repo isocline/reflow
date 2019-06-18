@@ -187,13 +187,13 @@ public class FlowableWorkTest {
 
         WorkEventGenerator generator = new WorkEventGenerator("calc", 400);
 
-        Re.flow(generator)
+        Re.task(generator)
                 .startTime(Time.nextSecond())
                 .finishTimeFromStart(3 * Time.SECOND)
                 .strictMode()
                 .activate();
 
-        logger.debug("flow define completed");
+        logger.debug("task define completed");
 
         long t1 = System.currentTimeMillis();
         Thread.sleep(2000);
@@ -232,18 +232,22 @@ public class FlowableWorkTest {
 
         Activity plan = Re.flow(flow)
                 .interval(2000)
-                .finishTimeFromNow(Time.SECOND * 10)
-                .activate(logger::error).block();
+                .finishTimeFromNow(Time.SECOND * 7)
+                .activate(logger::error);
 
-        Thread.sleep(7000);
+        logger.debug("execute flow async");
 
+        Thread.sleep(5000);
+
+        logger.debug("terninate activity of flow ");
         plan.inactive();
+
 
     }
 
 
     /***
-     * Test for event emiting frame external flow process
+     * Test for event emiting frame external task process
      *
      * @throws Exception
      */
@@ -262,7 +266,7 @@ public class FlowableWorkTest {
                 .activate();
 
 
-        Re.flow((WorkEvent e) -> {
+        Re.task((WorkEvent e) -> {
 
             e.put("result", "skkim");
 
@@ -290,27 +294,32 @@ public class FlowableWorkTest {
         assertEquals(1, this.count4case2);
     }
 
-    private void test1(WorkEvent e) {
-        logger.debug("test1 ");
-    }
+    private long totalProcessTime = 200;
 
-    public void test2(WorkEvent e) {
-
-        logger.debug("test2");
+    private long methodCallCount = 5;
 
 
-        TestUtil.waiting(500);
+    public void testLoop(WorkEvent e) {
+        //logger.debug("test2");
+        TestUtil.waiting(totalProcessTime / methodCallCount);
         e.origin().put("price", Math.random());
     }
+
+
+    private AtomicInteger count = new AtomicInteger(0);
+    int testCount = 200;
 
     @Test
     public void testRequest() throws Exception {
 
         FlowableWork flowableWork = f -> {
-            f
-                    .next(this::test1)
-                    .next(this::test2)
-                    .end();
+
+            int seq = 0;
+            while (methodCallCount > seq++) {
+                f.next(this::testLoop);
+            }
+
+            f.end();
 
 
         };
@@ -323,20 +332,30 @@ public class FlowableWorkTest {
 
         Thread.sleep(1000);
 
-        for(int i=0;i<500;i++)
-        {
+
+        long t1 = System.currentTimeMillis();
+
+
+        for (int i = 0; i < testCount; i++) {
 
             Re.quest("chk",
                     e -> {
                         e.put("ip", "192.168.0.1");
                     },
                     e -> {
+
+
                         Double z = (Double) e.get("price");
-                        logger.debug(z);
+                        int c = count.addAndGet(1);
+                        if (testCount <= c) {
+                            long gap = System.currentTimeMillis() - t1;
+                            logger.debug("process time:" + gap);
+                        }
+                        logger.debug(z + " " + c);
                     });
         }
 
-        Thread.sleep(1000);
+        Thread.sleep(3000);
 
     }
 }

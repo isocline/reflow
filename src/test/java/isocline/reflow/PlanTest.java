@@ -33,7 +33,7 @@ public class PlanTest {
     public void executeOneTime() throws Exception {
 
 
-        processor.reflow((WorkEvent event) -> {
+        processor.task((WorkEvent event) -> {
             seq++;
             logger.debug("exec " + seq);
 
@@ -51,7 +51,7 @@ public class PlanTest {
     public void executeSleep() throws Exception {
 
 
-        processor.reflow((WorkEvent event) -> {
+        processor.task((WorkEvent event) -> {
             seq++;
             logger.debug("exec " + seq);
 
@@ -68,7 +68,7 @@ public class PlanTest {
     public void executeLoop() throws Exception {
 
 
-        processor.reflow((WorkEvent event) -> {
+        processor.task((WorkEvent event) -> {
             seq++;
             logger.debug("exec " + seq);
 

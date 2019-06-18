@@ -31,7 +31,7 @@ public class DynamicRepeater implements Work {
 
 
 
-        Plan schedule = processor.reflow(new DynamicRepeater());
+        Plan schedule = processor.task(new DynamicRepeater());
 
         schedule.activate();
 

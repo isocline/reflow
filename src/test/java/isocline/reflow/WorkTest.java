@@ -27,7 +27,7 @@ public class WorkTest {
     public void executeSimple() throws Exception {
 
 
-        Re.flow(e -> {
+        Re.task(e -> {
             seq++;
             logger.debug("exec " + seq);
 
@@ -43,7 +43,7 @@ public class WorkTest {
     public void executeSimple2() throws Exception {
 
 
-        Re.flow(e -> {
+        Re.task(e -> {
             seq++;
             logger.debug("exec " + seq);
 
@@ -64,9 +64,9 @@ public class WorkTest {
 
         count = 0;
 
-        Re.flow(() -> {
+        Re.task(() -> {
             count++;
-            logger.debug("Hello Re.flow ! ");
+            logger.debug("Hello Re.task ! ");
         })
                 .interval(1000)
                 .finishTimeFromNow(Time.SECOND * 3)
@@ -81,9 +81,9 @@ public class WorkTest {
 
         count = 0;
 
-        Re.flow((WorkEvent e) -> {
+        Re.task((WorkEvent e) -> {
             count++;
-            logger.debug("Hello Re.flow ! "
+            logger.debug("Hello Re.task ! "
                     + e.origin().get("z"));
             return Work.WAIT;
         })
@@ -92,12 +92,12 @@ public class WorkTest {
                 .activate();
 
 
-        Re.flow(() -> {
+        Re.task(() -> {
             System.out.println("FIRE");
             Re.quest("test", e -> e.put("z", "zz").put("z", "sdf"));
         })
                 .interval(1000)
-                .startDelayTime(2 * Time.SECOND)
+                .initialDelay(2 * Time.SECOND)
                 .finishTimeFromStart(5 * Time.SECOND)
                 .activate().block();
 
@@ -108,7 +108,7 @@ public class WorkTest {
     @Test
     public void executeByEvent() throws Exception {
 
-        Activity plan = Re.flow((WorkEvent event) -> {
+        Activity plan = Re.task((WorkEvent event) -> {
             seq++;
             logger.debug("exec " + seq + " event:" + event.getEventName());
 
@@ -116,7 +116,7 @@ public class WorkTest {
         }, "testEvent").activate();
 
 
-        Re.flow((WorkEvent event) -> {
+        Re.task((WorkEvent event) -> {
             logger.debug("fire event:" + event.getEventName());
 
             event.getActivity().getFlowProcessor().emit("testEvent", event);
@@ -136,7 +136,7 @@ public class WorkTest {
     public void executeOneTime() throws Exception {
 
 
-        Plan plan = Re.flow((WorkEvent event) -> {
+        Plan plan = Re.task((WorkEvent event) -> {
             seq++;
             logger.debug("exec " + seq);
 
@@ -153,7 +153,7 @@ public class WorkTest {
     @Test
     public void executeSleep() throws Exception {
 
-        Plan plan = Re.flow((WorkEvent event) -> {
+        Plan plan = Re.task((WorkEvent event) -> {
             seq++;
             logger.debug("exec " + seq);
 
@@ -169,7 +169,7 @@ public class WorkTest {
     @Test
     public void executeLoop() throws Exception {
 
-        Plan plan = Re.flow((WorkEvent event) -> {
+        Plan plan = Re.task((WorkEvent event) -> {
             seq++;
             logger.debug("exec " + seq);
 
@@ -198,8 +198,8 @@ public class WorkTest {
         };
 
 
-        Re.flow(runnable)
-                .startDelayTime(2 * Time.SECOND)
+        Re.task(runnable)
+                .initialDelay(2 * Time.SECOND)
                 .activate()
                 .block();
 

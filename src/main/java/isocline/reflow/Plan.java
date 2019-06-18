@@ -30,9 +30,11 @@ public interface Plan {
 
     Plan startTime(long nextExecuteTime);
 
-    Plan startDelayTime(long waitTime);
+    Plan initialDelay(long waitTime);
 
     Plan interval(long intervalTime);
+
+    Plan interval(long initialDelay, long intervalTime);
 
     Plan startTime(String isoDateTime) throws java.text.ParseException;
 

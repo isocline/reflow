@@ -19,6 +19,7 @@ import isocline.reflow.event.EventRepository;
 import isocline.reflow.event.SimultaneousEventSet;
 import isocline.reflow.event.WorkEventFactory;
 import isocline.reflow.flow.WorkFlowFactory;
+import isocline.reflow.flow.func.WorkEventConsumer;
 import isocline.reflow.log.XLogger;
 
 import java.text.ParseException;
@@ -103,6 +104,21 @@ public class PlanImpl implements Plan, Activity {
     private Throwable error = null;
 
     private Consumer consumer = null;
+
+
+    PlanImpl(FlowProcessor flowProcessor, WorkEventConsumer runnable) {
+        Work work = (WorkEvent e) -> {
+            runnable.accept(e);
+
+            return intervalTime;
+        };
+        this.flowProcessor = flowProcessor;
+        this.work = work;
+        this.uuid = UUID.randomUUID().toString();
+
+        this.isRunnable = true;
+        this.intervalTime = Work.TERMINATE;
+    }
 
 
     PlanImpl(FlowProcessor flowProcessor, Runnable runnable) {
@@ -314,7 +330,7 @@ public class PlanImpl implements Plan, Activity {
     }
 
     @Override
-    public Plan startDelayTime(long waitTime) {
+    public Plan initialDelay(long waitTime) {
         checkLocking();
         this.waitingTime = waitTime;
 
@@ -419,6 +435,13 @@ public class PlanImpl implements Plan, Activity {
     }
 
 
+    @Override
+    public Plan interval(long initialDelay, long intervalTime) {
+        this.initialDelay(initialDelay);
+
+        return this.interval(intervalTime);
+    }
+
     public long getNextExecDelayTime() {
         return this.intervalTime4Flow;
     }
@@ -432,7 +455,7 @@ public class PlanImpl implements Plan, Activity {
 
         this.intervalTime = intervalTime;
 
-        return startDelayTime(intervalTime);
+        return initialDelay(intervalTime);
 
     }
 
@@ -659,7 +682,7 @@ public class PlanImpl implements Plan, Activity {
     @Override
     public Plan daemonMode() {
         checkLocking();
-        this.startDelayTime(Work.WAIT);
+        this.initialDelay(Work.WAIT);
 
         this.intervalTime = Work.WAIT;
         this.isDaemonMode = true;

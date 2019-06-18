@@ -74,7 +74,7 @@ public class MultiPlexer implements Work {
 
 
         for(int i=0;i< 10;i++ ) {
-            Plan schedule = processor.reflow(new MultiPlexer("A",i)).startTime(startTime+i*10)
+            Plan schedule = processor.task(new MultiPlexer("A",i)).startTime(startTime+i*10)
                     .strictMode();
             schedule.activate();
         }

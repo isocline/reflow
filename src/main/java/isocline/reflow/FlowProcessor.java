@@ -16,7 +16,9 @@
 package isocline.reflow;
 
 import isocline.reflow.event.WorkEventFactory;
+import isocline.reflow.event.WorkEventImpl;
 import isocline.reflow.flow.WorkInfo;
+import isocline.reflow.flow.func.WorkEventConsumer;
 import isocline.reflow.log.XLogger;
 
 import java.lang.reflect.Method;
@@ -138,7 +140,7 @@ public class FlowProcessor extends ThreadGroup {
      * @param eventNames an event names
      * @return an new instance of Plan
      */
-    public Plan reflow(Work work, String... eventNames) {
+    public Plan task(Work work, String... eventNames) {
         Plan Plan = new PlanImpl(this, work);
         Plan.daemonMode();
         Plan.on(eventNames);
@@ -163,16 +165,20 @@ public class FlowProcessor extends ThreadGroup {
      * @param work Work implement class object
      * @return new instance of Plan
      */
-    public Plan reflow(Work work) {
-        return reflow(null, work);
+    public Plan task(Work work) {
+        return task(null, work);
     }
 
-    public Plan reflow(Runnable runnable) {
-        return reflow(null, runnable);
+    public Plan task(Runnable runnable) {
+        return task(null, runnable);
+    }
+
+    public Plan task(WorkEventConsumer consumer) {
+        return task(null, consumer);
     }
 
 
-    public Plan reflow(PlanDescriptor config, Work work) {
+    public Plan task(PlanDescriptor config, Work work) {
         Plan plan = new PlanImpl(this, work);
         if (config != null) {
             plan.describe(config);
@@ -181,9 +187,19 @@ public class FlowProcessor extends ThreadGroup {
         return plan;
     }
 
-    public Plan reflow(PlanDescriptor config, Runnable runnable) {
+    public Plan task(PlanDescriptor config, Runnable runnable) {
 
         Plan plan = new PlanImpl(this, runnable);
+        if (config != null) {
+            plan.describe(config);
+        }
+
+        return plan;
+    }
+
+    public Plan task(PlanDescriptor config, WorkEventConsumer consumer) {
+
+        Plan plan = new PlanImpl(this, consumer);
         if (config != null) {
             plan.describe(config);
         }
@@ -200,8 +216,8 @@ public class FlowProcessor extends ThreadGroup {
      * @throws InstantiationException InstantiationException
      * @throws IllegalAccessException IllegalAccessException
      */
-    public Plan reflow(Class workClass) throws InstantiationException, IllegalAccessException {
-        return reflow((Work) workClass.newInstance());
+    public Plan task(Class workClass) throws InstantiationException, IllegalAccessException {
+        return task((Work) workClass.newInstance());
     }
 
 
@@ -214,8 +230,8 @@ public class FlowProcessor extends ThreadGroup {
      * @throws InstantiationException InstantiationException
      * @throws IllegalAccessException IllegalAccessException
      */
-    public Plan reflow(PlanDescriptor descriptor, Class workClass) throws InstantiationException, IllegalAccessException {
-        return reflow(descriptor, (Work) workClass.newInstance());
+    public Plan task(PlanDescriptor descriptor, Class workClass) throws InstantiationException, IllegalAccessException {
+        return task(descriptor, (Work) workClass.newInstance());
     }
 
 
@@ -228,7 +244,7 @@ public class FlowProcessor extends ThreadGroup {
      * @throws InstantiationException if this Class represents an abstract class, an interface, an array class, a primitive type, or void; or if the class has no nullary constructor; or if the instantiation fails for some other reason.
      * @throws IllegalAccessException if the class or its nullary constructor is not accessible.
      */
-    public Plan reflow(String className) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+    public Plan task(String className) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
         return new PlanImpl(this, (Work) Class.forName(className).newInstance());
     }
 
@@ -240,7 +256,7 @@ public class FlowProcessor extends ThreadGroup {
     public Activity execute(Work work, long startDelayTime) {
         Plan plan = new PlanImpl(this, work);
         if (startDelayTime > 0) {
-            plan.startDelayTime(startDelayTime);
+            plan.initialDelay(startDelayTime);
         }
 
         return plan.activate().block();
@@ -848,6 +864,8 @@ public class FlowProcessor extends ThreadGroup {
 
                 WorkEvent workEvent = null;
 
+                Work workObject = null;
+
                 try {
 
                     final PlanImpl.ExecuteContext ctx = this.flowProcessor.workQueue.poll(maxWaitTime,
@@ -862,7 +880,7 @@ public class FlowProcessor extends ThreadGroup {
 
                     timeoutCount = 0;
 
-                    Work workObject = plan.getWorkObject();
+                    workObject = plan.getWorkObject();
 
                     this.lastWorkTime = System.currentTimeMillis();
 
@@ -886,6 +904,9 @@ public class FlowProcessor extends ThreadGroup {
 
                             try {
                                 runningCounter.addAndGet(1);
+
+                                int callCount = workEvent.origin().getCounter("plan").get();
+                                ((WorkEventImpl)workEvent).setEmitCount(callCount);
 
                                 nextIntervalTime = workObject.execute(workEvent);
 
@@ -954,14 +975,25 @@ public class FlowProcessor extends ThreadGroup {
 
                     if (plan != null) {
 
+                        if(workObject instanceof FlowableWork) {
+
+                        }else if(workEvent!=null){
+                            AtomicInteger counter = workEvent.origin().getCounter("plan");
+                            int cnt = counter.addAndGet(1);
+
+                        }
+
                         switch (stateMode) {
+                            case TERMINATE_BY_TIMEOVER:
                             case TERMINATE_BY_ERROR:
                             case TERMINATE_BY_USER:
-                            case TERMINATE_BY_TIMEOVER:
+
                             case TERMINATE_BY_FLOW:
 
-                                if(workEvent!=null)
+                                if(workEvent!=null) {
                                     workEvent.origin().complete();
+                                }
+
 
                                 long intervalTime4Flow = plan.getIntervalTime4Flow();
                                 if( workEvent!=null && intervalTime4Flow>0 ) {
@@ -972,7 +1004,7 @@ public class FlowProcessor extends ThreadGroup {
                                     this.flowProcessor.addWorkSchedule(plan, newEvent, intervalTime4Flow);
 
 
-                                }else if (plan.isDaemonMode()) {
+                                }else if (plan.isDaemonMode() && stateMode!=TERMINATE_BY_TIMEOVER) {
                                     this.flowProcessor.workChecker.addWorkStatusWrapper(plan);
                                 }else {
                                     plan.inactive();

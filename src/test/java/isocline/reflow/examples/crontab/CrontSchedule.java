@@ -26,7 +26,7 @@ public class CrontSchedule implements Work {
 
 
         FlowProcessor.core()
-                .reflow(CrontSchedule.class)
+                .task(CrontSchedule.class)
                 .describe(new CronDescriptor("* * * * *"))
                 .activate();
 
@@ -41,7 +41,7 @@ public class CrontSchedule implements Work {
         FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-        Plan schedule = processor.reflow(new CronDescriptor("* * * * *"), CrontSchedule.class);
+        Plan schedule = processor.task(new CronDescriptor("* * * * *"), CrontSchedule.class);
 
         schedule.activate();
 

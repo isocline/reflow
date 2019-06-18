@@ -77,7 +77,7 @@ public class HttpComm implements Work {
         for(int i=0;i<20;i++) {
             HttpComm work = new HttpComm("https://www.google.com");
             //processor.Reflow(work).setStartTime(startTime+i*50).activate();
-            processor.reflow(work).strictMode().activate();
+            processor.task(work).strictMode().activate();
 
         }
         processor.awaitShutdown();

@@ -113,7 +113,7 @@ public class WorkFlowTest implements FlowableWork {
         FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-        //processor.Reflow(this).startDelayTime(1000).activate();
+        //processor.Reflow(this).initialDelay(1000).activate();
         processor.reflow(this).activate();
 
 
@@ -134,7 +134,7 @@ public class WorkFlowTest implements FlowableWork {
         gen.setEventName("start");
         gen.setIntervalTime(Work.TERMINATE);
 
-        processor.reflow(gen).startDelayTime(1000).activate();
+        processor.task(gen).initialDelay(1000).activate();
 
         processor.awaitShutdown();
 

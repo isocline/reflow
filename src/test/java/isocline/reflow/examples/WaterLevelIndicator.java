@@ -67,7 +67,7 @@ public class WaterLevelIndicator implements Work {
         FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-        Plan schedule = processor.reflow(WaterLevelIndicator.class).strictMode();
+        Plan schedule = processor.task(WaterLevelIndicator.class).strictMode();
         schedule.activate();
 
 

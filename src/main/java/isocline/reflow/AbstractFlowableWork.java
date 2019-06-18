@@ -17,8 +17,8 @@ package isocline.reflow;
 
 
 /**
- * It is an interface that enables flow control.
- * If you want to control flow with several methods in an object that implements this interface, you can inherit the interface.
+ * It is an interface that enables task control.
+ * If you want to control task with several methods in an object that implements this interface, you can inherit the interface.
  *
  * @see Work
  */

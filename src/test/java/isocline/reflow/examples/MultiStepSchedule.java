@@ -18,10 +18,10 @@ public class MultiStepSchedule   {
         FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-        Plan schedule = processor.reflow(Step1Schedule.class).strictMode();
+        Plan schedule = processor.task(Step1Schedule.class).strictMode();
         schedule.activate();
 
-        schedule = processor.reflow(Step2Schedule.class).on("fireEvent");
+        schedule = processor.task(Step2Schedule.class).on("fireEvent");
         schedule.activate();
 
 

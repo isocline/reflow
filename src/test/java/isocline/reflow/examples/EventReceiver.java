@@ -35,7 +35,7 @@ public class EventReceiver implements Work {
 
 
         EventReceiver checker = new EventReceiver();
-        Plan schedule = processor.reflow(checker).finishTimeFromNow(30 * Time.SECOND).on("test").daemonMode();
+        Plan schedule = processor.task(checker).finishTimeFromNow(30 * Time.SECOND).on("test").daemonMode();
         schedule.activate();
 
 
@@ -46,7 +46,7 @@ public class EventReceiver implements Work {
 
 
 
-        processor.reflow(gen).finishTimeFromNow(30 * Time.SECOND).strictMode().startTime
+        processor.task(gen).finishTimeFromNow(30 * Time.SECOND).strictMode().startTime
                 (startTime).activate();
 
 

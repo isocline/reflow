@@ -243,7 +243,7 @@ class RaceThreadx implements Work {
 
         System.err.println(widthLast);
 
-        FlowProcessor.core().reflow(this).strictMode().activate();
+        FlowProcessor.core().task(this).strictMode().activate();
     }
 }
 

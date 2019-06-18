@@ -44,7 +44,7 @@ public class MultiAsync2 {
                             .next(this::sum);
                 }
 
-        ).startDelayTime(2000).run();
+        ).initialDelay(2000).run();
 
 
     }

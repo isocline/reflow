@@ -223,16 +223,16 @@ public class FunctionExecutor implements FunctionExecFeature {
         boolean isProcessNext = true;
 
         AtomicInteger counter = getCallCounter(event);
-        counter.addAndGet(1);
+        int cnt = counter.addAndGet(1);
 
 
 
-        if (maxCallCount > 0 && maxCallCount <= counter.get()) {
+        if (maxCallCount > 0 && maxCallCount <= cnt) {
             new ResultState(pFireEventUUID, pFireEventName, false);
         }
 
         WorkEventImpl e = (WorkEventImpl) event;
-        e.setEmitCount(counter.get());
+        e.setEmitCount(cnt);
 
         if (runnable != null) {
             runnable.run();

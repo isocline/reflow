@@ -1,5 +1,6 @@
 package isocline.reflow.dummy;
 
+import isocline.reflow.TestUtil;
 import isocline.reflow.WorkEvent;
 import isocline.reflow.FlowProcessor;
 import org.junit.Test;
@@ -20,19 +21,21 @@ public class CompletableFutureTest3 {
         Price price = new Price();
 
 
+        FlowProcessor.core()
+                .reflow(flow -> {
+                    flow
+                            .runAsync(e -> {
+                                Return(e, price.calculatePrice(e.count()));
+                            }, 5)
+                            .waitAll()
+                            .next((WorkEvent e) -> {
+                                List<Double> list = GetResultList(e);
+                                double result = list.stream().mapToDouble(i -> i).sum();
 
-
-
-        FlowProcessor.core().reflow(flow -> {
-            flow.runAsync(e -> {
-                Return(e, price.calculatePrice(e.count()));
-            },5).waitAll().next( (WorkEvent e) -> {
-                List<Double> list = GetResultList(e);
-                double result = list.stream().mapToDouble(i -> i).sum();
-
-                System.out.println("result=" + result);
-            });
-        }).activate().block();
+                                System.out.println("result=" + result);
+                            });
+                })
+                .activate().block();
 
 
         FlowProcessor.core().shutdown();
@@ -44,9 +47,9 @@ public class CompletableFutureTest3 {
             return calculatePrice(oldprice);
         }
 
-        public double calculatePrice(double oldprice) throws Exception {
+        public double calculatePrice(double oldprice) {
             System.out.println("Input :" + oldprice);
-            Thread.sleep(1000l);
+            TestUtil.waiting(1000);
             System.out.println("Output :" + (oldprice + 1l));
             return oldprice + 1l;
         }

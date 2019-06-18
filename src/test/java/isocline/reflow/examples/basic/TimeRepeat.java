@@ -20,7 +20,7 @@ public class TimeRepeat implements Work {
     public void case1() throws Exception {
 
         FlowProcessor processor = FlowProcessorFactory.getProcessor();
-        processor.reflow(new CronDescriptor("49 1 * * *"), this).activate();
+        processor.task(new CronDescriptor("49 1 * * *"), this).activate();
 
         processor.shutdown(3000);
         //processor.awaitShutdown();
