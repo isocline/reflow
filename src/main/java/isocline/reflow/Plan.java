@@ -50,7 +50,7 @@ public interface Plan {
 
 
 
-    Plan on(String... eventNames);
+    Plan on(Object... eventNames);
 
 
     Plan setBetweenStartTimeMode(boolean isBetweenStartTimeMode);

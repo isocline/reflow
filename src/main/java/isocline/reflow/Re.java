@@ -39,21 +39,39 @@ public class Re {
         return FlowProcessor.core().emit(event);
     }
 
+    public static WorkEvent quest(String evnetName, Object input) {
+        WorkEvent event = WorkEventFactory.createOrigin(evnetName);
+        try {
+            WorkEventPublisher consumer = e -> {
+                e.put("input", input);
+            };
 
-    public static FlowProcessor quest(String evnetName, WorkEventPublisher consumer) {
+            consumer.accept(event);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+        FlowProcessor.core().emit(evnetName, event);
+
+        return event;
+    }
+
+
+    public static WorkEvent quest(String evnetName, WorkEventPublisher consumer) {
         WorkEvent event = WorkEventFactory.createOrigin(evnetName);
         try {
             consumer.accept(event);
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }
-        return FlowProcessor.core().emit(evnetName, event);
+        FlowProcessor.core().emit(evnetName, event);
+
+        return event;
     }
 
-    public static FlowProcessor quest(String evnetName, WorkEventPublisher eventPublisher, WorkEventConsumer eventConsumer) {
+    public static WorkEvent quest(String evnetName, WorkEventPublisher eventPublisher, WorkEventConsumer eventConsumer) {
         WorkEvent event = WorkEventFactory.createOrigin(evnetName);
 
-        event.setCosumer(eventConsumer);
+        event.subscribe(eventConsumer);
         try {
             eventPublisher.accept(event);
         } catch (Throwable e) {
@@ -63,6 +81,9 @@ public class Re {
 
         //event.block();
 
-        return pr;
+        return event;
     }
+
+
+
 }

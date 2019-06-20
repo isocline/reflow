@@ -637,10 +637,11 @@ public class PlanImpl implements Plan, Activity {
 
 
     @Override
-    public Plan on(String... eventNames) {
+    public Plan on(Object... eventNames) {
         checkLocking();
 
-        for (String eventName : eventNames) {
+        for (int i=0;i<eventNames.length;i++) {
+            String eventName = eventNames[i].toString();
             String[] subEventNames = eventRepository.setBindEventNames(eventName);
             for (String subEventName : subEventNames) {
                 this.flowProcessor.bindEvent(this, subEventName);

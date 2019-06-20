@@ -180,7 +180,7 @@ public interface WorkEvent {
 
 
 
-    void setCosumer(WorkEventConsumer consumer);
+    WorkEvent subscribe(WorkEventConsumer consumer);
 
 
     void complete();

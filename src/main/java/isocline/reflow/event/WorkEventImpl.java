@@ -324,9 +324,10 @@ public class WorkEventImpl implements WorkEvent {
     private WorkEventConsumer consumer;
 
     @Override
-    public void setCosumer(WorkEventConsumer consumer) {
+    public WorkEvent subscribe(WorkEventConsumer consumer) {
 
         this.consumer = consumer;
+        return this;
     }
 
 
