@@ -334,10 +334,18 @@ public class WorkEventImpl implements WorkEvent {
     private boolean isComplete = false;
     @Override
     public synchronized void complete() {
+
+        if(isComplete) {
+            return;
+        }
+        isComplete = true;
         if(this.consumer!=null) {
             consumer.accept(this);
         }
-        isComplete = true;
+
+        if(this!=this.originWorkEvent) {
+            this.originWorkEvent.complete();
+        }
         notifyAll();
 
     }
