@@ -255,15 +255,6 @@ public class FlowableWorkTest {
     public void testEmitEventFromExternal() throws Exception {
 
 
-        Plan plan = Re.flow((WorkFlow f) -> {
-            f.next(this::case0);
-            f.wait("case1").next(this::case1);
-            f.wait("case2").next(this::case2);
-        });
-
-        plan.interval(1).activate();
-
-
         reset();
 
         Re.flow((WorkFlow f) -> {
