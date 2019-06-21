@@ -183,6 +183,9 @@ public interface WorkEvent {
     WorkEvent subscribe(WorkEventConsumer consumer);
 
 
+    void callback(WorkEvent event);
+
+
     void complete();
 
     void block();

@@ -330,6 +330,12 @@ public class WorkEventImpl implements WorkEvent {
         return this;
     }
 
+    @Override
+    public void callback(WorkEvent event) {
+        if(this.consumer!=null) {
+            this.consumer.accept(event);
+        }
+    }
 
     private boolean isComplete = false;
     @Override

@@ -56,7 +56,7 @@ public class Configuration {
 
     private long executeTimeout = 60 * Time.SECOND;
 
-    private long thresholdWaitTimeToReady = 3                              ;
+    private long thresholdWaitTimeToReady = 3;
 
 
 

@@ -28,7 +28,7 @@ public class WorkEventGenerator implements Work {
 
     private static XLogger logger = XLogger.getLogger(WorkEventGenerator.class);
 
-    private long intervalTime = 1000;
+    private long intervalTime = Work.WAIT;
 
     private int count = 0;
 
