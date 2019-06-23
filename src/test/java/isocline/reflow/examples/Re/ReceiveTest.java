@@ -1,9 +1,6 @@
 package isocline.reflow.examples.Re;
 
-import isocline.reflow.FlowProcessor;
-import isocline.reflow.Re;
-import isocline.reflow.TestUtil;
-import isocline.reflow.WorkEvent;
+import isocline.reflow.*;
 import isocline.reflow.event.WorkEventFactory;
 import isocline.reflow.log.XLogger;
 import isocline.reflow.module.WorkEventGenerator;
@@ -12,6 +9,8 @@ import org.junit.Test;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 public class ReceiveTest {
 
@@ -20,28 +19,80 @@ public class ReceiveTest {
 
     private Map<String, WorkEvent> eventMap = new HashMap<>();
 
+    private WorkEvent[] workEvents = null;
+
+    private WorkEvent[] workEvents2 = null;
+
     private Collection<WorkEvent> collection;
 
+    private Stream<WorkEvent> stream;
 
+    private int pararrelSize = 4;
+
+    private int realPararrelSize = 0;
+
+    private int minUnitSize = 1;
+
+    private AtomicInteger seqCounter = new AtomicInteger();
+
+    public int getPararrelSize() {
+        return this.pararrelSize;
+    }
+
+
+    private void receiveInit(WorkEvent event) {
+        if(workEvents.length==0) {
+            realPararrelSize = 0;
+            return;
+        }
+
+
+        workEvents2 = workEvents;
+        seqCounter.set(-1);
+
+        realPararrelSize =  (workEvents2.length-1)/minUnitSize+1;
+        if(realPararrelSize>pararrelSize) {
+            realPararrelSize = pararrelSize;
+        }
+
+        logger.info("real=="+realPararrelSize);
+
+
+
+    }
     private void receive(WorkEvent event) {
 
-        logger.debug("push "+eventMap.size());
+        int seq = this.seqCounter.addAndGet(1);
+        if(seq>=realPararrelSize) {
+            return;
+        }
 
-        this.collection.stream().forEach(event1 -> event1.callback(event));
+        logger.debug("1 push "+eventMap.size() +" "+seq);
+
+        for(int i=(0+seq);i<workEvents2.length;i=i+ realPararrelSize) {
+            logger.debug("====> "+eventMap.size()  + " "+Thread.currentThread().getName() +" "+i);
+            workEvents2[i].callback(event);
+        }
+
+
+        logger.debug("2 push "+eventMap.size());
 
     }
 
-    private void regist(WorkEvent event) {
+    private synchronized void regist(WorkEvent event) {
 
         WorkEvent origin = event.origin();
 
         String id = (String) origin.get("id");
 
-        logger.debug("regist:" + id);
 
         eventMap.put(id, origin);
 
         this.collection = eventMap.values();
+
+        this.workEvents = this.collection.toArray(new WorkEvent[collection.size()]);
+
+        logger.debug("regist:" + id + " size= "+this.workEvents.length);
 
 
     }
@@ -55,7 +106,8 @@ public class ReceiveTest {
     public void testBasic() {
 
         Re.flow(f -> {
-            f.next(this::receive).end();
+            f.next(this::receiveInit).runAsync(this::receive,this.getPararrelSize()).end();
+            //f.next(this::receive).end();
 
             f.wait("regist").next(this::regist).end();
 
@@ -64,12 +116,14 @@ public class ReceiveTest {
         WorkEventGenerator generator = new WorkEventGenerator();
         generator.setEventName("rcv");
 
-        Re.task(generator).interval(500,150).strictMode().activate();
+        Re.task(generator).interval(500,1000).strictMode().activate();
 
 
 
         WorkEvent e = WorkEventFactory.createOrigin().subscribe(event -> {
-            logger.debug("XX - " + event);
+            logger.debug("XX - 1 "+" "+Thread.currentThread().getName() );
+            TestUtil.waiting(100);
+            logger.debug("XX - 2");
         });
         e.setFireEventName("regist");
         e.put("id", "xx");
@@ -77,7 +131,18 @@ public class ReceiveTest {
         FlowProcessor.core().emit("rcv", "regist", e);
 
 
-        TestUtil.waiting(1000000);
+        e = WorkEventFactory.createOrigin().subscribe(event -> {
+            logger.debug("XX - 1 "+" "+Thread.currentThread().getName() );
+            TestUtil.waiting(100);
+            logger.debug("XX - 2");
+        });
+        e.setFireEventName("regist");
+        e.put("id", "xx2");
+
+        FlowProcessor.core().emit("rcv", "regist", e);
+
+
+        TestUtil.waiting(3000);
 
 
     }
