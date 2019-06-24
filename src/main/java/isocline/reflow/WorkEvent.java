@@ -183,7 +183,7 @@ public interface WorkEvent {
     WorkEvent subscribe(WorkEventConsumer consumer);
 
 
-    void callback(WorkEvent event);
+    boolean callback(WorkEvent event);
 
 
     void complete();
