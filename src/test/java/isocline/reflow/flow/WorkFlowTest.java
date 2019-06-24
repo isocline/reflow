@@ -124,7 +124,7 @@ public class WorkFlowTest implements FlowableWork {
 
     @Test
     public void testStartByEvent() {
-        FlowProcessor processor = FlowProcessorFactory.getProcessor();
+        FlowProcessor processor = FlowProcessor.core();
 
 
         processor.reflow(this::defineWorkFlow3).on("start").activate();
@@ -136,7 +136,7 @@ public class WorkFlowTest implements FlowableWork {
 
         processor.task(gen).initialDelay(1000).activate();
 
-        processor.awaitShutdown();
+        FlowProcessor.core().shutdown(5000);
 
 
     }

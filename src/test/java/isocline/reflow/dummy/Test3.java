@@ -1,9 +1,6 @@
 package isocline.reflow.dummy;
 
-import isocline.reflow.Activity;
-import isocline.reflow.Plan;
-import isocline.reflow.Re;
-import isocline.reflow.Time;
+import isocline.reflow.*;
 import org.junit.Test;
 
 public class Test3 {
@@ -26,7 +23,9 @@ public class Test3 {
             System.out.println(e.count());
         })
                 .interval(123, 1 * Time.SECOND)
-                .activate().block();
+                .activate();
+
+        FlowProcessor.core().shutdown(3000);
 
     }
 

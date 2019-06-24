@@ -896,7 +896,7 @@ public class FlowProcessor extends ThreadGroup {
                             workEvent = plan.getOriginWorkEvent(ctx.getWorkEvent());
 
 
-                            //logger.error("event==="+workEvent);
+                            //logger.error("event ==="+this.flowProcessor.workQueue.size());
 
                             plan.adjustWaiting();
 
@@ -931,6 +931,8 @@ public class FlowProcessor extends ThreadGroup {
                                 stateMode = ENTER_EXEC_QUEUE;
                             }
 
+
+                        } else if(remainTime == Long.MAX_VALUE) {
 
                         } else if (!plan.isOveEndTimeOver()) {
                             timeoutCount++;

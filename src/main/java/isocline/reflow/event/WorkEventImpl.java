@@ -20,6 +20,7 @@ import isocline.reflow.WorkEvent;
 import isocline.reflow.flow.func.WorkEventConsumer;
 
 import java.util.*;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
@@ -324,19 +325,67 @@ public class WorkEventImpl implements WorkEvent {
     private WorkEventConsumer consumer;
 
     @Override
-    public void setCosumer(WorkEventConsumer consumer) {
+    public WorkEvent subscribe(WorkEventConsumer consumer) {
 
         this.consumer = consumer;
+        return this;
     }
 
+
+
+    private LinkedBlockingQueue<WorkEvent> workEventQueue = new LinkedBlockingQueue<>();
+    private boolean isCallBacking = false;
+    private final static int MAX_CALLBACK_EVENT_QUEUE_SIZE = 5;
+    @Override
+    public boolean callback(WorkEvent event) {
+        if(this.consumer!=null) {
+
+            if(workEventQueue.size()>MAX_CALLBACK_EVENT_QUEUE_SIZE) {
+                workEventQueue.clear();
+                throw new RuntimeException("Queue is overflow. size="+MAX_CALLBACK_EVENT_QUEUE_SIZE);
+            }
+
+            workEventQueue.add(event);
+            if(isCallBacking) {
+                return false;
+            }
+
+            isCallBacking = true;
+
+            WorkEvent x;
+            try {
+                int seq=0;
+                while ((x = workEventQueue.poll()) != null) {
+                    seq++;
+                    this.consumer.accept(x);
+
+                }
+            }finally {
+                isCallBacking = false;
+            }
+
+            return true;
+
+        }else {
+            return false;
+        }
+    }
 
     private boolean isComplete = false;
     @Override
     public synchronized void complete() {
+
+        if(isComplete) {
+            return;
+        }
+        isComplete = true;
         if(this.consumer!=null) {
             consumer.accept(this);
         }
-        isComplete = true;
+
+        if(this!=this.originWorkEvent) {
+            this.originWorkEvent.complete();
+        }
         notifyAll();
 
     }

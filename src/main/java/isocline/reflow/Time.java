@@ -55,6 +55,19 @@ public class Time {
     public final static long DAY = HOUR * 24;
 
 
+
+    public static long seconds(long seconds) {
+        return seconds * SECOND;
+    }
+
+    public static long minutes(long minutes) {
+        return MINUTE * minutes;
+    }
+
+    public static long hours(long hours) {
+        return HOUR * hours;
+    }
+
     /**
      * Obtains a time to the current system millisecond time using ISO 8601 in the specified time zone.
      *

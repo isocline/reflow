@@ -254,9 +254,10 @@ public class FlowableWorkTest {
     @Test
     public void testEmitEventFromExternal() throws Exception {
 
+
         reset();
 
-        Re.flow(f -> {
+        Re.flow((WorkFlow f) -> {
             f.next(this::case0);
             f.wait("case1").next(this::case1);
             f.wait("case2").next(this::case2);
@@ -292,71 +293,6 @@ public class FlowableWorkTest {
         assertEquals(2, this.count4case0);
         assertEquals(1, this.count4case1);
         assertEquals(1, this.count4case2);
-    }
-
-    private long totalProcessTime = 200;
-
-    private long methodCallCount = 5;
-
-
-    public void testLoop(WorkEvent e) {
-        //logger.debug("test2");
-        TestUtil.waiting(totalProcessTime / methodCallCount);
-        e.origin().put("price", Math.random());
-    }
-
-
-    private AtomicInteger count = new AtomicInteger(0);
-    int testCount = 200;
-
-    @Test
-    public void testRequest() throws Exception {
-
-        FlowableWork flowableWork = f -> {
-
-            int seq = 0;
-            while (methodCallCount > seq++) {
-                f.next(this::testLoop);
-            }
-
-            f.end();
-
-
-        };
-
-
-        Re.flow(flowableWork)
-                .on("chk")
-                .daemonMode()
-                .activate();
-
-        Thread.sleep(1000);
-
-
-        long t1 = System.currentTimeMillis();
-
-
-        for (int i = 0; i < testCount; i++) {
-
-            Re.quest("chk",
-                    e -> {
-                        e.put("ip", "192.168.0.1");
-                    },
-                    e -> {
-
-
-                        Double z = (Double) e.get("price");
-                        int c = count.addAndGet(1);
-                        if (testCount <= c) {
-                            long gap = System.currentTimeMillis() - t1;
-                            logger.debug("process time:" + gap);
-                        }
-                        logger.debug(z + " " + c);
-                    });
-        }
-
-        Thread.sleep(3000);
-
     }
 }
 
