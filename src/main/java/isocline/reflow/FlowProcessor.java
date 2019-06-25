@@ -625,7 +625,6 @@ public class FlowProcessor extends ThreadGroup {
                         workEvent.copyTo(newWorkEvent);
                         */
                         newWorkEvent = workEvent.createChild(newEventName);
-
                     }
                     //schedule.emit(newWorkEvent);
 
@@ -729,7 +728,7 @@ public class FlowProcessor extends ThreadGroup {
         private static AtomicInteger runningCounter = new AtomicInteger(0);
 
         public ThreadWorker(FlowProcessor parent, int threadPriority) {
-            super(parent, "Clockwork:ThreadWorker-" + parent.currentThreadWorkerCount);
+            super(parent, "Re.flow " + parent.currentThreadWorkerCount);
             this.flowProcessor = parent;
             this.setPriority(threadPriority);
 
@@ -795,6 +794,8 @@ public class FlowProcessor extends ThreadGroup {
         private final static short ENTER_EXEC_QUEUE = 12;
         private final static short ENTER_EXEC_QUEUE2 = 13;
 
+        private final static short ENTER_EXEC_JUST = 20;
+
 
         private void adjustThread(int runningCount) {
             if (timeoutCount > 10) {
@@ -855,6 +856,7 @@ public class FlowProcessor extends ThreadGroup {
 
             isThreadRunning = true;
 
+            PlanImpl.ExecuteContext ctx = null;
 
             while (isWorking()) {
 
@@ -866,10 +868,14 @@ public class FlowProcessor extends ThreadGroup {
 
                 Work workObject = null;
 
+
+
                 try {
 
-                    final PlanImpl.ExecuteContext ctx = this.flowProcessor.workQueue.poll(maxWaitTime,
-                            TimeUnit.MILLISECONDS);
+                    if(ctx==null) {
+                        ctx = this.flowProcessor.workQueue.poll(maxWaitTime,
+                                TimeUnit.MILLISECONDS);
+                    }
 
                     if (!checkExecuteContext(ctx)) {
                         continue;
@@ -941,7 +947,8 @@ public class FlowProcessor extends ThreadGroup {
                             if (remainTime > this.flowProcessor.configuration.getThresholdWaitTimeToReady()) {
                                 stateMode = ENTER_MONITOR_QUEUE;
                             } else {
-                                stateMode = ENTER_EXEC_QUEUE;
+                                //stateMode = ENTER_EXEC_QUEUE;
+                                stateMode = ENTER_EXEC_JUST;
                             }
 
                         } else {
@@ -975,6 +982,10 @@ public class FlowProcessor extends ThreadGroup {
 
                 } finally {
 
+                    PlanImpl.ExecuteContext tmpCtx = ctx;
+                    ctx = null;
+
+
                     if (plan != null) {
 
                         if(workObject instanceof FlowableWork) {
@@ -986,6 +997,10 @@ public class FlowProcessor extends ThreadGroup {
                         }
 
                         switch (stateMode) {
+                            case ENTER_EXEC_JUST:
+                                ctx = tmpCtx;
+                                break;
+
                             case TERMINATE_BY_TIMEOVER:
                             case TERMINATE_BY_ERROR:
                             case TERMINATE_BY_USER:

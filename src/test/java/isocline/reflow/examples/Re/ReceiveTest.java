@@ -3,6 +3,7 @@ package isocline.reflow.examples.Re;
 import isocline.reflow.*;
 import isocline.reflow.event.WorkEventFactory;
 import isocline.reflow.log.XLogger;
+import isocline.reflow.module.PubSubBroker;
 import isocline.reflow.module.WorkEventGenerator;
 import org.junit.Test;
 
@@ -88,7 +89,7 @@ public class ReceiveTest {
 
 
             }
-            logger.debug("E ====> " + eventMap.size() + " " + Thread.currentThread().getName() + " " + i);
+            logger.debug("E ====> " + eventMap.size() + " " + Thread.currentThread().getName() + " " + i + " "+workEvents2.length);
         }
 
 
@@ -140,12 +141,12 @@ public class ReceiveTest {
         WorkEventGenerator generator = new WorkEventGenerator();
         generator.setEventName("rcv");
 
-        Re.task(generator).interval(500, 500).strictMode().activate();
+        Re.task(generator).interval(500, 200).strictMode().activate();
 
 
         WorkEvent e = WorkEventFactory.createOrigin().subscribe(event -> {
             logger.debug("###### - 1 " + " " + Thread.currentThread().getName());
-            TestUtil.waiting(1200);
+            TestUtil.waiting(300);
             logger.debug("###### - 2 ------ END" + " " + Thread.currentThread().getName());
         });
         e.setFireEventName("regist");
@@ -156,16 +157,81 @@ public class ReceiveTest {
 
         e = WorkEventFactory.createOrigin().subscribe(event -> {
             //logger.debug("XX - 1 "+" "+Thread.currentThread().getName() );
-            TestUtil.waiting(100);
+            TestUtil.waiting(1);
             //logger.debug("XX - 2 END");
         });
         e.setFireEventName("regist");
         e.put("id", "xx2");
 
-        //FlowProcessor.core().emit("rcv", "regist", e);
+        FlowProcessor.core().emit("rcv", "regist", e);
 
 
-        TestUtil.waiting(13000);
+        TestUtil.waiting(3000);
+
+
+    }
+
+
+    @Test
+    public void testBasic2() {
+
+        Re.flow(new PubSubBroker()).on("rcv").daemonMode().activate();
+
+
+
+        // publisher
+        WorkEventGenerator generator = new WorkEventGenerator();
+        generator.setEventName("rcv");
+
+        //Re.task(generator).interval(500, 200).strictMode().activate();
+        Re.task(e->{
+
+
+
+            WorkEvent newEvent = e;
+            newEvent.put("x", "zz");
+
+            e.getActivity().getFlowProcessor().emit("rcv",newEvent);
+            logger.debug("FIRE "+e.hashCode());
+            return Work.WAIT;
+        }).interval(10,500).activate();
+
+
+
+        // subscribe
+
+        Re.ceive("rcv","regist", e->{e.put("id","jj");}).filter(e->true).subscribe(event -> {
+
+            logger.debug("Re.ceive >" + event.get("x"));
+
+        });
+
+
+        WorkEvent e = WorkEventFactory.createOrigin().filter(ee->{
+                return false;
+        }).subscribe(event -> {
+
+            logger.debug("###### - 2 ------ END" + " " + Thread.currentThread().getName()+ " "+event.get("x"));
+            TestUtil.waiting(100);
+        });
+        e.setFireEventName("regist");
+        e.put("id", "xx");
+
+        FlowProcessor.core().emit("rcv", "regist", e);
+
+
+        e = WorkEventFactory.createOrigin().subscribe(event -> {
+            logger.debug("XX - 1 "+" "+Thread.currentThread().getName() + " -- "+event.get("x"));
+            TestUtil.waiting(1);
+            //logger.debug("XX - 2 END");
+        });
+        e.setFireEventName("regist");
+        e.put("id", "xx2");
+
+        FlowProcessor.core().emit("rcv", "regist", e);
+
+
+        TestUtil.waiting(3000);
 
 
     }

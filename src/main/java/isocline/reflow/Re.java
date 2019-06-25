@@ -11,8 +11,6 @@ public class Re {
     }
 
 
-
-
     public static Plan task(Runnable runnable) {
         return FlowProcessor.core().task(runnable);
     }
@@ -31,8 +29,6 @@ public class Re {
 
         return FlowProcessor.core().task(work, eventNames);
     }
-
-
 
 
     public static FlowProcessor quest(WorkEvent event) {
@@ -56,20 +52,20 @@ public class Re {
     }
 
 
-    public static WorkEvent quest(String evnetName, WorkEventPublisher consumer) {
-        WorkEvent event = WorkEventFactory.createOrigin(evnetName);
+    public static WorkEvent quest(String eventName, WorkEventPublisher consumer) {
+        WorkEvent event = WorkEventFactory.createOrigin(eventName);
         try {
             consumer.accept(event);
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }
-        FlowProcessor.core().emit(evnetName, event);
+        FlowProcessor.core().emit(eventName, event);
 
         return event;
     }
 
-    public static WorkEvent quest(String evnetName, WorkEventPublisher eventPublisher, WorkEventConsumer eventConsumer) {
-        WorkEvent event = WorkEventFactory.createOrigin(evnetName);
+    public static WorkEvent quest(String eventName, WorkEventPublisher eventPublisher, WorkEventConsumer eventConsumer) {
+        WorkEvent event = WorkEventFactory.createOrigin(eventName);
 
         event.subscribe(eventConsumer);
         try {
@@ -77,13 +73,27 @@ public class Re {
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }
-        FlowProcessor pr = FlowProcessor.core().emit(evnetName, event);
+        FlowProcessor pr = FlowProcessor.core().emit(eventName, event);
 
         //event.block();
 
         return event;
     }
 
+
+    public static WorkEvent ceive(String eventName, String targetEventName, WorkEventConsumer eventConsumer) {
+
+        WorkEvent e = WorkEventFactory.createOrigin();
+        e.setFireEventName(targetEventName);
+
+        eventConsumer.accept(e);
+
+
+        FlowProcessor.core().emit(eventName, targetEventName, e);
+
+
+        return e;
+    }
 
 
 }

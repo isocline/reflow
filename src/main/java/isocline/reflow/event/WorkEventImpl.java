@@ -18,6 +18,7 @@ package isocline.reflow.event;
 import isocline.reflow.Activity;
 import isocline.reflow.WorkEvent;
 import isocline.reflow.flow.func.WorkEventConsumer;
+import isocline.reflow.flow.func.WorkEventPredicate;
 
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -34,6 +35,9 @@ import java.util.stream.Stream;
 public class WorkEventImpl implements WorkEvent {
 
 
+    private final static int MAX_CALLBACK_EVENT_QUEUE_SIZE = 100;
+
+
     private String eventName = null;
 
     private long fireTime = -1;
@@ -43,7 +47,14 @@ public class WorkEventImpl implements WorkEvent {
     private String fireEventName;
 
 
-    private Map<String, Object> attributeMap = new Hashtable();
+
+    private boolean isCallBacking = false;
+
+
+
+    private LinkedBlockingQueue<WorkEvent> workEventQueue = new LinkedBlockingQueue<>();
+
+    Map<String, Object> attributeMap = new Hashtable();
 
     private final Map<String,AtomicInteger> counterMap = new HashMap<>();
 
@@ -322,6 +333,8 @@ public class WorkEventImpl implements WorkEvent {
     }
 
 
+    private WorkEventPredicate tester;
+
     private WorkEventConsumer consumer;
 
     @Override
@@ -332,13 +345,22 @@ public class WorkEventImpl implements WorkEvent {
     }
 
 
+    @Override
+    public WorkEvent filter(WorkEventPredicate tester) {
+        this.tester = tester;
+        return this;
+    }
 
-    private LinkedBlockingQueue<WorkEvent> workEventQueue = new LinkedBlockingQueue<>();
-    private boolean isCallBacking = false;
-    private final static int MAX_CALLBACK_EVENT_QUEUE_SIZE = 5;
     @Override
     public boolean callback(WorkEvent event) {
         if(this.consumer!=null) {
+
+
+            if(tester!=null) {
+                if( !tester.test(event)) {
+                    return false;
+                }
+            }
 
             if(workEventQueue.size()>MAX_CALLBACK_EVENT_QUEUE_SIZE) {
                 workEventQueue.clear();

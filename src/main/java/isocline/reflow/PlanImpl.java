@@ -116,7 +116,6 @@ public class PlanImpl implements Plan, Activity {
         this.work = work;
         this.uuid = UUID.randomUUID().toString();
 
-        System.out.println("xxx 1> "+uuid);
         this.isRunnable = true;
         this.intervalTime = Work.TERMINATE;
     }
@@ -131,7 +130,6 @@ public class PlanImpl implements Plan, Activity {
         this.flowProcessor = flowProcessor;
         this.work = work;
         this.uuid = UUID.randomUUID().toString();
-        System.out.println("xxx 2> "+uuid);
 
         this.isRunnable = true;
         this.intervalTime = Work.TERMINATE;
@@ -149,7 +147,6 @@ public class PlanImpl implements Plan, Activity {
         this.work = work;
 
         this.uuid = UUID.randomUUID().toString();
-        System.out.println("xxx 3> "+uuid);
     }
 
 
@@ -939,7 +936,11 @@ public class PlanImpl implements Plan, Activity {
             } else {
                 //System.err.println("== 2 "+originEvent.getEventName());
             }
-            event = originEvent;
+            //event = originEvent;
+
+            event = WorkEventFactory.createWithOrigin(null,originEvent);
+            event.setActivity(originEvent.getActivity());
+
         } else {
             if (originEvent == null) {
                 originEvent = inputWorkEvent;
