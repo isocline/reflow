@@ -22,7 +22,7 @@ public class TestSplit {
         /*
         Arrays.asList("1","2","3").stream()
 
-                .forEach(TestSplit::test); // 1,4,9
+                .forEach(TestSplit::proto); // 1,4,9
                 */
 
 

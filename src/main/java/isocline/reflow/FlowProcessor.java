@@ -134,7 +134,7 @@ public class FlowProcessor extends ThreadGroup {
     }
 
     /**
-     * Register the task to be bound to the input events.
+     * Register the call to be bound to the input events.
      *
      * @param work       an instance of Work
      * @param eventNames an event names
@@ -154,6 +154,13 @@ public class FlowProcessor extends ThreadGroup {
 
         Plan Plan = new PlanImpl(this, workFlow);
 
+
+        return Plan;
+    }
+
+    public Plan reflow(WorkFlow flow) {
+
+        Plan Plan = new PlanImpl(this, flow);
 
         return Plan;
     }

@@ -106,10 +106,10 @@ public class CircuitBreaker1 {
                             flow.onError(cursor).next(circuitBreaker::error).end();
 
 
-                            //task.onError("*").next(this::onError2).inactive();
+                            //call.onError("*").next(this::onError2).inactive();
 
 
-                            flow.wait("test").end();
+                            flow.wait("proto").end();
                         });
 
 

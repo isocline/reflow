@@ -22,7 +22,7 @@ import isocline.reflow.flow.func.*;
 import java.util.function.Consumer;
 
 /**
- * Interface for work task
+ * Interface for work call
  *
  */
 

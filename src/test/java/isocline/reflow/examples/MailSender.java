@@ -64,7 +64,7 @@ public class MailSender implements Work {
        FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-       String[] emails = new String[] {"test@test.com","test2@test.com"};
+       String[] emails = new String[] {"proto@proto.com","test2@test.com"};
        for(String email:emails) {
 
            MailSender checker = new MailSender( email, "Test", "test");

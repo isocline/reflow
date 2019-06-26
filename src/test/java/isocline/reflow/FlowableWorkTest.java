@@ -187,13 +187,13 @@ public class FlowableWorkTest {
 
         WorkEventGenerator generator = new WorkEventGenerator("calc", 400);
 
-        Re.task(generator)
+        Re.call(generator)
                 .startTime(Time.nextSecond())
                 .finishTimeFromStart(3 * Time.SECOND)
                 .strictMode()
                 .activate();
 
-        logger.debug("task define completed");
+        logger.debug("call define completed");
 
         long t1 = System.currentTimeMillis();
         Thread.sleep(2000);
@@ -247,7 +247,7 @@ public class FlowableWorkTest {
 
 
     /***
-     * Test for event emiting frame external task process
+     * Test for event emiting frame external call process
      *
      * @throws Exception
      */
@@ -267,7 +267,7 @@ public class FlowableWorkTest {
                 .activate();
 
 
-        Re.task((WorkEvent e) -> {
+        Re.call((WorkEvent e) -> {
 
             e.put("result", "skkim");
 

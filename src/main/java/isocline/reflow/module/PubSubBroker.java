@@ -61,7 +61,7 @@ public class PubSubBroker implements FlowableWork {
             realPararrelSize = pararrelSize;
         }
 
-        logger.info("init :: " + realPararrelSize + " "+workEvents2.length);
+        //logger.info("init :: " + realPararrelSize + " "+workEvents2.length);
 
 
     }

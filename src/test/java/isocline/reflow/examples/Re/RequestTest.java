@@ -1,5 +1,9 @@
-package isocline.reflow;
+package isocline.reflow.examples.Re;
 
+import isocline.reflow.FlowableWork;
+import isocline.reflow.Re;
+import isocline.reflow.TestUtil;
+import isocline.reflow.WorkEvent;
 import isocline.reflow.log.XLogger;
 import org.junit.Test;
 
@@ -91,7 +95,7 @@ public class RequestTest {
 
         TestUtil.waiting(1000);
 
-        Re.quest("lxq://local/biz/chk", "test").subscribe(e -> {
+        Re.quest("lxq://local/biz/chk", "proto").subscribe(e -> {
 
             double z = (double) e.get("price");
             logger.debug(z);
@@ -127,14 +131,14 @@ public class RequestTest {
         };
 
 
-        Re.task(flowableWork)
+        Re.call(flowableWork)
                 .on("lxq://local/biz/chk")
                 .daemonMode()
                 .activate();
 
         TestUtil.waiting(1000);
 
-        Re.quest("lxq://local/biz/chk", "test").subscribe(e -> {
+        Re.quest("lxq://local/biz/chk", "proto").subscribe(e -> {
 
 
         }).block();

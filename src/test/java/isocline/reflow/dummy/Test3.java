@@ -8,8 +8,8 @@ public class Test3 {
     @Test
     public void test1() throws Exception {
 
-        // make plan from task
-        Plan plan = Re.task(e -> {
+        // make plan from call
+        Plan plan = Re.call(e -> {
             System.out.println(e.count());
         });
 
@@ -19,7 +19,7 @@ public class Test3 {
                 .activate();
 
 
-        Re.task(e -> {
+        Re.call(e -> {
             System.out.println(e.count());
         })
                 .interval(123, 1 * Time.SECOND)
@@ -33,11 +33,11 @@ public class Test3 {
     @Test
     public void test2() throws Exception {
 
-        FlowableWork task = f->{
+        FlowableWork call = f->{
           f.next(System.out::println)
         };
 
-        Re.task((WorkEvent e)->{
+        Re.call((WorkEvent e)->{
             System.out.println(e.count()*2);
             return 1*Time.SECOND;
         })

@@ -142,6 +142,20 @@ public class PlanImpl implements Plan, Activity {
         this.isFlowableWork = true;
     }
 
+    PlanImpl(FlowProcessor flowProcessor, WorkFlow flow) {
+        FlowableWork work = workFlow->{};
+
+        this.flowProcessor = flowProcessor;
+        this.work = (Work) work;
+        this.workFlow = flow;
+
+
+        this.isFlowableWork = true;
+
+        this.uuid = UUID.randomUUID().toString();
+    }
+
+
     PlanImpl(FlowProcessor flowProcessor, Work work) {
         this.flowProcessor = flowProcessor;
         this.work = work;
@@ -739,21 +753,26 @@ public class PlanImpl implements Plan, Activity {
         if(this.isFlowableWork) {
 
             if (this.work instanceof FlowableWork) {
-                this.workFlow = WorkFlowFactory.createWorkFlow();
-
                 FlowableWork fw = (FlowableWork) this.work;
 
-                WorkFlow wf = this.workFlow
-                        .next(fw::initialize);
+                if(this.workFlow==null) {
+                    this.workFlow = WorkFlowFactory.createWorkFlow();
+
+                    WorkFlow wf = this.workFlow
+                            .next(fw::initialize);
 
 
-                fw.defineWorkFlow(wf);
+                    fw.defineWorkFlow(wf);
 
+                }else {
 
-                if (!this.isDaemonMode && !wf.isSetFinish()) {
+                    System.err.println("------sfdsdfsf");
+                }
 
-                    wf.fireEvent(WorkFlow.FINISH, 0);
-                    wf.wait(WorkFlow.FINISH).end();
+                if (!this.isDaemonMode && !workFlow.isSetFinish()) {
+
+                    workFlow.fireEvent(WorkFlow.FINISH, 0);
+                    workFlow.wait(WorkFlow.FINISH).end();
                 }
 
             }

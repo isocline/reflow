@@ -109,7 +109,7 @@ public class CircuitBreaker implements WorkFlowPattern {
 
         flow.next(this::ok);
 
-        //task.onError(cursor, this.timeoutEventName).next(this::error).inactive();
+        //call.onError(cursor, this.timeoutEventName).next(this::error).inactive();
         flow.onError("*").next(this::error).end();
     }
 

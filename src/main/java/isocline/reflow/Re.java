@@ -10,22 +10,25 @@ public class Re {
         return FlowProcessor.core().reflow(work);
     }
 
+    public static Plan flow(WorkFlow flow) {
+        return FlowProcessor.core().reflow(flow);
+    }
 
-    public static Plan task(Runnable runnable) {
+    public static Plan call(Runnable runnable) {
         return FlowProcessor.core().task(runnable);
     }
 
 
-    public static Plan task(WorkEventConsumer work) {
+    public static Plan call(WorkEventConsumer work) {
         return FlowProcessor.core().task(work);
     }
 
-    public static Plan task(Work work) {
+    public static Plan call(Work work) {
         return FlowProcessor.core().task(work);
     }
 
 
-    public static Plan task(Work work, String... eventNames) {
+    public static Plan call(Work work, String... eventNames) {
 
         return FlowProcessor.core().task(work, eventNames);
     }

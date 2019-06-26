@@ -45,7 +45,7 @@ public class ReceiveTest {
 
     private void receiveInit(WorkEvent event) {
 
-        if(isNeedMakeArray) {
+        if (isNeedMakeArray) {
             makeWorkEventArray();
         }
 
@@ -89,7 +89,7 @@ public class ReceiveTest {
 
 
             }
-            logger.debug("E ====> " + eventMap.size() + " " + Thread.currentThread().getName() + " " + i + " "+workEvents2.length);
+            logger.debug("E ====> " + eventMap.size() + " " + Thread.currentThread().getName() + " " + i + " " + workEvents2.length);
         }
 
 
@@ -141,7 +141,7 @@ public class ReceiveTest {
         WorkEventGenerator generator = new WorkEventGenerator();
         generator.setEventName("rcv");
 
-        Re.task(generator).interval(500, 200).strictMode().activate();
+        Re.call(generator).interval(500, 200).strictMode().activate();
 
 
         WorkEvent e = WorkEventFactory.createOrigin().subscribe(event -> {
@@ -178,40 +178,39 @@ public class ReceiveTest {
         Re.flow(new PubSubBroker()).on("rcv").daemonMode().activate();
 
 
-
         // publisher
         WorkEventGenerator generator = new WorkEventGenerator();
         generator.setEventName("rcv");
 
-        //Re.task(generator).interval(500, 200).strictMode().activate();
-        Re.task(e->{
-
+        //Re.call(generator).interval(500, 200).strictMode().activate();
+        Re.call(e -> {
 
 
             WorkEvent newEvent = e;
             newEvent.put("x", "zz");
 
-            e.getActivity().getFlowProcessor().emit("rcv",newEvent);
-            logger.debug("FIRE "+e.hashCode());
+            e.getActivity().getFlowProcessor().emit("rcv", newEvent);
+            logger.debug("FIRE " + e.hashCode());
             return Work.WAIT;
-        }).interval(10,500).activate();
-
+        }).interval(10, 500).activate();
 
 
         // subscribe
 
-        Re.ceive("rcv","regist", e->{e.put("id","jj");}).filter(e->true).subscribe(event -> {
+        Re.ceive("rcv", "regist", e -> {
+            e.put("id", "jj");
+        })
+                .filter(e -> true)
+                .subscribe(event -> {
+                    logger.debug("Re.ceive >" + event.get("x"));
+                });
 
-            logger.debug("Re.ceive >" + event.get("x"));
 
-        });
-
-
-        WorkEvent e = WorkEventFactory.createOrigin().filter(ee->{
-                return false;
+        WorkEvent e = WorkEventFactory.createOrigin().filter(ee -> {
+            return false;
         }).subscribe(event -> {
 
-            logger.debug("###### - 2 ------ END" + " " + Thread.currentThread().getName()+ " "+event.get("x"));
+            logger.debug("###### - 2 ------ END" + " " + Thread.currentThread().getName() + " " + event.get("x"));
             TestUtil.waiting(100);
         });
         e.setFireEventName("regist");
@@ -221,7 +220,7 @@ public class ReceiveTest {
 
 
         e = WorkEventFactory.createOrigin().subscribe(event -> {
-            logger.debug("XX - 1 "+" "+Thread.currentThread().getName() + " -- "+event.get("x"));
+            logger.debug("XX - 1 " + " " + Thread.currentThread().getName() + " -- " + event.get("x"));
             TestUtil.waiting(1);
             //logger.debug("XX - 2 END");
         });
@@ -230,6 +229,58 @@ public class ReceiveTest {
 
         FlowProcessor.core().emit("rcv", "regist", e);
 
+
+        TestUtil.waiting(3000);
+
+
+    }
+
+
+    private int countNo = 0;
+
+
+    @Test
+    public void testBasic3() {
+
+        Re.flow(new PubSubBroker()).on("rcv").daemonMode().activate();
+
+
+        Re.call(e -> {
+
+
+            WorkEvent newEvent = e;
+            newEvent.put("no", countNo++);
+
+            e.getActivity().getFlowProcessor().emit("rcv", newEvent);
+            //logger.debug("FIRE " + e.hashCode());
+            return Work.WAIT;
+        }).interval(10, 2).activate();
+
+
+        // subscribe
+
+        Re.ceive("rcv", "regist", e -> {
+            e.put("id", "jj");
+        })
+                .filter(event -> {
+                    int val = (int) event.get("no");
+                    if(val%3==0) {
+                        return true;
+                    }
+
+                    return false;
+                })
+                .subscribe(event -> {
+                    int val = (int) event.get("no");
+                    logger.debug("Re.ceive > " + val);
+                });
+
+        TestUtil.waiting(3000);
+        logger.debug("xxxx");
+
+        Re.ceive("rcv", "unregist", e -> {
+            e.put("id", "jj");
+        });
 
         TestUtil.waiting(3000);
 

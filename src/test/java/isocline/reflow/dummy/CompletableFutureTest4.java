@@ -1,8 +1,10 @@
 package isocline.reflow.dummy;
 
 import isocline.reflow.FlowProcessor;
-import isocline.reflow.FlowableWork;
+import isocline.reflow.Re;
 import isocline.reflow.WorkEvent;
+import isocline.reflow.WorkFlow;
+import isocline.reflow.flow.WorkFlowFactory;
 import org.junit.Test;
 
 /**
@@ -17,6 +19,8 @@ public class CompletableFutureTest4 {
 
         System.out.println("---1");
 
+
+        /*
         FlowableWork flow1 = (flow) -> {
             flow.mapAsync(e -> price.calculatePrice(1),
                     e -> price.calculatePrice(2))
@@ -28,6 +32,23 @@ public class CompletableFutureTest4 {
                 .reflow(flow1)
                 //.daemonMode()
                 .activate(System.out::println);
+
+                */
+
+
+
+
+
+        WorkFlow flow = WorkFlowFactory.createWorkFlow();
+
+
+        flow.mapAsync(e -> price.calculatePrice(1),
+                e -> price.calculatePrice(2))
+                .next((WorkEvent e) -> e.getDoubleStream().sum());
+
+        Re.flow(flow).activate(System.out::println);
+
+
 
         System.out.println("---2");
 
