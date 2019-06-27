@@ -20,6 +20,7 @@ import isocline.reflow.flow.FunctionExecutorList;
 import isocline.reflow.flow.func.*;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Interface for work call
@@ -43,7 +44,7 @@ public interface WorkFlow<T> {
      * @param eventNames event names
      * @return an instance of WorkFlow
      */
-    WorkFlow wait(String... eventNames);
+    WorkFlow<T> wait(String... eventNames);
 
 
     /**
@@ -52,7 +53,7 @@ public interface WorkFlow<T> {
      * @param eventNames event names
      * @return an instance of WorkFlow
      */
-    WorkFlow waitAll(String... eventNames);
+    WorkFlow<T> waitAll(String... eventNames);
 
 
     /**
@@ -61,13 +62,13 @@ public interface WorkFlow<T> {
      * @param eventNames event names
      * @return an instance of WorkFlow
      */
-    WorkFlow onError(String... eventNames);
+    WorkFlow<T> onError(String... eventNames);
 
 
-    WorkFlow onError(Class... errorClasses);
+    WorkFlow<T> onError(Class... errorClasses);
 
 
-    WorkFlow onError();
+    WorkFlow<T> onError();
 
 
     /**
@@ -76,7 +77,7 @@ public interface WorkFlow<T> {
      * @param workFlows  WorkFlows
      * @return an instance of WorkFlow
      */
-    WorkFlow wait(WorkFlow... workFlows);
+    WorkFlow<T> wait(WorkFlow<T>... workFlows);
 
 
     /**
@@ -85,7 +86,7 @@ public interface WorkFlow<T> {
      *
      * @return an instance of WorkFlow
      */
-    WorkFlow waitAll();
+    WorkFlow<T> waitAll();
 
     /**
      * Only if all the input events have occurred, activate the next definition method.
@@ -93,7 +94,7 @@ public interface WorkFlow<T> {
      * @param workFlows Array of WorkFlow
      * @return an instance of WorkFlow
      */
-    WorkFlow waitAll(WorkFlow... workFlows);
+    WorkFlow<T> waitAll(WorkFlow<T>... workFlows);
 
 
     /**
@@ -102,7 +103,7 @@ public interface WorkFlow<T> {
      * @param workFlows executable object
      * @return an instance of WorkFlow
      */
-    WorkFlow onError(WorkFlow... workFlows);
+    WorkFlow<T> onError(WorkFlow<T>... workFlows);
 
 
     /**
@@ -111,7 +112,7 @@ public interface WorkFlow<T> {
      * @param execObject executable object
      * @return an instance of WorkFlow
      */
-    WorkFlow runAsync(Runnable... execObject);
+    <T>WorkFlow<T> runAsync(Runnable... execObject);
 
     /**
      *
@@ -120,7 +121,7 @@ public interface WorkFlow<T> {
      * @param execObject executable object
      * @return an instance of WorkFlow
      */
-    //WorkFlow applyAsync(Consumer<? extends T> execObject);
+    //WorkFlow supplyAsync(Consumer<? extends T> execObject);
 
     /**
      *
@@ -131,7 +132,7 @@ public interface WorkFlow<T> {
      * @param fireEventName name of event
      * @return an instance of WorkFlow
      */
-    WorkFlow runAsync(Runnable execObject, String fireEventName);
+    WorkFlow<T> runAsync(Runnable execObject, String fireEventName);
 
     /**
      *
@@ -142,7 +143,7 @@ public interface WorkFlow<T> {
      * @param fireEventName name of event
      * @return an instance of WorkFlow
      */
-    //WorkFlow applyAsync(Consumer<? extends T> execObject, String fireEventName);
+    //WorkFlow supplyAsync(Consumer<? extends T> execObject, String fireEventName);
 
 
 
@@ -155,53 +156,31 @@ public interface WorkFlow<T> {
      * @param count name of event
      * @return an instance of WorkFlow
      */
-    WorkFlow runAsync(Runnable execObject, int count);
+    WorkFlow<T> runAsync(Runnable execObject, int count);
 
 
-    //WorkFlow applyAsync(Consumer<? extends T> execObject, int count);
+    //WorkFlow supplyAsync(Consumer<? extends T> execObject, int count);
 
 
-    WorkFlow runAsync(WorkEventPublisher... execObject);
-    WorkFlow runAsync(WorkEventPublisher execObject, String fireEventName);
-    WorkFlow runAsync(WorkEventPublisher execObject, int count);
+    WorkFlow<T>  runAsync(WorkEventConsumer... execObject);
+    WorkFlow<T> runAsync(WorkEventConsumer execObject, String fireEventName);
+    WorkFlow<T> runAsync(WorkEventConsumer execObject, int count);
 
 
-    WorkFlow applyAsync(WorkEventFunction... execObject);
-    WorkFlow applyAsync(WorkEventFunction execObject, String fireEventName);
-    WorkFlow applyAsync(WorkEventFunction execObject, int count);
+    <R> WorkFlow<R> supplyAsync(WorkEventFunction<? extends R>... execObject);
+    <R> WorkFlow<R> supplyAsync(WorkEventFunction<? extends R> execObject, String fireEventName);
+    <R> WorkFlow<R> supplyAsync(WorkEventFunction<? extends R> execObject, int count);
 
 
-    WorkFlow mapAsync(WorkEventFunction... execObjects);
+    <R> WorkFlow<R> supply(WorkEventFunction<? extends R>... execObjects);
 
 
-    WorkFlow branch(ReturnEventFunction execObject);
+    WorkFlow<T> branch(ReturnEventFunction execObject);
 
 
-    WorkFlow when(CheckFunction execObject);
+    WorkFlow<T> when(CheckFunction execObject);
 
-    WorkFlow limit(int maxCount);
-
-
-    /**
-     * Execute the corresponding method at completion of the previous step method execution.
-     *
-     * @param execObject executable object
-     * @return an instance of WorkFlow
-     */
-    WorkFlow next(ThrowableRunFunction execObject);
-
-
-
-
-    /**
-     * Execute the corresponding method at completion of the previous step method execution.
-     * Raises an event after completion of method execution.
-     *
-     * @param execObject executable object
-     * @param fireEventName name of event
-     * @return an instance of WorkFlow
-     */
-    WorkFlow next(ThrowableRunFunction execObject, String fireEventName);
+    WorkFlow<T> limit(int maxCount);
 
 
     /**
@@ -210,14 +189,8 @@ public interface WorkFlow<T> {
      * @param execObject executable object
      * @return an instance of WorkFlow
      */
-    WorkFlow<Void> next(Consumer<? super T> execObject);
+    WorkFlow<T> next(ThrowableRunFunction execObject);
 
-
-
-
-    WorkFlow next(WorkEventPublisher execObject);
-
-    WorkFlow next(WorkEventFunction execObject);
 
 
 
@@ -229,42 +202,71 @@ public interface WorkFlow<T> {
      * @param fireEventName name of event
      * @return an instance of WorkFlow
      */
-    WorkFlow next(Consumer<? super T> execObject, String fireEventName);
+    WorkFlow<T> next(ThrowableRunFunction execObject, String fireEventName);
 
 
-    WorkFlow next(WorkEventPublisher execObject, String fireEventName);
-
-
-
-    WorkFlow next(WorkEventFunction execObject, String fireEventName);
-
-
-
-    WorkFlow next(ThrowableRunFunction execObject, FnExecFeatureFunction fnExecFeatureFunction);
-
-
-    WorkFlow next(Consumer<? super T> execObject, FnExecFeatureFunction fnExecFeatureFunction);
-
-
-    WorkFlow next(WorkEventPublisher execObject, FnExecFeatureFunction fnExecFeatureFunction);
-
-
-
-    WorkFlow next(WorkEventFunction execObject, FnExecFeatureFunction fnExecFeatureFunction);
+    /**
+     * Execute the corresponding method at completion of the previous step method execution.
+     *
+     * @param execObject executable object
+     * @return an instance of WorkFlow
+     */
+    WorkFlow<T> next(Consumer<? super T> execObject);
 
 
 
 
+    WorkFlow<T> next(WorkEventConsumer execObject);
+
+    <R> WorkFlow<R> next(WorkEventFunction<? extends R> execObject);
 
 
 
-    WorkFlow pattern(WorkFlowPattern pattern, WorkFlowPatternFunction... func);
+    /**
+     * Execute the corresponding method at completion of the previous step method execution.
+     * Raises an event after completion of method execution.
+     *
+     * @param execObject executable object
+     * @param fireEventName name of event
+     * @return an instance of WorkFlow
+     */
+    WorkFlow<T> next(Consumer<? super T> execObject, String fireEventName);
 
 
-    WorkFlow delay(long delayTime);
+    WorkFlow<T> next(WorkEventConsumer execObject, String fireEventName);
 
 
-    WorkFlow flag(String eventName);
+
+    <R> WorkFlow<R> next(WorkEventFunction<? extends R> execObject, String fireEventName);
+
+
+
+    WorkFlow<T> next(ThrowableRunFunction execObject, FnExecFeatureFunction fnExecFeatureFunction);
+
+
+    WorkFlow<T> next(Consumer<? super T> execObject, FnExecFeatureFunction fnExecFeatureFunction);
+
+
+    WorkFlow<T> next(WorkEventConsumer execObject, FnExecFeatureFunction fnExecFeatureFunction);
+
+
+
+    <R> WorkFlow<R> next(WorkEventFunction<? extends R> execObject, FnExecFeatureFunction fnExecFeatureFunction);
+
+
+
+    <R> WorkFlow<R> pipe(Function<? super T, ? extends R> mapper);
+
+
+
+
+    WorkFlow<T> pattern(WorkFlowPattern pattern, WorkFlowPatternFunction... func);
+
+
+    WorkFlow<T> delay(long delayTime);
+
+
+    WorkFlow<T> flag(String eventName);
 
 
 
@@ -276,16 +278,16 @@ public interface WorkFlow<T> {
      * @param time delay time
      * @return an instance of WorkFlow
      */
-    WorkFlow fireEvent(String eventName, long time);
+    WorkFlow<T> fireEvent(String eventName, long time);
 
 
 
-    WorkFlow fireEventOnError(String eventName, long time);
+    WorkFlow<T> fireEventOnError(String eventName, long time);
 
 
-    WorkFlow count(int maxCount);
+    WorkFlow<T> count(int maxCount);
 
-    WorkFlow retryOnError(int maxCount, long delayTime);
+    WorkFlow<T> retryOnError(int maxCount, long delayTime);
 
     /**
      *

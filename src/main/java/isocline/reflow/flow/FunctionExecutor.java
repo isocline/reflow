@@ -32,7 +32,7 @@ import java.util.function.Supplier;
  *
  *
  */
-public class FunctionExecutor implements FunctionExecFeature {
+public class FunctionExecutor<T, R> implements FunctionExecFeature {
 
     private static short nonce = -1;
 
@@ -71,12 +71,14 @@ public class FunctionExecutor implements FunctionExecFeature {
 
     private Supplier supplier = null;
 
-    private Function function = null;
+
+    private Function<? super T, ? extends R> function = null;
+
 
 
     private ThrowableRunFunction throwableRunFunction = null;
 
-    private WorkEventPublisher workEventPublisher = null;
+    private WorkEventConsumer workEventConsumer = null;
 
     private WorkEventFunction workEventFunction = null;
 
@@ -102,8 +104,8 @@ public class FunctionExecutor implements FunctionExecFeature {
 
                 this.consumer = (Consumer) obj;
 
-            } else if (obj instanceof WorkEventPublisher) {
-                this.workEventPublisher = (WorkEventPublisher) obj;
+            } else if (obj instanceof WorkEventConsumer) {
+                this.workEventConsumer = (WorkEventConsumer) obj;
             } else if (obj instanceof Supplier) {
                 this.supplier = (Supplier) obj;
             } else if (obj instanceof Function) {
@@ -116,6 +118,8 @@ public class FunctionExecutor implements FunctionExecFeature {
                 this.workEventFunction = (WorkEventFunction) obj;
             } else if (obj instanceof ThrowableRunFunction) {
                 this.throwableRunFunction = (ThrowableRunFunction) obj;
+            } else if (obj instanceof Function) {
+                this.function = (Function) obj;
             }
             else {
                 throw new IllegalArgumentException("Not Support type");
@@ -242,8 +246,8 @@ public class FunctionExecutor implements FunctionExecFeature {
 
 
             consumer.accept(rootEvent.getAttributeMap());
-        } else if (workEventPublisher != null) {
-            workEventPublisher.accept(event);
+        } else if (workEventConsumer != null) {
+            workEventConsumer.accept(event);
         } else if (workEventFunction != null) {
             Object result = workEventFunction.apply(event);
             WorkHelper.Return(event, result);
@@ -264,6 +268,11 @@ public class FunctionExecutor implements FunctionExecFeature {
 
         }else if (throwableRunFunction != null) {
             throwableRunFunction.run();
+        }else if(function!=null) {
+            T t = (T) WorkHelper.Get(event);
+            R r = function.apply(t);
+
+            WorkHelper.Return(event, r);
         }
 
 

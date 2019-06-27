@@ -22,7 +22,7 @@ public interface WorkEventConsumer {
      *
      * @param e the input argument
      */
-    void accept(WorkEvent e) ;
+    void accept(WorkEvent e);
 
 
 

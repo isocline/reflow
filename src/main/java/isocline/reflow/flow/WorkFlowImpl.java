@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  *
@@ -76,7 +77,7 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
 
     }
 
-    public WorkFlow onError(String... eventNames) {
+    public WorkFlow<T> onError(String... eventNames) {
         String[] inputEventNameArray = eventNames;
         for (int i = 0; i < inputEventNameArray.length; i++) {
             inputEventNameArray[i] = WorkEventKey.PREFIX_ERROR + inputEventNameArray[i];
@@ -297,11 +298,11 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
 
 
     @Override
-    public WorkFlow runAsync(WorkEventPublisher... execObject) {
+    public WorkFlow runAsync(WorkEventConsumer... execObject) {
 
 
 
-        for(WorkEventPublisher c:execObject) {
+        for(WorkEventConsumer c:execObject) {
 
             processRunAsync(c, null);
         }
@@ -310,12 +311,12 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
     }
 
     @Override
-    public WorkFlow runAsync(WorkEventPublisher execObject, String fireEventName) {
+    public WorkFlow runAsync(WorkEventConsumer execObject, String fireEventName) {
         return processRunAsync(execObject, fireEventName);
     }
 
     @Override
-    public WorkFlow runAsync(WorkEventPublisher execObject, int count) {
+    public WorkFlow runAsync(WorkEventConsumer execObject, int count) {
         WorkFlow workFlow = null;
         for (int i = 0; i < count; i++) {
             workFlow = processRunAsync(execObject, null);
@@ -326,7 +327,7 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
 
 
     @Override
-    public WorkFlow applyAsync(WorkEventFunction... execObject) {
+    public <R> WorkFlow<R> supplyAsync(WorkEventFunction<? extends R>... execObject) {
         WorkFlow result = null;
 
         for(WorkEventFunction c:execObject) {
@@ -338,12 +339,12 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
     }
 
     @Override
-    public WorkFlow applyAsync(WorkEventFunction execObject, String fireEventName) {
+    public <R> WorkFlow<R> supplyAsync(WorkEventFunction<? extends R> execObject, String fireEventName) {
         return processRunAsync(execObject, fireEventName);
     }
 
     @Override
-    public WorkFlow applyAsync(WorkEventFunction execObject, int count) {
+    public <R> WorkFlow<R> supplyAsync(WorkEventFunction<? extends R> execObject, int count) {
         WorkFlow workFlow = null;
         for (int i = 0; i < count; i++) {
             workFlow = processRunAsync(execObject, null);
@@ -352,7 +353,8 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
         return workFlow;
     }
 
-    public WorkFlow mapAsync(WorkEventFunction... execObjects) {
+    @Override
+    public <R> WorkFlow<R> supply(WorkEventFunction<? extends R>... execObjects) {
 
         for (WorkEventFunction execObject : execObjects) {
             processRunAsync(execObject, null);
@@ -464,34 +466,70 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
         return processNext(execObject, null, false);
     }
 
-    public WorkFlowImpl next(Consumer<? super T> execObject) {
-        return processNext(execObject, null, false);
-    }
 
     public WorkFlowImpl next(ThrowableRunFunction execObject, String eventName) {
         return processNext(execObject, eventName, false);
     }
 
+    /*
     public WorkFlowImpl next(Consumer<? super T> execObject, String eventName) {
         return processNext(execObject, eventName, true);
     }
 
-
-    public WorkFlowImpl next(WorkEventPublisher execObject) {
+    public WorkFlowImpl next(Consumer<? super T> execObject) {
         return processNext(execObject, null, false);
     }
 
-    public WorkFlowImpl next(WorkEventPublisher execObject, String eventName) {
-        return processNext(execObject, eventName, false);
-    }
 
-    public WorkFlowImpl next(WorkEventFunction execObject) {
+    public WorkFlowImpl<T> next(WorkEventFunction<T> execObject) {
         return processNext(execObject, null, false);
     }
 
-    public WorkFlowImpl next(WorkEventFunction execObject, String eventName) {
+    public WorkFlowImpl<T> next(WorkEventFunction<T> execObject, String eventName) {
         return processNext(execObject, eventName, false);
     }
+
+    @Override
+    public WorkFlow next(Consumer<? super T> execObject, FnExecFeatureFunction fnExecFeatureFunction) {
+        return processNext(execObject, null, false , false, 0 , -1, fnExecFeatureFunction);
+    }
+    */
+
+    @Override
+    public WorkFlow<T> next(Consumer<? super T> execObject) {
+        return processNext(execObject, null, false);
+    }
+
+    @Override
+    public WorkFlow<T> next(Consumer<? super T> execObject, String fireEventName) {
+        return processNext(execObject, fireEventName, true);
+    }
+
+
+    @Override
+    public <R> WorkFlow<R> next(WorkEventFunction<? extends R> execObject) {
+        return (WorkFlow<R>) processNext(execObject, null, false);
+    }
+
+
+    @Override
+    public <R> WorkFlow<R> next(WorkEventFunction<? extends R> execObject, String fireEventName) {
+        return (WorkFlow<R>) processNext(execObject, fireEventName, false);
+    }
+
+    @Override
+    public WorkFlow<T> next(Consumer<? super T> execObject, FnExecFeatureFunction fnExecFeatureFunction) {
+        return processNext(execObject, null, false , false, 0 , -1, fnExecFeatureFunction);
+    }
+
+    public WorkFlowImpl next(WorkEventConsumer execObject) {
+        return processNext(execObject, null, false);
+    }
+
+    public WorkFlowImpl next(WorkEventConsumer execObject, String eventName) {
+        return processNext(execObject, eventName, false);
+    }
+
 
     @Override
     public WorkFlow next(ThrowableRunFunction execObject, FnExecFeatureFunction fnExecFeatureFunction) {
@@ -499,13 +537,9 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
     }
 
 
-    @Override
-    public WorkFlow next(Consumer<? super T> execObject, FnExecFeatureFunction fnExecFeatureFunction) {
-        return processNext(execObject, null, false , false, 0 , -1, fnExecFeatureFunction);
-    }
 
     @Override
-    public WorkFlow next(WorkEventPublisher execObject, FnExecFeatureFunction fnExecFeatureFunction) {
+    public WorkFlow next(WorkEventConsumer execObject, FnExecFeatureFunction fnExecFeatureFunction) {
         return processNext(execObject, null, false , false, 0 , -1, fnExecFeatureFunction);
     }
 
@@ -514,6 +548,10 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
         return processNext(execObject, null, false , false, 0 , -1, fnExecFeatureFunction);
     }
 
+    @Override
+    public <R> WorkFlow<R> pipe(Function<? super T, ? extends R> mapper) {
+        return (WorkFlow<R>) processNext(mapper, null, false);
+    }
 
     @Override
     public WorkFlow delay(long delayTime) {
@@ -541,12 +579,12 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
         return this;
     }
 
-    WorkFlowImpl processNext(Object execObject, String eventName, boolean allowFuncInfNull) {
+     WorkFlowImpl<T> processNext(Object execObject, String eventName, boolean allowFuncInfNull) {
         return processNext(execObject, eventName, allowFuncInfNull, false, 0);
     }
 
 
-    WorkFlowImpl processNext(Object functionalInterface, String fireEventName, boolean allowFuncInfNull, boolean isLastExecuteMethod, long delayTime) {
+     WorkFlowImpl<T> processNext(Object functionalInterface, String fireEventName, boolean allowFuncInfNull, boolean isLastExecuteMethod, long delayTime) {
         return processNext(functionalInterface, fireEventName, allowFuncInfNull, isLastExecuteMethod, delayTime, -1,null);
     }
 
@@ -556,7 +594,7 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
         t.interrupt();
     }
 
-    WorkFlowImpl processNext(Object functionalInterface, String fireEventName, boolean allowFuncInfNull, boolean isLastExecuteMethod, long delayTime, int maxCallCount, FnExecFeatureFunction featureFunction) {
+    WorkFlowImpl<T> processNext(Object functionalInterface, String fireEventName, boolean allowFuncInfNull, boolean isLastExecuteMethod, long delayTime, int maxCallCount, FnExecFeatureFunction featureFunction) {
 
         if (!allowFuncInfNull && functionalInterface == null) {
             throw new IllegalArgumentException("function interface is null");
@@ -572,7 +610,7 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
 
         if(timeout>0) {
 
-            FunctionExecutor timeoutProcess = new FunctionExecutor( (WorkEventPublisher) WorkFlowImpl::processTimeout);
+            FunctionExecutor timeoutProcess = new FunctionExecutor( (WorkEventConsumer) WorkFlowImpl::processTimeout);
 
             String[] timeoutEventNames = newFuncExecutor.getTimeoutFireEventNames();
 

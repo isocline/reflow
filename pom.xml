@@ -112,7 +112,7 @@
                     <repositoryOwner>isocline</repositoryOwner>    <!-- github username  -->
                 </configuration>
                 <executions>
-                    <!-- applyAsync site-maven-plugin's 'site' target as part of the build's normal 'deploy' phase -->
+                    <!-- supplyAsync site-maven-plugin's 'site' target as part of the build's normal 'deploy' phase -->
                     <execution>
                         <goals>
                             <goal>site</goal>

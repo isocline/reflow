@@ -823,7 +823,7 @@ public class FlowProcessor extends ThreadGroup {
             } else if (count == 5000) {
                 Thread.sleep(0, 1);
             } else if (count == 10000) {
-                Thread.sleep(10);
+                Thread.sleep(5);
                 count = 0;
             } else {
                 count++;

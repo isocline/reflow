@@ -2,10 +2,12 @@ package isocline.reflow;
 
 import org.junit.AfterClass;
 
-public class FlowTestBase {
+public class TestBase {
 
     @AfterClass
-    public void shutdown() {
+    public static void shutdown() {
         FlowProcessor.core().shutdown(3000);
     }
+
+
 }

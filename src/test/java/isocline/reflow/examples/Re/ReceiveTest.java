@@ -254,7 +254,7 @@ public class ReceiveTest {
             e.getActivity().getFlowProcessor().emit("rcv", newEvent);
             //logger.debug("FIRE " + e.hashCode());
             return Work.WAIT;
-        }).interval(10, 2).activate();
+        }).interval(10, 50).activate();
 
 
         // subscribe
@@ -282,7 +282,7 @@ public class ReceiveTest {
             e.put("id", "jj");
         });
 
-        TestUtil.waiting(3000);
+        TestUtil.waiting(2000);
 
 
     }

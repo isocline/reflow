@@ -2,7 +2,6 @@ package isocline.reflow;
 
 import isocline.reflow.event.WorkEventFactory;
 import isocline.reflow.flow.func.WorkEventConsumer;
-import isocline.reflow.flow.func.WorkEventPublisher;
 
 public class Re {
 
@@ -41,7 +40,7 @@ public class Re {
     public static WorkEvent quest(String evnetName, Object input) {
         WorkEvent event = WorkEventFactory.createOrigin(evnetName);
         try {
-            WorkEventPublisher consumer = e -> {
+            WorkEventConsumer consumer = e -> {
                 e.put("input", input);
             };
 
@@ -55,7 +54,7 @@ public class Re {
     }
 
 
-    public static WorkEvent quest(String eventName, WorkEventPublisher consumer) {
+    public static WorkEvent quest(String eventName, WorkEventConsumer consumer) {
         WorkEvent event = WorkEventFactory.createOrigin(eventName);
         try {
             consumer.accept(event);
@@ -67,7 +66,7 @@ public class Re {
         return event;
     }
 
-    public static WorkEvent quest(String eventName, WorkEventPublisher eventPublisher, WorkEventConsumer eventConsumer) {
+    public static WorkEvent quest(String eventName, WorkEventConsumer eventPublisher, WorkEventConsumer eventConsumer) {
         WorkEvent event = WorkEventFactory.createOrigin(eventName);
 
         event.subscribe(eventConsumer);

@@ -15,14 +15,14 @@ import isocline.reflow.WorkEvent;
  * @since 1.8
  */
 @FunctionalInterface
-public interface WorkEventFunction {
+public interface WorkEventFunction<R> {
 
     /**
      * Performs this operation on the given argument.
      *
      * @param e the input argument
      */
-    Object apply(WorkEvent e) throws Throwable;
+    R apply(WorkEvent e) throws Throwable;
 
 
 

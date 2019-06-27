@@ -764,9 +764,6 @@ public class PlanImpl implements Plan, Activity {
 
                     fw.defineWorkFlow(wf);
 
-                }else {
-
-                    System.err.println("------sfdsdfsf");
                 }
 
                 if (!this.isDaemonMode && !workFlow.isSetFinish()) {
