@@ -22,7 +22,7 @@ public class CompletableFutureTest4 {
 
         /*
         FlowableWork flow1 = (flow) -> {
-            flow.supply(e -> price.calculatePrice(1),
+            flow.extract(e -> price.calculatePrice(1),
                     e -> price.calculatePrice(2))
                     .next((WorkEvent e) -> e.getDoubleStream().sum());
         };
@@ -39,10 +39,10 @@ public class CompletableFutureTest4 {
 
 
 
-        WorkFlow flow = WorkFlowFactory.createWorkFlow();
+        WorkFlow flow = WorkFlowFactory.create();
 
 
-        flow.supply(e -> price.calculatePrice(1),
+        flow.extract(e -> price.calculatePrice(1),
                 e -> price.calculatePrice(2))
                 .next((WorkEvent e) -> e.getDoubleStream().sum());
 

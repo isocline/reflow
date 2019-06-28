@@ -1,6 +1,6 @@
 package isocline.reflow.pattern;
 
-import isocline.reflow.flow.func.ThrowableRunFunction;
+import isocline.reflow.flow.func.WorkEventConsumer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +10,7 @@ public class SagaWorkFlow {
     private List<Basket> list = new ArrayList<>();
 
 
-    public SagaWorkFlow transaction(ThrowableRunFunction runnable, ThrowableRunFunction compentation) {
+    public SagaWorkFlow transaction(WorkEventConsumer runnable, WorkEventConsumer compentation) {
 
         list.add(new Basket(runnable, compentation));
 
@@ -22,21 +22,29 @@ public class SagaWorkFlow {
     }
 
 
-    public  class Basket {
-        private ThrowableRunFunction t;
-        private ThrowableRunFunction c;
+    public class Basket {
+        private WorkEventConsumer t;
+        private WorkEventConsumer c;
 
-        Basket(ThrowableRunFunction t, ThrowableRunFunction c) {
+        private String eventName;
+
+        Basket(WorkEventConsumer t, WorkEventConsumer c) {
             this.t = t;
             this.c = c;
+
+            this.eventName = "ST-" + t.hashCode();
         }
 
-       public  ThrowableRunFunction getTransaction() {
+        public WorkEventConsumer getTransaction() {
             return this.t;
         }
 
-        public ThrowableRunFunction getConpensation() {
+        public WorkEventConsumer getConpensation() {
             return c;
+        }
+
+        public String getEventName() {
+            return this.eventName;
         }
     }
 }

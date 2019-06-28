@@ -153,9 +153,9 @@ public class FlowableWorkTest {
 
         Re.flow(f -> {
             f
-                    .supplyAsync(e -> getExhangeRate(1000 * Math.random(), 3, 5))
-                    .supplyAsync(e -> getExhangeRate(2000, 4, 2))
-                    .supplyAsync(e -> getExhangeRate(5000 * Math.random(), 3, 4))
+                    .extractAsync(e -> getExhangeRate(1000 * Math.random(), 3, 5))
+                    .extractAsync(e -> getExhangeRate(2000, 4, 2))
+                    .extractAsync(e -> getExhangeRate(5000 * Math.random(), 3, 4))
                     .waitAll()
                     .next((WorkEvent e) -> e.getDoubleStream().sum());
         })
@@ -170,9 +170,9 @@ public class FlowableWorkTest {
 
         Re.flow(f -> {
             f
-                    .supplyAsync(e -> getExhangeRate(1000, 3, 5))
-                    .supplyAsync(e -> getExhangeRate(2000, 4, 2))
-                    .supplyAsync(e -> getExhangeRate(5000, 3, 4))
+                    .extractAsync(e -> getExhangeRate(1000, 3, 5))
+                    .extractAsync(e -> getExhangeRate(2000, 4, 2))
+                    .extractAsync(e -> getExhangeRate(5000, 3, 4))
                     .waitAll()
                     .next((WorkEvent e) -> e.getDoubleStream().sum())
                     .next((WorkEvent e) -> {
@@ -218,9 +218,9 @@ public class FlowableWorkTest {
         FlowableWork flow = (f) -> {
             f
 
-                    .supplyAsync(e -> getExhangeRate(1000 * Math.random(), 3, 5))
-                    .supplyAsync(e -> getExhangeRate(2000 * Math.random(), 4, 2))
-                    .supplyAsync(e -> getExhangeRate(5000 * Math.random(), 3, 4))
+                    .extractAsync(e -> getExhangeRate(1000 * Math.random(), 3, 5))
+                    .extractAsync(e -> getExhangeRate(2000 * Math.random(), 4, 2))
+                    .extractAsync(e -> getExhangeRate(5000 * Math.random(), 3, 4))
                     .waitAll()
                     .next((WorkEvent e) -> e.getDoubleStream().sum())
                     .next((WorkEvent e) -> {

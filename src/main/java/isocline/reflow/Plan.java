@@ -72,7 +72,7 @@ public interface Plan {
 
     Activity activate();
 
-    Activity activate(Consumer consumer);
+    <T> Activity activate(Consumer<T> consumer);
 
     Activity run();
 

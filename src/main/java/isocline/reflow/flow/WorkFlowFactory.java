@@ -31,7 +31,7 @@ public class WorkFlowFactory {
      *
      * @return WorkFlow
      */
-    public static WorkFlow createWorkFlow() {
+    public static <T> WorkFlow<T> create() {
         WorkFlowWrapper workFlowWrapper = new WorkFlowWrapper(new WorkFlowImpl());
         workFlowWrapper.next(WorkFlowFactory::dummy);
 

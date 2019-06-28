@@ -756,7 +756,7 @@ public class PlanImpl implements Plan, Activity {
                 FlowableWork fw = (FlowableWork) this.work;
 
                 if(this.workFlow==null) {
-                    this.workFlow = WorkFlowFactory.createWorkFlow();
+                    this.workFlow = WorkFlowFactory.create();
 
                     WorkFlow wf = this.workFlow
                             .next(fw::initialize);

@@ -255,12 +255,17 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
 
     public WorkFlow runAsync(Runnable... execObject) {
 
+        WorkFlow f=this;
+
         for(Runnable c:execObject) {
 
-            processRunAsync(c, null);
+            f=processRunAsync(c, null);
         }
 
-        return this.waitAll();
+
+        return f;
+
+        //return this.waitAll();
 
     }
 
@@ -301,13 +306,16 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
     public WorkFlow runAsync(WorkEventConsumer... execObject) {
 
 
+        WorkFlow f = this;
 
         for(WorkEventConsumer c:execObject) {
 
-            processRunAsync(c, null);
+            f= processRunAsync(c, null);
         }
 
-        return this.waitAll();
+        return f;
+
+        //return this.waitAll();
     }
 
     @Override
@@ -327,7 +335,7 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
 
 
     @Override
-    public <R> WorkFlow<R> supplyAsync(WorkEventFunction<? extends R>... execObject) {
+    public <R> WorkFlow<R> extractAsync(WorkEventFunction<? extends R>... execObject) {
         WorkFlow result = null;
 
         for(WorkEventFunction c:execObject) {
@@ -339,12 +347,12 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
     }
 
     @Override
-    public <R> WorkFlow<R> supplyAsync(WorkEventFunction<? extends R> execObject, String fireEventName) {
+    public <R> WorkFlow<R> extractAsync(WorkEventFunction<? extends R> execObject, String fireEventName) {
         return processRunAsync(execObject, fireEventName);
     }
 
     @Override
-    public <R> WorkFlow<R> supplyAsync(WorkEventFunction<? extends R> execObject, int count) {
+    public <R> WorkFlow<R> extractAsync(WorkEventFunction<? extends R> execObject, int count) {
         WorkFlow workFlow = null;
         for (int i = 0; i < count; i++) {
             workFlow = processRunAsync(execObject, null);
@@ -354,7 +362,7 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
     }
 
     @Override
-    public <R> WorkFlow<R> supply(WorkEventFunction<? extends R>... execObjects) {
+    public <R> WorkFlow<R> extract(WorkEventFunction<? extends R>... execObjects) {
 
         for (WorkEventFunction execObject : execObjects) {
             processRunAsync(execObject, null);
@@ -549,7 +557,7 @@ public class WorkFlowImpl<T> implements WorkFlow<T> {
     }
 
     @Override
-    public <R> WorkFlow<R> pipe(Function<? super T, ? extends R> mapper) {
+    public <R> WorkFlow<R> trans(Function<? super T, ? extends R> mapper) {
         return (WorkFlow<R>) processNext(mapper, null, false);
     }
 

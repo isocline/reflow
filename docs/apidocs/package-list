@@ -1,7 +1,10 @@
 isocline.reflow
+isocline.reflow.check
 isocline.reflow.descriptor
 isocline.reflow.event
 isocline.reflow.flow
+isocline.reflow.flow.func
 isocline.reflow.log
 isocline.reflow.module
+isocline.reflow.pattern
 isocline.reflow.web

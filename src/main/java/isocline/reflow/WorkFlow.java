@@ -121,7 +121,7 @@ public interface WorkFlow<T> {
      * @param execObject executable object
      * @return an instance of WorkFlow
      */
-    //WorkFlow supplyAsync(Consumer<? extends T> execObject);
+    //WorkFlow extractAsync(Consumer<? extends T> execObject);
 
     /**
      *
@@ -143,7 +143,7 @@ public interface WorkFlow<T> {
      * @param fireEventName name of event
      * @return an instance of WorkFlow
      */
-    //WorkFlow supplyAsync(Consumer<? extends T> execObject, String fireEventName);
+    //WorkFlow extractAsync(Consumer<? extends T> execObject, String fireEventName);
 
 
 
@@ -159,7 +159,7 @@ public interface WorkFlow<T> {
     WorkFlow<T> runAsync(Runnable execObject, int count);
 
 
-    //WorkFlow supplyAsync(Consumer<? extends T> execObject, int count);
+    //WorkFlow extractAsync(Consumer<? extends T> execObject, int count);
 
 
     WorkFlow<T>  runAsync(WorkEventConsumer... execObject);
@@ -167,12 +167,12 @@ public interface WorkFlow<T> {
     WorkFlow<T> runAsync(WorkEventConsumer execObject, int count);
 
 
-    <R> WorkFlow<R> supplyAsync(WorkEventFunction<? extends R>... execObject);
-    <R> WorkFlow<R> supplyAsync(WorkEventFunction<? extends R> execObject, String fireEventName);
-    <R> WorkFlow<R> supplyAsync(WorkEventFunction<? extends R> execObject, int count);
+    <R> WorkFlow<R> extractAsync(WorkEventFunction<? extends R>... execObject);
+    <R> WorkFlow<R> extractAsync(WorkEventFunction<? extends R> execObject, String fireEventName);
+    <R> WorkFlow<R> extractAsync(WorkEventFunction<? extends R> execObject, int count);
 
 
-    <R> WorkFlow<R> supply(WorkEventFunction<? extends R>... execObjects);
+    <R> WorkFlow<R> extract(WorkEventFunction<? extends R>... execObjects);
 
 
     WorkFlow<T> branch(ReturnEventFunction execObject);
@@ -255,7 +255,7 @@ public interface WorkFlow<T> {
 
 
 
-    <R> WorkFlow<R> pipe(Function<? super T, ? extends R> mapper);
+    <R> WorkFlow<R> trans(Function<? super T, ? extends R> mapper);
 
 
 

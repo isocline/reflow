@@ -143,28 +143,28 @@ public class WorkFlowWrapper<T> implements WorkFlow<T> {
     }
 
     @Override
-    public WorkFlow<T> supplyAsync(WorkEventFunction... execObject) {
-        this.workFlowInstance.supplyAsync(execObject);
+    public WorkFlow<T> extractAsync(WorkEventFunction... execObject) {
+        this.workFlowInstance.extractAsync(execObject);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
     @Override
-    public WorkFlow<T> supplyAsync(WorkEventFunction execObject, String fireEventName) {
-        this.workFlowInstance.supplyAsync(execObject, fireEventName);
+    public WorkFlow<T> extractAsync(WorkEventFunction execObject, String fireEventName) {
+        this.workFlowInstance.extractAsync(execObject, fireEventName);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
     @Override
-    public WorkFlow<T> supplyAsync(WorkEventFunction execObject, int count) {
-        this.workFlowInstance.supplyAsync(execObject, count);
+    public WorkFlow<T> extractAsync(WorkEventFunction execObject, int count) {
+        this.workFlowInstance.extractAsync(execObject, count);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
 
 
     @Override
-    public <R> WorkFlow<R> supply(WorkEventFunction<? extends R>... execObjects) {
-        this.workFlowInstance.supply(execObjects);
+    public <R> WorkFlow<R> extract(WorkEventFunction<? extends R>... execObjects) {
+        this.workFlowInstance.extract(execObjects);
         return (WorkFlow<R>) new WorkFlowWrapper(this.workFlowInstance);
     }
 
@@ -275,8 +275,8 @@ public class WorkFlowWrapper<T> implements WorkFlow<T> {
 
 
     @Override
-    public <R> WorkFlow<R> pipe(Function<? super T, ? extends R> mapper) {
-        this.workFlowInstance.pipe(mapper);
+    public <R> WorkFlow<R> trans(Function<? super T, ? extends R> mapper) {
+        this.workFlowInstance.trans(mapper);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
