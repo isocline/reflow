@@ -1,9 +1,6 @@
 package isocline.reflow.flow;
 
-import isocline.reflow.FlowProcessor;
-import isocline.reflow.FlowableWork;
-import isocline.reflow.WorkFlow;
-import isocline.reflow.FlowProcessorFactory;
+import isocline.reflow.*;
 import isocline.reflow.log.XLogger;
 import org.junit.Test;
 
@@ -59,11 +56,9 @@ public class BasicWorkFlowTest implements FlowableWork {
 
     @Test
     public void testStartByEvent() {
-        FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
-        processor.reflow(this).activate();
+        Re.flow(this).activate().block();
 
-        processor.awaitShutdown();
 
         assertEquals(true, chk);
 

@@ -23,8 +23,8 @@ public class CompletableFutureTest2 {
         FlowProcessor.core().reflow((WorkFlow<Double> flow) -> {
             flow
                     .next(price::print)
-                    .applyAsync(e -> price.calculatePrice(1) )
-                    .applyAsync(e -> price.calculatePrice(2) )
+                    .extractAsync(e -> price.calculatePrice(1) )
+                    .extractAsync(e -> price.calculatePrice(2) )
                     .waitAll()
                     .next((WorkEvent e) -> {
                         List<Double> list = GetResultList(e);

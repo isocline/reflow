@@ -10,7 +10,7 @@
     <version>0.9-SNAPSHOT</version>
 
     <name>Isocline Re::Flow</name>
-    <url>https://github.com/isocline/clockwork</url>
+    <url>https://github.com/isocline/reflow</url>
     <description>Multi-purpose work processing engine for JVM</description>
 
 
@@ -23,9 +23,9 @@
     <inceptionYear>2018</inceptionYear>
 
     <scm>
-        <url>https://github.com/isocline/clockwork</url>
-        <connection>scm:git:git://github.com/isocline/clockwork</connection>
-        <developerConnection>scm:git:ssh://git@github.com/isocline/clockwork.git</developerConnection>
+        <url>https://github.com/isocline/reflow</url>
+        <connection>scm:git:git://github.com/isocline/reflow</connection>
+        <developerConnection>scm:git:ssh://git@github.com/isocline/reflow.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 
@@ -112,7 +112,7 @@
                     <repositoryOwner>isocline</repositoryOwner>    <!-- github username  -->
                 </configuration>
                 <executions>
-                    <!-- applyAsync site-maven-plugin's 'site' target as part of the build's normal 'deploy' phase -->
+                    <!-- extractAsync site-maven-plugin's 'site' target as part of the build's normal 'deploy' phase -->
                     <execution>
                         <goals>
                             <goal>site</goal>

@@ -17,7 +17,7 @@ public class FunctionExecutorList {
     private List<FunctionExecutor> functionExecutorList = new ArrayList();
 
 
-    FunctionExecutorList(List<FunctionExecutor> functionExecutorList, WorkEvent event, String eventName) {
+    public FunctionExecutorList(List<FunctionExecutor> functionExecutorList, WorkEvent event, String eventName) {
         this.functionExecutorList = functionExecutorList;
 
         this.counter =  event.origin().getCounter(eventName);

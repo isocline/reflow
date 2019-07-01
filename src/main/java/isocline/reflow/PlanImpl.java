@@ -18,7 +18,6 @@ package isocline.reflow;
 import isocline.reflow.event.EventRepository;
 import isocline.reflow.event.SimultaneousEventSet;
 import isocline.reflow.event.WorkEventFactory;
-import isocline.reflow.flow.WorkFlowFactory;
 import isocline.reflow.flow.func.WorkEventConsumer;
 import isocline.reflow.log.XLogger;
 
@@ -76,7 +75,6 @@ public class PlanImpl implements Plan, Activity {
     private boolean isDaemonMode = false;
 
 
-
     private boolean isFlowableWork = false;
 
     private boolean isRunnable = false;
@@ -116,7 +114,6 @@ public class PlanImpl implements Plan, Activity {
         this.work = work;
         this.uuid = UUID.randomUUID().toString();
 
-        System.out.println("xxx 1> "+uuid);
         this.isRunnable = true;
         this.intervalTime = Work.TERMINATE;
     }
@@ -131,7 +128,6 @@ public class PlanImpl implements Plan, Activity {
         this.flowProcessor = flowProcessor;
         this.work = work;
         this.uuid = UUID.randomUUID().toString();
-        System.out.println("xxx 2> "+uuid);
 
         this.isRunnable = true;
         this.intervalTime = Work.TERMINATE;
@@ -144,12 +140,26 @@ public class PlanImpl implements Plan, Activity {
         this.isFlowableWork = true;
     }
 
+    PlanImpl(FlowProcessor flowProcessor, WorkFlow flow) {
+        FlowableWork work = workFlow -> {
+        };
+
+        this.flowProcessor = flowProcessor;
+        this.work = (Work) work;
+        this.workFlow = flow;
+
+
+        this.isFlowableWork = true;
+
+        this.uuid = UUID.randomUUID().toString();
+    }
+
+
     PlanImpl(FlowProcessor flowProcessor, Work work) {
         this.flowProcessor = flowProcessor;
         this.work = work;
 
         this.uuid = UUID.randomUUID().toString();
-        System.out.println("xxx 3> "+uuid);
     }
 
 
@@ -431,7 +441,7 @@ public class PlanImpl implements Plan, Activity {
 
         if (this.isFlowableWork) {
             this.intervalTime4Flow = intervalTime;
-        }else {
+        } else {
             this.intervalTime = intervalTime;
         }
 
@@ -644,7 +654,7 @@ public class PlanImpl implements Plan, Activity {
     public Plan on(Object... eventNames) {
         checkLocking();
 
-        for (int i=0;i<eventNames.length;i++) {
+        for (int i = 0; i < eventNames.length; i++) {
             String eventName = eventNames[i].toString();
             String[] subEventNames = eventRepository.setBindEventNames(eventName);
             for (String subEventName : subEventNames) {
@@ -698,11 +708,11 @@ public class PlanImpl implements Plan, Activity {
     @Override
     public boolean isDaemonMode() {
 
-        if(intervalTime4Flow>0) {
+        if (intervalTime4Flow > 0) {
             return true;
         }
 
-        if(isEventBindding) {
+        if (isEventBindding) {
             return true;
         }
         return this.isDaemonMode;
@@ -739,24 +749,26 @@ public class PlanImpl implements Plan, Activity {
         this.isActivated = true;
 
 
-        if(this.isFlowableWork) {
+        if (this.isFlowableWork) {
 
             if (this.work instanceof FlowableWork) {
-                this.workFlow = WorkFlowFactory.createWorkFlow();
-
                 FlowableWork fw = (FlowableWork) this.work;
 
-                WorkFlow wf = this.workFlow
-                        .next(fw::initialize);
+                if (this.workFlow == null) {
+                    this.workFlow = WorkFlow.create();
+
+                    WorkFlow wf = this.workFlow
+                            .next(fw::initialize);
 
 
-                fw.defineWorkFlow(wf);
+                    fw.defineWorkFlow(wf);
 
+                }
 
-                if (!this.isDaemonMode && !wf.isSetFinish()) {
+                if (!this.isDaemonMode && !workFlow.isSetFinish()) {
 
-                    wf.fireEvent(WorkFlow.FINISH, 0);
-                    wf.wait(WorkFlow.FINISH).end();
+                    workFlow.fireEvent(WorkFlow.FINISH, 0);
+                    workFlow.wait(WorkFlow.FINISH).end();
                 }
 
             }
@@ -819,7 +831,7 @@ public class PlanImpl implements Plan, Activity {
 
 
     public long getIntervalTime4Flow() {
-        
+
         return this.intervalTime4Flow;
 
     }
@@ -939,7 +951,11 @@ public class PlanImpl implements Plan, Activity {
             } else {
                 //System.err.println("== 2 "+originEvent.getEventName());
             }
-            event = originEvent;
+            //event = originEvent;
+
+            event = WorkEventFactory.createWithOrigin(null, originEvent);
+            event.setActivity(originEvent.getActivity());
+
         } else {
             if (originEvent == null) {
                 originEvent = inputWorkEvent;

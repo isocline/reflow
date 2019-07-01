@@ -35,26 +35,23 @@ public class EventReceiver implements Work {
     @Test
     public void basicStyle() throws Exception {
 
-        FlowProcessor processor = FlowProcessorFactory.getProcessor();
+        // Receiver
+        Re.call(new EventReceiver()).on("example-event")
+                .activate();
 
-
-        Plan schedule = processor.task(new EventReceiver()).on("example-event");
-        schedule.activate();
-
-
+        // Emitter
         WorkEventGenerator gen = new WorkEventGenerator();
         gen.setEventName("example-event");
 
-
-        processor.task(gen)
-
+        Re.call(gen)
                 .strictMode()
+                .interval(1 * Time.SECOND)
                 .startTime(Time.nextSecond())
                 .finishTimeFromNow(30 * Time.SECOND)
                 .activate();
 
 
-        processor.shutdown(TestConfiguration.TIMEOUT);
+        FlowProcessor.core().shutdown(TestConfiguration.TIMEOUT);
     }
 
 
@@ -64,11 +61,7 @@ public class EventReceiver implements Work {
         FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-
-
         processor.task(new EventReceiver(), "example-event").activate();
-
-
 
 
         WorkEventGenerator gen = new WorkEventGenerator();

@@ -153,9 +153,9 @@ public class FlowableWorkTest {
 
         Re.flow(f -> {
             f
-                    .applyAsync(e -> getExhangeRate(1000 * Math.random(), 3, 5))
-                    .applyAsync(e -> getExhangeRate(2000, 4, 2))
-                    .applyAsync(e -> getExhangeRate(5000 * Math.random(), 3, 4))
+                    .extractAsync(e -> getExhangeRate(1000 * Math.random(), 3, 5))
+                    .extractAsync(e -> getExhangeRate(2000, 4, 2))
+                    .extractAsync(e -> getExhangeRate(5000 * Math.random(), 3, 4))
                     .waitAll()
                     .next((WorkEvent e) -> e.getDoubleStream().sum());
         })
@@ -170,9 +170,9 @@ public class FlowableWorkTest {
 
         Re.flow(f -> {
             f
-                    .applyAsync(e -> getExhangeRate(1000, 3, 5))
-                    .applyAsync(e -> getExhangeRate(2000, 4, 2))
-                    .applyAsync(e -> getExhangeRate(5000, 3, 4))
+                    .extractAsync(e -> getExhangeRate(1000, 3, 5))
+                    .extractAsync(e -> getExhangeRate(2000, 4, 2))
+                    .extractAsync(e -> getExhangeRate(5000, 3, 4))
                     .waitAll()
                     .next((WorkEvent e) -> e.getDoubleStream().sum())
                     .next((WorkEvent e) -> {
@@ -187,13 +187,13 @@ public class FlowableWorkTest {
 
         WorkEventGenerator generator = new WorkEventGenerator("calc", 400);
 
-        Re.task(generator)
+        Re.call(generator)
                 .startTime(Time.nextSecond())
                 .finishTimeFromStart(3 * Time.SECOND)
                 .strictMode()
                 .activate();
 
-        logger.debug("task define completed");
+        logger.debug("call define completed");
 
         long t1 = System.currentTimeMillis();
         Thread.sleep(2000);
@@ -218,9 +218,9 @@ public class FlowableWorkTest {
         FlowableWork flow = (f) -> {
             f
 
-                    .applyAsync(e -> getExhangeRate(1000 * Math.random(), 3, 5))
-                    .applyAsync(e -> getExhangeRate(2000 * Math.random(), 4, 2))
-                    .applyAsync(e -> getExhangeRate(5000 * Math.random(), 3, 4))
+                    .extractAsync(e -> getExhangeRate(1000 * Math.random(), 3, 5))
+                    .extractAsync(e -> getExhangeRate(2000 * Math.random(), 4, 2))
+                    .extractAsync(e -> getExhangeRate(5000 * Math.random(), 3, 4))
                     .waitAll()
                     .next((WorkEvent e) -> e.getDoubleStream().sum())
                     .next((WorkEvent e) -> {
@@ -247,7 +247,7 @@ public class FlowableWorkTest {
 
 
     /***
-     * Test for event emiting frame external task process
+     * Test for event emiting frame external call process
      *
      * @throws Exception
      */
@@ -267,7 +267,7 @@ public class FlowableWorkTest {
                 .activate();
 
 
-        Re.task((WorkEvent e) -> {
+        Re.call((WorkEvent e) -> {
 
             e.put("result", "skkim");
 

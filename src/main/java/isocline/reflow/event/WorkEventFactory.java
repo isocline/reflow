@@ -36,7 +36,10 @@ public class WorkEventFactory {
         event.setEventName(eventName);
         */
 
-        return new WorkEventImpl(eventName,originEvent);
+        WorkEventImpl newEvent = new WorkEventImpl(eventName,originEvent);
+        //newEvent.attributeMap =  ( (WorkEventImpl) originEvent).attributeMap;
+
+        return newEvent;
     }
 
 

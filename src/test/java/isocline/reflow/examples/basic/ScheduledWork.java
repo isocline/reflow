@@ -1,6 +1,7 @@
 package isocline.reflow.examples.basic;
 
 import isocline.reflow.*;
+import isocline.reflow.descriptor.CronDescriptor;
 import isocline.reflow.examples.TestConfiguration;
 import isocline.reflow.log.XLogger;
 import org.junit.Test;
@@ -20,22 +21,30 @@ public class ScheduledWork implements Work {
     }
 
     @Test
-    public void case1() throws Exception {
+    public void caseSchedule() throws Exception {
 
-        FlowProcessor processor = FlowProcessorFactory.getProcessor();
-
-
-        Activity schedule = processor.task(new ScheduledWork())
+        Re.call(new ScheduledWork())
                 .interval(1 * Time.HOUR)
                 .startTime("2020-04-24T09:00:00Z")
                 .finishTime("2020-06-16T16:00:00Z")
                 .activate();
 
 
-        processor.shutdown(TestConfiguration.TIMEOUT);
+        FlowProcessor.core().shutdown(TestConfiguration.TIMEOUT);
         //processor.awaitShutdown();
+    }
 
 
+    @Test
+    public void caseCron() throws Exception {
+
+        Re.call(new CronDescriptor("* 1,4-6 * * *"), new ScheduledWork())
+                .finishTime("2020-06-16T16:00:00Z")
+                .activate();
+
+
+        FlowProcessor.core().shutdown(TestConfiguration.TIMEOUT);
+        //processor.awaitShutdown();
     }
 
 
@@ -43,7 +52,6 @@ public class ScheduledWork implements Work {
     public void case2() throws Exception {
 
         FlowProcessor manager = FlowProcessorFactory.getProcessor();
-
 
 
         Plan schedule = manager.task(ScheduledWork.class);
@@ -59,7 +67,6 @@ public class ScheduledWork implements Work {
     public void caseStrictMode() throws Exception {
 
         FlowProcessor processor = FlowProcessorFactory.getProcessor();
-
 
 
         Plan schedule = processor.task(ScheduledWork.class);
@@ -78,11 +85,10 @@ public class ScheduledWork implements Work {
         FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-
         Plan schedule = processor.task(ScheduledWork.class);
 
         schedule.interval(1 * Time.SECOND);
-        schedule.initialDelay(Time.milliseconds(0,0,2));
+        schedule.initialDelay(Time.milliseconds(0, 0, 2));
         schedule.activate();
 
 
@@ -96,11 +102,10 @@ public class ScheduledWork implements Work {
         FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-
         Plan schedule = processor.task(ScheduledWork.class);
 
         schedule.interval(1 * Time.SECOND);
-        schedule.startTime(Time.nextSecond()+ Time.SECOND*2);
+        schedule.startTime(Time.nextSecond() + Time.SECOND * 2);
         schedule.activate();
 
 
