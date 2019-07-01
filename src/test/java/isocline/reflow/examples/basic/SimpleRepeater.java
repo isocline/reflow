@@ -24,18 +24,28 @@ public class SimpleRepeater implements Work {
     @Test
     public void case1() throws Exception {
 
-
-        Plan Plan = FlowProcessor.core()
-                .task(new SimpleRepeater())
+        Re.call(new SimpleRepeater())
                 .interval(1 * Time.SECOND)
-                .finishTimeFromNow(5 * Time.SECOND);
-
-        Plan.activate().block();
+                .finishTimeFromNow(5 * Time.SECOND)
+                .activate();
 
         FlowProcessor.core().shutdown(TestConfiguration.TIMEOUT);
         //processor.awaitShutdown();
+    }
 
 
+    @Test
+    public void startMethod() throws Exception {
+
+        Re.call( (WorkEvent event) -> {
+            // DO YOUR WORK
+            return 10 * Time.SECOND;
+        })
+                .finishTimeFromNow(5 * Time.SECOND)
+                .activate();
+
+        FlowProcessor.core().shutdown(TestConfiguration.TIMEOUT);
+        //processor.awaitShutdown();
     }
 
 

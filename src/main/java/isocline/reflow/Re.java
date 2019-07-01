@@ -33,6 +33,11 @@ public class Re {
     }
 
 
+    public static Plan call( PlanDescriptor descriptor, Work work) {
+
+        return FlowProcessor.core().task(descriptor, work);
+    }
+
     public static FlowProcessor quest(WorkEvent event) {
         return FlowProcessor.core().emit(event);
     }

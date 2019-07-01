@@ -1,6 +1,6 @@
 
 
-# re:Flow
+# re:Flow [Alpha Version]
 ### Multi-purpose event flow processing engine for JVM,Android,IoT and Edge Computing
 
 <img src="https://raw.github.com/isocline/reflow/master/docs/img/title.png" width="300">
@@ -61,7 +61,7 @@ Modern Reflow versions have the following Java requirements:
 
 ### Simple Repeater
 
-Repeated tasks every 10 seconds
+Repeated tasks every 1 seconds
 
 ```java
 import isocline.reflow.*;
@@ -79,13 +79,10 @@ public class SimpleRepeater implements Work {
     @Test
     public void startMethod() throws Exception {
 
-        WorkProcessor processor = WorkProcessorFactory.getDefaultProcessor();
-
-        WorkSchedule schedule = processor.createSchedule(new SimpleRepeater())
-            .setRepeatInterval(10 * Clock.SECOND)
-            .activate();
-
-        processor.shutdown(2000); // wait until 2000 milli seconds
+        Re.call(new SimpleRepeater())
+                .interval(1 * Time.SECOND)
+                .finishTimeFromNow(5 * Time.SECOND)
+                .activate();
     }
 
 }
@@ -100,15 +97,12 @@ public class SimpleRepeater  {
     @Test
     public void startMethod() throws Exception {
 
-        WorkProcessor processor = WorkProcessorFactory.getDefaultProcessor();
-
-        processor.createSchedule((WorkEvent event) -> {
-                     // DO YOUR WORK
-                    return 10 * Clock.SECOND;
-                }).activate();
-
-
-        processor.shutdown(2000); // wait until 2000 milli seconds
+        Re.call( (WorkEvent event) -> {
+            // DO YOUR WORK
+            return 10 * Time.SECOND;
+        })
+                .finishTimeFromNow(5 * Time.SECOND)
+                .activate();
     }
 
 }
@@ -136,13 +130,10 @@ public class PreciseRepeater implements Work {
     @Test
     public void startMethod() throws Exception {
 
-        WorkProcessor processor = WorkProcessorFactory.getDefaultProcessor();
-
-        WorkSchedule schedule = processor.createSchedule(new PreciseRepeater())
-            .setStrictMode()
-            .activate();
-
-        processor.shutdown(2000); // wait until 2000 milli seconds
+        Re.call(new PreciseRepeater())
+                .strictMode()
+                .activate();
+ 
     }
 
 }
@@ -170,7 +161,7 @@ Repeated tasks every 1 hour
 ```java
 import isocline.reflow.*;
 
-public class SimpleRepeater implements Work {
+public class ScheduledWork implements Work {
 
 
     public long execute(WorkEvent event) throws InterruptedException {
@@ -183,16 +174,11 @@ public class SimpleRepeater implements Work {
     @Test
     public void startMethod() throws Exception {
 
-        WorkProcessor processor = WorkProcessorFactory.getDefaultProcessor();
-
-        WorkSchedule schedule = processor.createSchedule(new ScheduledWork())
-                        .setRepeatInterval(1 * Clock.HOUR)
-                        .setStartDateTime("2020-04-24T09:00:00Z")
-                        .setFinishDateTime("2020-06-16T16:00:00Z")
-                        .activate();
-
-
-        //processor.shutdown();
+        Re.call(new ScheduledWork())
+                .interval(1 * Time.HOUR)
+                .startTime("2020-04-24T09:00:00Z")
+                .finishTime("2020-06-16T16:00:00Z")
+                .activate();
     }
 
 }
@@ -204,7 +190,7 @@ Or crontab style
 import isocline.reflow.*;
 import isocline.reflow.descriptor.CronDescriptor;
 
-public class SimpleRepeater implements Work {
+public class ScheduledWork implements Work {
 
 
     public long execute(WorkEvent event) throws InterruptedException {
@@ -217,16 +203,9 @@ public class SimpleRepeater implements Work {
     @Test
     public void startMethod() throws Exception {
 
-        WorkProcessor processor = WorkProcessorFactory.getDefaultProcessor();
-        
-        WorkSchedule schedule = processor
-                        .createSchedule( new CronDescriptor("* 1,4-6 * * *"), new ScheduledWork())
-                        .setStartDateTime("2020-04-24T09:00:00Z")
-                        .setFinishDateTime("2020-06-16T16:00:00Z")
-                        .activate();
-
-
-        //processor.shutdown();
+        Re.call(new CronDescriptor("* 1,4-6 * * *"), new ScheduledWork())
+                .finishTime("2020-06-16T16:00:00Z")
+                .activate();
     }
 
 }
@@ -252,25 +231,21 @@ public class EventReceiver implements Work {
     @Test
     public void startMethod() throws Exception {
 
-        WorkProcessor processor = WorkProcessorFactory.getDefaultProcessor();
-        
-        WorkSchedule schedule = processor.createSchedule(new EventReceiver())
-                .bindEvent("example-event")
+
+        // Receiver
+        Re.call(this).on("example-event")
                 .activate();
-        
-        
-        // generate event
-        processor.createSchedule((WorkEvent event) -> {
-            
-                        event.getWorkSchedule().getWorkProcessor()
-                        .raiseEvent(event.createChild("example-event"));
-                        
-                        return 2 * Clock.SECOND; // every 2 seconds
-                        
-                        }).activate();
 
+        // Emitter
+        WorkEventGenerator gen = new WorkEventGenerator();
+        gen.setEventName("example-event");
 
-        //processor.shutdown();
+        Re.call(gen)
+                .strictMode()
+                .interval(1 * Time.SECOND)
+                .startTime(Time.nextSecond())
+                .finishTimeFromNow(30 * Time.SECOND)
+                .activate();
     }
 
 }
@@ -329,10 +304,9 @@ public class BasicWorkFlowTest implements FlowableWork {
 
     @Test
     public void startMethod() {
-        WorkProcessor processor = WorkProcessorFactory.getDefaultProcessor();
-        processor.createSchedule(this).activate();       
-        processor.awaitShutdown();
-
+        Re.flow(this).activate(); // Async
+        
+        // Re.flow(this).activate().block(); // sync mode
     }
 
 }

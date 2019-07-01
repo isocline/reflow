@@ -21,13 +21,12 @@ public class PreciseRepeater implements Work {
     @Test
     public void case1() throws Exception {
 
-        FlowProcessor processor = FlowProcessorFactory.getProcessor();
+        Re.call(new PreciseRepeater())
+                .strictMode()
+                .activate();
 
-        Plan schedule = processor.task(new PreciseRepeater()).strictMode();
 
-        schedule.activate();
-
-        processor.shutdown(TestConfiguration.TIMEOUT);
+        FlowProcessor.core().shutdown(TestConfiguration.TIMEOUT);
     }
 
 }
