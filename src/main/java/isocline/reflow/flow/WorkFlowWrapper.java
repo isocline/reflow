@@ -20,19 +20,21 @@ import isocline.reflow.WorkFlow;
 import isocline.reflow.WorkFlowPattern;
 import isocline.reflow.flow.func.*;
 
-import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class WorkFlowWrapper<T> implements WorkFlow<T> {
+public class WorkFlowWrapper<T> extends WorkFlow<T> {
 
     protected WorkFlow workFlowInstance;
 
     private String cursor;
 
 
-    protected WorkFlowWrapper(WorkFlow workFlow) {
+    public WorkFlowWrapper(WorkFlow workFlow) {
+        super();
+
         this.workFlowInstance = workFlow;
         this.cursor = workFlow.cursor();
+
     }
 
 
@@ -95,7 +97,6 @@ public class WorkFlowWrapper<T> implements WorkFlow<T> {
         this.workFlowInstance.runAsync(execObject);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
-
 
 
     @Override
@@ -161,18 +162,11 @@ public class WorkFlowWrapper<T> implements WorkFlow<T> {
     }
 
 
-
     @Override
     public <R> WorkFlow<R> extract(WorkEventFunction<? extends R>... execObjects) {
         this.workFlowInstance.extract(execObjects);
         return (WorkFlow<R>) new WorkFlowWrapper(this.workFlowInstance);
     }
-
-
-
-
-
-
 
 
     @Override
@@ -206,22 +200,28 @@ public class WorkFlowWrapper<T> implements WorkFlow<T> {
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
-
-
-    //@Override
+/*
+    @Override
     public WorkFlow<T> next(Consumer<? super T> execObject) {
         this.workFlowInstance.next(execObject);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
 
-
-    // @Override
+    @Override
     public WorkFlow<T> next(Consumer<? super T> execObject, String eventName) {
         this.workFlowInstance.next(execObject, eventName);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
+
+
+    @Override
+    public WorkFlow<T> next(Consumer<? super T> execObject, FnExecFeatureFunction fnExecFeatureFunction) {
+        this.workFlowInstance.next(execObject, fnExecFeatureFunction);
+        return new WorkFlowWrapper(this.workFlowInstance);
+    }
+*/
 
     @Override
     public WorkFlow<T> next(WorkEventConsumer execObject) {
@@ -234,7 +234,6 @@ public class WorkFlowWrapper<T> implements WorkFlow<T> {
         this.workFlowInstance.next(execObject, eventName);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
-
 
 
     @Override
@@ -250,13 +249,7 @@ public class WorkFlowWrapper<T> implements WorkFlow<T> {
     }
 
     @Override
-    public WorkFlow<T> next(ThrowableRunFunction  execObject, FnExecFeatureFunction fnExecFeatureFunction) {
-        this.workFlowInstance.next(execObject, fnExecFeatureFunction);
-        return new WorkFlowWrapper(this.workFlowInstance);
-    }
-
-    @Override
-    public WorkFlow<T> next(Consumer<? super T> execObject, FnExecFeatureFunction fnExecFeatureFunction) {
+    public WorkFlow<T> next(ThrowableRunFunction execObject, FnExecFeatureFunction fnExecFeatureFunction) {
         this.workFlowInstance.next(execObject, fnExecFeatureFunction);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
@@ -266,6 +259,7 @@ public class WorkFlowWrapper<T> implements WorkFlow<T> {
         this.workFlowInstance.next(execObject, fnExecFeatureFunction);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
+
 
     @Override
     public <R> WorkFlow<R> next(WorkEventFunction<? extends R> execObject, FnExecFeatureFunction fnExecFeatureFunction) {

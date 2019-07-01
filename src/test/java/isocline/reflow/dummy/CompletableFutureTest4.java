@@ -4,7 +4,6 @@ import isocline.reflow.FlowProcessor;
 import isocline.reflow.Re;
 import isocline.reflow.WorkEvent;
 import isocline.reflow.WorkFlow;
-import isocline.reflow.flow.WorkFlowFactory;
 import org.junit.Test;
 
 /**
@@ -39,7 +38,7 @@ public class CompletableFutureTest4 {
 
 
 
-        WorkFlow flow = WorkFlowFactory.create();
+        WorkFlow flow = WorkFlow.create();
 
 
         flow.extract(e -> price.calculatePrice(1),

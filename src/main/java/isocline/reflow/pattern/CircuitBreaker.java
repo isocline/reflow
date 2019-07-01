@@ -41,7 +41,7 @@ public class CircuitBreaker implements WorkFlowPattern {
         this.timeoutEventName = "timeout-" + this.hashCode();
     }
 
-    public void setMaxFailCount(int maxFailCount) {
+    public void maxFailCount(int maxFailCount) {
         this.maxFailCount = maxFailCount;
     }
 
@@ -112,18 +112,35 @@ public class CircuitBreaker implements WorkFlowPattern {
         flow.onError("*").next(this::error).end();
     }
 
+    private WorkFlow flow;
 
-    public static WorkFlow apply(WorkFlow flow, Consumer<CircuitBreaker> config, Consumer<WorkFlow> func) {
 
+    public static CircuitBreaker init(WorkFlow flow) {
+        return init(flow, null);
+    }
+
+
+    public static CircuitBreaker init(WorkFlow flow, Consumer<CircuitBreaker> config) {
         CircuitBreaker circuitBreaker = new CircuitBreaker("wqe");
 
-        config.accept(circuitBreaker);
+        if(config!=null) {
+            config.accept(circuitBreaker);
+        }
 
-        circuitBreaker.startFlow(flow);
+        circuitBreaker.flow = flow;
+
+        return circuitBreaker;
+    }
+
+    public WorkFlow apply(Consumer<WorkFlow> func) {
+
+
+
+        this.startFlow(flow);
 
         func.accept(flow);
 
-        circuitBreaker.endFlow(flow);
+        this.endFlow(flow);
 
 
         return flow;

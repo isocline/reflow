@@ -1,7 +1,6 @@
 package isocline.reflow.pattern;
 
 import isocline.reflow.*;
-import isocline.reflow.flow.WorkFlowFactory;
 import isocline.reflow.log.XLogger;
 import org.junit.Test;
 
@@ -51,16 +50,14 @@ public class CircuitBreakerTest extends TestBase {
     public static int count = 0;
 
 
-
-
     public void startTest() {
 
-        WorkFlow flow = WorkFlowFactory.create();
+        WorkFlow flow = WorkFlow.create();
 
-        CircuitBreaker.apply(flow, conf -> {
-            conf.setMaxFailCount(3);
+        CircuitBreaker.init(flow, conf -> {
+            conf.maxFailCount(3);
 
-        }, f -> {
+        }).apply(f -> {
             f.next(this::callService1);
         });
 

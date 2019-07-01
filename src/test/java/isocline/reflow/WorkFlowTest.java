@@ -1,6 +1,5 @@
 package isocline.reflow;
 
-import isocline.reflow.flow.WorkFlowFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -25,7 +24,7 @@ public class WorkFlowTest extends TestBase {
     public void textTrans() {
         TestService svc = new TestService();
 
-        WorkFlow<Void> flow = WorkFlowFactory.create();
+        WorkFlow<Void> flow = WorkFlow.create();
 
         flow.extract(svc::extractor).trans(svc::test1).trans(svc::test2).end();
 
@@ -37,7 +36,7 @@ public class WorkFlowTest extends TestBase {
     public void textRunAsync() {
         TestService svc = new TestService();
 
-        WorkFlow<Void> flow = WorkFlowFactory.create();
+        WorkFlow<Void> flow = WorkFlow.create();
 
         flow.runAsync(svc::exec1);
         flow.runAsync(svc::exec2);
@@ -60,7 +59,7 @@ public class WorkFlowTest extends TestBase {
     public void textRunAsyncMulti() {
         TestService svc = new TestService();
 
-        WorkFlow<Void> flow = WorkFlowFactory.create();
+        WorkFlow<Void> flow = WorkFlow.create();
 
         flow.runAsync(svc::exec1, 5);
 

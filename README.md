@@ -1,6 +1,6 @@
 
 
-# Re:flow
+# re:Flow
 ### Multi-purpose event flow processing engine for JVM,Android,IoT and Edge Computing
 
 <img src="https://raw.github.com/isocline/reflow/master/docs/img/title.png" width="300">
@@ -9,7 +9,7 @@
 [![Build Status](https://travis-ci.org/isocline/clockwork.svg?branch=develop)](https://travis-ci.org/isocline/clockwork)
 
 
-**Re:flow** is a powerful integrated workflow engine that combines various workflow methods into one. 
+**re:Flow** is a powerful integrated workflow engine that combines various workflow methods into one. 
 In some cases, real-time processing may be required, but in some cases, 
 it must be executed after some event processing. Or at a particular time, like a scheduler, Many things need to be done.
 There are cases where other work processing methods are combined. 

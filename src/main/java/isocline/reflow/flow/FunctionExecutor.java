@@ -88,14 +88,14 @@ public class FunctionExecutor<T, R> implements FunctionExecFeature {
     private ReturnEventFunction returnEventFunction = null;
 
 
-    FunctionExecutor() {
+    public FunctionExecutor() {
         this.fireEventUUID = getUUID();
 
         addFailFireEventName(WorkEventKey.PREFIX_ERROR + this.fireEventUUID);
     }
 
 
-    FunctionExecutor(Object obj) {
+    public FunctionExecutor(Object obj) {
 
         if (obj != null) {
             if (obj instanceof Runnable) {

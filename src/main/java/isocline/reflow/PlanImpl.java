@@ -18,7 +18,6 @@ package isocline.reflow;
 import isocline.reflow.event.EventRepository;
 import isocline.reflow.event.SimultaneousEventSet;
 import isocline.reflow.event.WorkEventFactory;
-import isocline.reflow.flow.WorkFlowFactory;
 import isocline.reflow.flow.func.WorkEventConsumer;
 import isocline.reflow.log.XLogger;
 
@@ -74,7 +73,6 @@ public class PlanImpl implements Plan, Activity {
     private boolean isEventBindding = false;
 
     private boolean isDaemonMode = false;
-
 
 
     private boolean isFlowableWork = false;
@@ -143,7 +141,8 @@ public class PlanImpl implements Plan, Activity {
     }
 
     PlanImpl(FlowProcessor flowProcessor, WorkFlow flow) {
-        FlowableWork work = workFlow->{};
+        FlowableWork work = workFlow -> {
+        };
 
         this.flowProcessor = flowProcessor;
         this.work = (Work) work;
@@ -442,7 +441,7 @@ public class PlanImpl implements Plan, Activity {
 
         if (this.isFlowableWork) {
             this.intervalTime4Flow = intervalTime;
-        }else {
+        } else {
             this.intervalTime = intervalTime;
         }
 
@@ -655,7 +654,7 @@ public class PlanImpl implements Plan, Activity {
     public Plan on(Object... eventNames) {
         checkLocking();
 
-        for (int i=0;i<eventNames.length;i++) {
+        for (int i = 0; i < eventNames.length; i++) {
             String eventName = eventNames[i].toString();
             String[] subEventNames = eventRepository.setBindEventNames(eventName);
             for (String subEventName : subEventNames) {
@@ -709,11 +708,11 @@ public class PlanImpl implements Plan, Activity {
     @Override
     public boolean isDaemonMode() {
 
-        if(intervalTime4Flow>0) {
+        if (intervalTime4Flow > 0) {
             return true;
         }
 
-        if(isEventBindding) {
+        if (isEventBindding) {
             return true;
         }
         return this.isDaemonMode;
@@ -750,13 +749,13 @@ public class PlanImpl implements Plan, Activity {
         this.isActivated = true;
 
 
-        if(this.isFlowableWork) {
+        if (this.isFlowableWork) {
 
             if (this.work instanceof FlowableWork) {
                 FlowableWork fw = (FlowableWork) this.work;
 
-                if(this.workFlow==null) {
-                    this.workFlow = WorkFlowFactory.create();
+                if (this.workFlow == null) {
+                    this.workFlow = WorkFlow.create();
 
                     WorkFlow wf = this.workFlow
                             .next(fw::initialize);
@@ -832,7 +831,7 @@ public class PlanImpl implements Plan, Activity {
 
 
     public long getIntervalTime4Flow() {
-        
+
         return this.intervalTime4Flow;
 
     }
@@ -954,7 +953,7 @@ public class PlanImpl implements Plan, Activity {
             }
             //event = originEvent;
 
-            event = WorkEventFactory.createWithOrigin(null,originEvent);
+            event = WorkEventFactory.createWithOrigin(null, originEvent);
             event.setActivity(originEvent.getActivity());
 
         } else {

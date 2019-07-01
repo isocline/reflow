@@ -1,7 +1,6 @@
 package isocline.reflow.pattern;
 
 import isocline.reflow.*;
-import isocline.reflow.flow.WorkFlowFactory;
 import isocline.reflow.log.XLogger;
 import org.junit.Test;
 
@@ -48,11 +47,11 @@ public class SagaTest extends TestBase {
     @Test
     public void startBasic() {
 
-        WorkFlow f = WorkFlowFactory.create();
+        WorkFlow f = WorkFlow.create();
 
         f.next(this::init);
 
-        Saga.apply(f, f2 -> {
+        Saga.init(f).apply(f2 -> {
             f2.transaction(this::callSvc1, this::compensateSvc1);
             f2.transaction(this::callSvc2, this::compensateSvc2);
             f2.transaction(this::callSvc3, this::compensateSvc3);
@@ -62,4 +61,6 @@ public class SagaTest extends TestBase {
         Re.flow(f).activate();
 
     }
+
+
 }
