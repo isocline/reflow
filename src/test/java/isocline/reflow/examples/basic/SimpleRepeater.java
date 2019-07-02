@@ -24,7 +24,7 @@ public class SimpleRepeater implements Work {
     @Test
     public void case1() throws Exception {
 
-        Re.call(new SimpleRepeater())
+        Re.play(new SimpleRepeater())
                 .interval(1 * Time.SECOND)
                 .finishTimeFromNow(5 * Time.SECOND)
                 .activate();
@@ -37,7 +37,7 @@ public class SimpleRepeater implements Work {
     @Test
     public void startMethod() throws Exception {
 
-        Re.call( (WorkEvent event) -> {
+        Re.play( (WorkEvent event) -> {
             // DO YOUR WORK
             return 10 * Time.SECOND;
         })

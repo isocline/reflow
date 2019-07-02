@@ -21,7 +21,7 @@ public class PreciseRepeater implements Work {
     @Test
     public void case1() throws Exception {
 
-        Re.call(new PreciseRepeater())
+        Re.play(new PreciseRepeater())
                 .strictMode()
                 .activate();
 

@@ -36,14 +36,14 @@ public class EventReceiver implements Work {
     public void basicStyle() throws Exception {
 
         // Receiver
-        Re.call(new EventReceiver()).on("example-event")
+        Re.play(new EventReceiver()).on("example-event")
                 .activate();
 
         // Emitter
         WorkEventGenerator gen = new WorkEventGenerator();
         gen.setEventName("example-event");
 
-        Re.call(gen)
+        Re.play(gen)
                 .strictMode()
                 .interval(1 * Time.SECOND)
                 .startTime(Time.nextSecond())

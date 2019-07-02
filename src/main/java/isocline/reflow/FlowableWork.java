@@ -21,8 +21,8 @@ import isocline.reflow.flow.FunctionExecutor;
 import isocline.reflow.flow.FunctionExecutorList;
 
 /**
- * It is an interface that enables call control.
- * If you want to control call with several methods in an object that implements this interface, you can inherit the interface.
+ * It is an interface that enables play control.
+ * If you want to control play with several methods in an object that implements this interface, you can inherit the interface.
  *
  * @see isocline.reflow.Work
  */
@@ -40,24 +40,24 @@ public interface FlowableWork<T> extends Work {
 
 
     /**
-     * It is a method that must be implemented in order to do call control.
+     * It is a method that must be implemented in order to do play control.
      * <p>
      * <strong>Example:</strong>
      * <blockquote>
      * <pre>
      *
-     *  public void defineWorkFlow(WorkFlow call) {
+     *  public void defineWorkFlow(WorkFlow play) {
      *    // step1 : activate this.checkMemory() then activate this.checkStorage()
-     *    WorkFlow p1 = call.next(this::checkMemory).next(this::checkStorage);
+     *    WorkFlow p1 = play.next(this::checkMemory).next(this::checkStorage);
      *
      *    // Until wait inactive of step1, then this.sendSignal()
-     *    WorkFlow t1 = call.wait(p1).next(this::sendSignal);
+     *    WorkFlow t1 = play.wait(p1).next(this::sendSignal);
      *
      *    // Until wait inactive of step1, then this.sendStatusMsg() and this.sendReportMsg()
-     *    WorkFlow t2 = call.wait(p1).next(this::sendStatusMsg).next(this::sendReportMsg);
+     *    WorkFlow t2 = play.wait(p1).next(this::sendStatusMsg).next(this::sendReportMsg);
      *
      *    // Wait until both step1 and step2 are finished, then activate this.report()
-     *    call.waitAll(t1, t2).next(this::report).inactive();
+     *    play.waitAll(t1, t2).next(this::report).inactive();
      *  }
      * </pre>
      * </blockquote>

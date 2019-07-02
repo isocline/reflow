@@ -141,7 +141,7 @@ public class ReceiveTest {
         WorkEventGenerator generator = new WorkEventGenerator();
         generator.setEventName("rcv");
 
-        Re.call(generator).interval(500, 200).strictMode().activate();
+        Re.play(generator).interval(500, 200).strictMode().activate();
 
 
         WorkEvent e = WorkEventFactory.createOrigin().subscribe(event -> {
@@ -182,8 +182,8 @@ public class ReceiveTest {
         WorkEventGenerator generator = new WorkEventGenerator();
         generator.setEventName("rcv");
 
-        //Re.call(generator).interval(500, 200).strictMode().activate();
-        Re.call(e -> {
+        //Re.play(generator).interval(500, 200).strictMode().activate();
+        Re.play(e -> {
 
 
             WorkEvent newEvent = e;
@@ -245,7 +245,7 @@ public class ReceiveTest {
         Re.flow(new PubSubBroker()).on("rcv").daemonMode().activate();
 
 
-        Re.call(e -> {
+        Re.play(e -> {
 
 
             WorkEvent newEvent = e;

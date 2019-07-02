@@ -13,27 +13,27 @@ public class Re {
         return FlowProcessor.core().reflow(flow);
     }
 
-    public static Plan call(Runnable runnable) {
+    public static Plan play(Runnable runnable) {
         return FlowProcessor.core().task(runnable);
     }
 
 
-    public static Plan call(WorkEventConsumer work) {
+    public static Plan play(WorkEventConsumer work) {
         return FlowProcessor.core().task(work);
     }
 
-    public static Plan call(Work work) {
+    public static Plan play(Work work) {
         return FlowProcessor.core().task(work);
     }
 
 
-    public static Plan call(Work work, String... eventNames) {
+    public static Plan play(Work work, String... eventNames) {
 
         return FlowProcessor.core().task(work, eventNames);
     }
 
 
-    public static Plan call( PlanDescriptor descriptor, Work work) {
+    public static Plan play(PlanDescriptor descriptor, Work work) {
 
         return FlowProcessor.core().task(descriptor, work);
     }

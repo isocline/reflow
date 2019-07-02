@@ -17,8 +17,8 @@ package isocline.reflow;
 
 
 /**
- * It is an interface that enables call control.
- * If you want to control call with several methods in an object that implements this interface, you can inherit the interface.
+ * It is an interface that enables play control.
+ * If you want to control play with several methods in an object that implements this interface, you can inherit the interface.
  *
  * @see Work
  */

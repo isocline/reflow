@@ -27,7 +27,7 @@ public class WorkTest {
     public void executeSimple() throws Exception {
 
 
-        Re.call(e -> {
+        Re.play(e -> {
             seq++;
             logger.debug("exec " + seq);
 
@@ -43,7 +43,7 @@ public class WorkTest {
     public void executeSimple2() throws Exception {
 
 
-        Re.call(e -> {
+        Re.play(e -> {
             seq++;
             logger.debug("exec " + seq);
 
@@ -64,9 +64,9 @@ public class WorkTest {
 
         count = 0;
 
-        Re.call(() -> {
+        Re.play(() -> {
             count++;
-            logger.debug("Hello Re.call ! ");
+            logger.debug("Hello Re.play ! ");
         })
                 .interval(1000)
                 .finishTimeFromNow(Time.SECOND * 3)
@@ -81,9 +81,9 @@ public class WorkTest {
 
         count = 0;
 
-        Re.call((WorkEvent e) -> {
+        Re.play((WorkEvent e) -> {
             count++;
-            logger.debug("Hello Re.call ! "
+            logger.debug("Hello Re.play ! "
                     + e.origin().get("z"));
             return Work.WAIT;
         })
@@ -92,7 +92,7 @@ public class WorkTest {
                 .activate();
 
 
-        Re.call(() -> {
+        Re.play(() -> {
             System.out.println("FIRE");
             Re.quest("test", e -> e.put("z", "zz").put("z", "sdf"));
         })
@@ -108,7 +108,7 @@ public class WorkTest {
     @Test
     public void executeByEvent() throws Exception {
 
-        Activity plan = Re.call((WorkEvent event) -> {
+        Activity plan = Re.play((WorkEvent event) -> {
             seq++;
             logger.debug("exec " + seq + " event:" + event.getEventName());
 
@@ -116,7 +116,7 @@ public class WorkTest {
         }, "testEvent").activate();
 
 
-        Re.call((WorkEvent event) -> {
+        Re.play((WorkEvent event) -> {
             logger.debug("fire event:" + event.getEventName());
 
             event.getActivity().getFlowProcessor().emit("testEvent", event);
@@ -136,7 +136,7 @@ public class WorkTest {
     public void executeOneTime() throws Exception {
 
 
-        Plan plan = Re.call((WorkEvent event) -> {
+        Plan plan = Re.play((WorkEvent event) -> {
             seq++;
             logger.debug("exec " + seq);
 
@@ -153,7 +153,7 @@ public class WorkTest {
     @Test
     public void executeSleep() throws Exception {
 
-        Plan plan = Re.call((WorkEvent event) -> {
+        Plan plan = Re.play((WorkEvent event) -> {
             seq++;
             logger.debug("exec " + seq);
 
@@ -169,7 +169,7 @@ public class WorkTest {
     @Test
     public void executeLoop() throws Exception {
 
-        Plan plan = Re.call((WorkEvent event) -> {
+        Plan plan = Re.play((WorkEvent event) -> {
             seq++;
             logger.debug("exec " + seq);
 
@@ -198,7 +198,7 @@ public class WorkTest {
         };
 
 
-        Re.call(runnable)
+        Re.play(runnable)
                 .initialDelay(2 * Time.SECOND)
                 .activate()
                 .block();
