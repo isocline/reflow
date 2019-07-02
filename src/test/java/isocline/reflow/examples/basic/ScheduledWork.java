@@ -23,7 +23,7 @@ public class ScheduledWork implements Work {
     @Test
     public void caseSchedule() throws Exception {
 
-        Re.call(new ScheduledWork())
+        Re.play(new ScheduledWork())
                 .interval(1 * Time.HOUR)
                 .startTime("2020-04-24T09:00:00Z")
                 .finishTime("2020-06-16T16:00:00Z")
@@ -38,7 +38,7 @@ public class ScheduledWork implements Work {
     @Test
     public void caseCron() throws Exception {
 
-        Re.call(new CronDescriptor("* 1,4-6 * * *"), new ScheduledWork())
+        Re.play(new CronDescriptor("* 1,4-6 * * *"), new ScheduledWork())
                 .finishTime("2020-06-16T16:00:00Z")
                 .activate();
 

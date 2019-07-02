@@ -285,7 +285,7 @@ public class FunctionExecutor<T, R> implements FunctionExecFeature {
     @Override
     public FunctionExecFeature before(String... eventNames) {
         if(this.beforeFireEventNames!=null) {
-            throw new IllegalStateException("The duplicate method call is not prohibited");
+            throw new IllegalStateException("The duplicate method play is not prohibited");
         }
         this.beforeFireEventNames = eventNames;
         return this;
@@ -294,7 +294,7 @@ public class FunctionExecutor<T, R> implements FunctionExecFeature {
     @Override
     public FunctionExecFeature success(String... eventNames) {
         if(this.sucessFireEventNames!=null) {
-            throw new IllegalStateException("The duplicate method call is not prohibited");
+            throw new IllegalStateException("The duplicate method play is not prohibited");
         }
         this.sucessFireEventNames = eventNames;
         return this;
@@ -317,7 +317,7 @@ public class FunctionExecutor<T, R> implements FunctionExecFeature {
     @Override
     public FunctionExecFeature end(String... eventNames) {
         if(this.endFireEventNames!=null) {
-            throw new IllegalStateException("The duplicate method call is not prohibited");
+            throw new IllegalStateException("The duplicate method play is not prohibited");
         }
         this.endFireEventNames = eventNames;
         return this;

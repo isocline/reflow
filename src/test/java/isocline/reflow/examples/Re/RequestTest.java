@@ -131,7 +131,7 @@ public class RequestTest {
         };
 
 
-        Re.call(flowableWork)
+        Re.play(flowableWork)
                 .on("lxq://local/biz/chk")
                 .daemonMode()
                 .activate();

@@ -97,7 +97,7 @@ public class SimpleRepeater  {
     @Test
     public void startMethod() throws Exception {
 
-        Re.call( (WorkEvent event) -> {
+        Re.play( (WorkEvent event) -> {
             // DO YOUR WORK
             return 10 * Time.SECOND;
         })
@@ -130,7 +130,7 @@ public class PreciseRepeater implements Work {
     @Test
     public void startMethod() throws Exception {
 
-        Re.call(new PreciseRepeater())
+        Re.play(new PreciseRepeater())
                 .strictMode()
                 .activate();
  
@@ -174,7 +174,7 @@ public class ScheduledWork implements Work {
     @Test
     public void startMethod() throws Exception {
 
-        Re.call(new ScheduledWork())
+        Re.play(new ScheduledWork())
                 .interval(1 * Time.HOUR)
                 .startTime("2020-04-24T09:00:00Z")
                 .finishTime("2020-06-16T16:00:00Z")
@@ -203,7 +203,7 @@ public class ScheduledWork implements Work {
     @Test
     public void startMethod() throws Exception {
 
-        Re.call(new CronDescriptor("* 1,4-6 * * *"), new ScheduledWork())
+        Re.play(new CronDescriptor("* 1,4-6 * * *"), new ScheduledWork())
                 .finishTime("2020-06-16T16:00:00Z")
                 .activate();
     }
@@ -233,14 +233,14 @@ public class EventReceiver implements Work {
 
 
         // Receiver
-        Re.call(this).on("example-event")
+        Re.play(this).on("example-event")
                 .activate();
 
         // Emitter
         WorkEventGenerator gen = new WorkEventGenerator();
         gen.setEventName("example-event");
 
-        Re.call(gen)
+        Re.play(gen)
                 .strictMode()
                 .interval(1 * Time.SECOND)
                 .startTime(Time.nextSecond())
