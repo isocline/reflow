@@ -6,7 +6,7 @@
 <img src="https://raw.github.com/isocline/reflow/master/docs/img/title.png" width="300">
 
 
-[![Build Status](https://travis-ci.org/isocline/clockwork.svg?branch=develop)](https://travis-ci.org/isocline/clockwork)
+[![Build Status](https://travis-ci.org/isocline/reflow.svg)](https://travis-ci.org/isocline/reflow)
 
 
 **re:Flow** is a powerful integrated workflow engine that combines various workflow methods into one. 
@@ -79,7 +79,7 @@ public class SimpleRepeater implements Work {
     @Test
     public void startMethod() throws Exception {
 
-        Re.call(new SimpleRepeater())
+        Re.play(new SimpleRepeater())
                 .interval(1 * Time.SECOND)
                 .finishTimeFromNow(5 * Time.SECOND)
                 .activate();
