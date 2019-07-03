@@ -115,7 +115,7 @@ public class WorkTest extends TestBase {
 
             int seq = getCounter("executeByEvent").addAndGet(1);
 
-            logger.debug("exec " + seq + " event:" + event.getEventName());
+            logger.debug("executeByEvent " + seq + " event:" + event.getEventName());
 
             return Work.WAIT;
         }, "testEvent").activate();
@@ -160,12 +160,12 @@ public class WorkTest extends TestBase {
 
         Plan plan = Re.play((WorkEvent event) -> {
             int seq=getCounter("executeSleep").addAndGet(1);
-            logger.debug("exec " + seq);
+            logger.debug("executeSleep " + seq);
 
             return Work.WAIT;
         });
 
-        plan.activate().block(100);
+        plan.activate().block(300);
 
         assertEquals(1, getCounter("executeSleep").get());
 
