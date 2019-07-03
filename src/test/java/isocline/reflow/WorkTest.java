@@ -8,11 +8,10 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 
-public class WorkTest {
+public class WorkTest extends TestBase {
 
     private static XLogger logger = XLogger.getLogger(WorkTest.class);
 
-    private int seq;
 
     private FlowProcessor flowProcessor;
 
@@ -28,14 +27,16 @@ public class WorkTest {
 
 
         Re.play(e -> {
-            seq++;
+
+            int seq= getCounter("executeSimple").addAndGet(1);
+
             logger.debug("exec " + seq);
 
             return Work.TERMINATE;
         }).activate().block();
 
 
-        assertEquals(1, seq);
+        assertEquals(1, getCounter("executeSimple").get());
 
     }
 
@@ -44,7 +45,8 @@ public class WorkTest {
 
 
         Re.play(e -> {
-            seq++;
+            int seq=getCounter("executeSimple2").addAndGet(1);
+
             logger.debug("exec " + seq);
 
             return Work.TERMINATE;
@@ -53,7 +55,7 @@ public class WorkTest {
         }).block();
 
 
-        assertEquals(1, seq);
+        assertEquals(1, getCounter("executeSimple2").get());
 
     }
 
@@ -79,10 +81,10 @@ public class WorkTest {
     @Test
     public void executeSimple4() throws Exception {
 
-        count = 0;
 
         Re.play((WorkEvent e) -> {
-            count++;
+
+            getCounter("executeSimple4").addAndGet(1);
             logger.debug("Hello Re.play ! "
                     + e.origin().get("z"));
             return Work.WAIT;
@@ -101,15 +103,18 @@ public class WorkTest {
                 .finishTimeFromStart(5 * Time.SECOND)
                 .activate().block();
 
-        Assert.assertEquals(3, count);
+        Assert.assertEquals(3, getCounter("executeSimple4").get());
     }
 
 
     @Test
     public void executeByEvent() throws Exception {
 
+
         Activity plan = Re.play((WorkEvent event) -> {
-            seq++;
+
+            int seq = getCounter("executeByEvent").addAndGet(1);
+
             logger.debug("exec " + seq + " event:" + event.getEventName());
 
             return Work.WAIT;
@@ -127,7 +132,7 @@ public class WorkTest {
         plan.block(1000);
 
 
-        assertEquals(1, seq);
+        assertEquals(1, getCounter("executeByEvent").get());
 
     }
 
@@ -137,7 +142,7 @@ public class WorkTest {
 
 
         Plan plan = Re.play((WorkEvent event) -> {
-            seq++;
+            int seq = getCounter("executeOneTime").addAndGet(1);
             logger.debug("exec " + seq);
 
             return Work.TERMINATE;
@@ -146,7 +151,7 @@ public class WorkTest {
         plan.activate().block(1000);
 
 
-        assertEquals(1, seq);
+        assertEquals(1, getCounter("executeOneTime").get());
 
     }
 
@@ -154,7 +159,7 @@ public class WorkTest {
     public void executeSleep() throws Exception {
 
         Plan plan = Re.play((WorkEvent event) -> {
-            seq++;
+            int seq=getCounter("executeSleep").addAndGet(1);
             logger.debug("exec " + seq);
 
             return Work.WAIT;
@@ -162,7 +167,7 @@ public class WorkTest {
 
         plan.activate().block(100);
 
-        assertEquals(1, seq);
+        assertEquals(1, getCounter("executeSleep").get());
 
     }
 
@@ -170,7 +175,7 @@ public class WorkTest {
     public void executeLoop() throws Exception {
 
         Plan plan = Re.play((WorkEvent event) -> {
-            seq++;
+            int seq = getCounter("executeLoop").addAndGet(1);
             logger.debug("exec " + seq);
 
             if (seq == 10) {
@@ -183,7 +188,7 @@ public class WorkTest {
 
         plan.activate().block(100);
 
-        assertEquals(10, seq);
+        assertEquals(10, getCounter("executeLoop").get());
 
     }
 
@@ -191,10 +196,10 @@ public class WorkTest {
     @Test
     public void executeRunnable() throws Exception {
 
-        seq = 0;
+
         Runnable runnable = () -> {
             logger.debug("runnable");
-            seq++;
+            getCounter("executeRunnable").addAndGet(1);
         };
 
 
@@ -204,7 +209,7 @@ public class WorkTest {
                 .block();
 
 
-        assertEquals(1, seq);
+        assertEquals(1, getCounter("executeRunnable").get());
 
     }
 

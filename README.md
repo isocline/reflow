@@ -29,6 +29,8 @@ and code each time using a different API The Flow Processor can solve this probl
 - **Easy coding**: Simple, easy to understand coding method, the code is straightforward.
 - **Small footprint library**: Provides a tiny size library without compromising other libraries.
 
+## re:Flow is not
+- **Data flow** : re:Flow is process flow management but is not data flow based on DAG(Direct acycle graph)
 Download
 --------
 
