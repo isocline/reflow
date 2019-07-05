@@ -1,4 +1,4 @@
-package isocline.reflow.dummy;
+package isocline.reflow._dummy;
 
 public class Test4_m2 extends Test4_m{
 
