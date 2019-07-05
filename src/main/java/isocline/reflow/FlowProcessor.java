@@ -40,30 +40,30 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class FlowProcessor extends ThreadGroup {
 
-    protected static XLogger logger = XLogger.getLogger(FlowProcessor.class);
+    private static final XLogger logger = XLogger.getLogger(FlowProcessor.class);
 
 
-    private String name;
+    private final String name;
 
     private boolean isWorking = false;
 
     private int checkpointWorkQueueSize = 500;
 
 
-    private Configuration configuration;
+    private final Configuration configuration;
 
-    private List<ThreadWorker> threadWorkers = new ArrayList<>();
+    private final List<ThreadWorker> threadWorkers = new ArrayList<>();
 
-    private AtomicInteger currentThreadWorkerCount = new AtomicInteger(0);
+    private final AtomicInteger currentThreadWorkerCount = new AtomicInteger(0);
 
-    private BlockingQueue<PlanImpl.ExecuteContext> workQueue;
+    private final BlockingQueue<PlanImpl.ExecuteContext> workQueue;
 
     private WorkChecker workChecker;
 
-    private Map<String, WorkScheduleList> eventMap = new ConcurrentHashMap<>();
+    private final Map<String, WorkScheduleList> eventMap = new ConcurrentHashMap<>();
 
 
-    AtomicInteger managedWorkCount = new AtomicInteger(0);
+    final AtomicInteger managedWorkCount = new AtomicInteger(0);
 
 
     private static FlowProcessor defaultFlowProcessor;
@@ -74,7 +74,7 @@ public class FlowProcessor extends ThreadGroup {
     public static FlowProcessor core() {
 
 
-        if (defaultFlowProcessor == null || !defaultFlowProcessor.isWorking()) {
+        if (defaultFlowProcessor == null || defaultFlowProcessor.isWorkingStatus()) {
             defaultFlowProcessor = new FlowProcessor("default", getDefaultConfiguration());
         }
 
@@ -152,17 +152,13 @@ public class FlowProcessor extends ThreadGroup {
 
     public Plan reflow(FlowableWork<?> workFlow) {
 
-        Plan Plan = new PlanImpl(this, workFlow);
 
-
-        return Plan;
+        return new PlanImpl(this, workFlow);
     }
 
     public Plan reflow(WorkFlow flow) {
 
-        Plan Plan = new PlanImpl(this, flow);
-
-        return Plan;
+        return new PlanImpl(this, flow);
     }
 
 
@@ -328,7 +324,7 @@ public class FlowProcessor extends ThreadGroup {
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception ignored) {
 
         }
 
@@ -394,7 +390,7 @@ public class FlowProcessor extends ThreadGroup {
 
         try {
             super.destroy();
-        } catch (IllegalThreadStateException ite) {
+        } catch (IllegalThreadStateException ignored) {
 
         } finally {
             logger.info(this.name + " shutdown");
@@ -471,7 +467,7 @@ public class FlowProcessor extends ThreadGroup {
     private void waiting(long t) {
         try {
             Thread.sleep(t);
-        } catch (InterruptedException e) {
+        } catch (InterruptedException ignored) {
 
         }
     }
@@ -525,7 +521,7 @@ public class FlowProcessor extends ThreadGroup {
                 ThreadWorker mon = threadWorkers.get(0);
                 mon.stopWorking();
                 return true;
-            } catch (Exception e) {
+            } catch (Exception ignored) {
 
             }
         }
@@ -651,8 +647,8 @@ public class FlowProcessor extends ThreadGroup {
 
     }
 
-    public boolean isWorking() {
-        return this.isWorking;
+    public boolean isWorkingStatus() {
+        return !this.isWorking;
     }
 
 
@@ -713,7 +709,7 @@ public class FlowProcessor extends ThreadGroup {
      ****************************************/
     static final class ThreadWorker extends Thread {
 
-        private FlowProcessor flowProcessor;
+        private final FlowProcessor flowProcessor;
 
 
         private int timeoutCount = 0;
@@ -724,7 +720,7 @@ public class FlowProcessor extends ThreadGroup {
 
         private boolean isThreadRunning = false;
 
-        private String uuid;
+        private final String uuid;
 
         private static int totalCount = 0;
 
@@ -732,7 +728,7 @@ public class FlowProcessor extends ThreadGroup {
 
         private int maxWaitTime = 2000;
 
-        private static AtomicInteger runningCounter = new AtomicInteger(0);
+        private static final AtomicInteger runningCounter = new AtomicInteger(0);
 
         public ThreadWorker(FlowProcessor parent, int threadPriority) {
             super(parent, "Re.flow " + parent.currentThreadWorkerCount);
@@ -1047,7 +1043,7 @@ public class FlowProcessor extends ThreadGroup {
                             case ENTER_EXEC_QUEUE2:
                                 try {
                                     this.flowProcessor.workQueue.put(plan.enterQueue(false));
-                                } catch (InterruptedException ite) {
+                                } catch (InterruptedException ignored) {
 
                                 }
 
@@ -1107,9 +1103,9 @@ public class FlowProcessor extends ThreadGroup {
      */
     static final class WorkChecker extends Thread {
 
-        private FlowProcessor flowProcessor;
+        private final FlowProcessor flowProcessor;
 
-        private BlockingQueue<WorkScheduleWrapper> statusWrappers = new LinkedBlockingQueue<>();
+        private final BlockingQueue<WorkScheduleWrapper> statusWrappers = new LinkedBlockingQueue<>();
 
         WorkChecker(FlowProcessor flowProcessor) {
             this.flowProcessor = flowProcessor;
@@ -1175,7 +1171,7 @@ public class FlowProcessor extends ThreadGroup {
 
                     try {
                         Thread.sleep(200);
-                    } catch (Exception ee) {
+                    } catch (Exception ignored) {
 
                     }
                 }

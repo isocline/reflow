@@ -1,10 +1,9 @@
 package isocline.reflow.examples.microservices.pattern;
 
-import isocline.reflow.FlowProcessor;
+import isocline.reflow.Re;
 import isocline.reflow.TestUtil;
 import isocline.reflow.WorkEvent;
 import isocline.reflow.log.XLogger;
-import isocline.reflow.pattern.Timeout;
 import org.junit.Test;
 
 public class TimeoutPattern {
@@ -33,17 +32,13 @@ public class TimeoutPattern {
     @Test
     public void startTest() {
 
-        FlowProcessor.core()
+        Re.flow(flow -> {
 
-                .reflow(flow -> {
 
-                    flow.pattern(
-                            Timeout.setup(6000), () -> {
-                                flow.next(this::callService1).end();
-                            }
-                    );
+            flow.next(this::callService1 , conf->conf.timeout(500)).end();
 
-                }).activate().block();
+
+        }).activate().block();
     }
 
 

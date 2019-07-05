@@ -94,12 +94,11 @@ public class WorkFlow<T> {
     }
 
     public WorkFlow<T> onError(String... eventNames) {
-        String[] inputEventNameArray = eventNames;
-        for (int i = 0; i < inputEventNameArray.length; i++) {
-            inputEventNameArray[i] = WorkEventKey.PREFIX_ERROR + inputEventNameArray[i];
+        for (int i = 0; i < eventNames.length; i++) {
+            eventNames[i] = WorkEventKey.PREFIX_ERROR + eventNames[i];
         }
 
-        wait(inputEventNameArray);
+        wait(eventNames);
 
         return this;
     }
@@ -108,18 +107,16 @@ public class WorkFlow<T> {
 
         clearLastFunctionExecutor();
 
-        String[] inputEventNameArray = eventNames;
-
 
         String[] newEventNameArray;
         if (regReadyEventNameArray != null) {
-            newEventNameArray = new String[regReadyEventNameArray.length + inputEventNameArray.length];
+            newEventNameArray = new String[regReadyEventNameArray.length + eventNames.length];
 
             System.arraycopy(regReadyEventNameArray, 0, newEventNameArray, 0, regReadyEventNameArray.length);
-            System.arraycopy(inputEventNameArray, 0, newEventNameArray, regReadyEventNameArray.length, inputEventNameArray.length);
+            System.arraycopy(eventNames, 0, newEventNameArray, regReadyEventNameArray.length, eventNames.length);
 
         } else {
-            newEventNameArray = inputEventNameArray;
+            newEventNameArray = eventNames;
         }
 
         regReadyEventNameArray = newEventNameArray;
@@ -208,8 +205,8 @@ public class WorkFlow<T> {
     }
 
 
-    public WorkFlow<T> onError() {
-        return onError(this);
+    public WorkFlow<T> onError(WorkEventConsumer consumer) {
+        return onError(this).next(consumer);
     }
 
     /**
@@ -560,18 +557,6 @@ public class WorkFlow<T> {
     }
 
 
-    public WorkFlow pattern(WorkFlowPattern pattern, WorkFlowPatternFunction... funcs) {
-
-        pattern.startFlow(this);
-
-        for (int i = 0; i < funcs.length; i++) {
-            funcs[i].design();
-            pattern.middleFlow(this, i);
-        }
-
-        pattern.endFlow(this);
-        return this;
-    }
 
     WorkFlow<T> processNext(Object execObject, String eventName, boolean allowFuncInfNull) {
         return processNext(execObject, eventName, allowFuncInfNull, false, 0);

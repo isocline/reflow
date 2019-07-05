@@ -8,9 +8,9 @@ import java.util.Map;
 public class Timeout implements WorkFlowPattern {
 
 
-    private long timeout;
+    private final long timeout;
 
-    private String timeoutEventName;
+    private final String timeoutEventName;
 
     private static Map<String, Timeout> map = new HashMap<>();
 

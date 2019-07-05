@@ -18,4 +18,8 @@ public interface FunctionExecFeature {
     FunctionExecFeature timeout(long timeoutMillis, String... eventNames);
 
 
+    FunctionExecFeature circuitBreak(String id, int maxFailCount,long recoveryWaitTime);
+
+
+
 }

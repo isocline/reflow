@@ -15,6 +15,7 @@
  */
 package isocline.reflow.flow;
 
+import isocline.reflow.FlowProcessException;
 import isocline.reflow.FunctionExecFeature;
 import isocline.reflow.WorkEvent;
 import isocline.reflow.WorkHelper;
@@ -22,6 +23,8 @@ import isocline.reflow.event.WorkEventImpl;
 import isocline.reflow.event.WorkEventKey;
 import isocline.reflow.flow.func.*;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -37,7 +40,6 @@ public class FunctionExecutor<T, R> implements FunctionExecFeature {
     private static short nonce = -1;
 
     private boolean isLastExecutor = false;
-
 
 
     private String recvEventName;
@@ -73,7 +75,6 @@ public class FunctionExecutor<T, R> implements FunctionExecFeature {
 
 
     private Function<? super T, ? extends R> function = null;
-
 
 
     private ThrowableRunFunction throwableRunFunction = null;
@@ -120,8 +121,7 @@ public class FunctionExecutor<T, R> implements FunctionExecFeature {
                 this.throwableRunFunction = (ThrowableRunFunction) obj;
             } else if (obj instanceof Function) {
                 this.function = (Function) obj;
-            }
-            else {
+            } else {
                 throw new IllegalArgumentException("Not Support type");
             }
         }
@@ -133,8 +133,7 @@ public class FunctionExecutor<T, R> implements FunctionExecFeature {
 
     private String getUUID() {
         nonce++;
-        String uuid = WorkEventKey.PREFIX_FUNC_UUID+nonce + "x" + String.valueOf(this.hashCode());
-        return uuid;
+        return WorkEventKey.PREFIX_FUNC_UUID + nonce + "x" + String.valueOf(this.hashCode());
     }
 
     public String getFireEventUUID() {
@@ -157,20 +156,19 @@ public class FunctionExecutor<T, R> implements FunctionExecFeature {
         addFailFireEventName(WorkEventKey.PREFIX_ERROR + eventName);
 
 
-
     }
 
     private void addFailFireEventName(String... failEventName) {
-        if(failFireEventNames==null) {
+        if (failFireEventNames == null) {
             failFireEventNames = failEventName;
 
-        }else {
+        } else {
             final int oldSize = failFireEventNames.length;
-            final int newSize = failFireEventNames.length+failEventName.length;
+            final int newSize = failFireEventNames.length + failEventName.length;
             String[] newFailFireEventNames = new String[newSize];
 
-            System.arraycopy(failFireEventNames, 0, newFailFireEventNames,0, failFireEventNames.length);
-            System.arraycopy(failEventName, 0, newFailFireEventNames,oldSize, failEventName.length);
+            System.arraycopy(failFireEventNames, 0, newFailFireEventNames, 0, failFireEventNames.length);
+            System.arraycopy(failEventName, 0, newFailFireEventNames, oldSize, failEventName.length);
 
             failFireEventNames = newFailFireEventNames;
         }
@@ -207,15 +205,13 @@ public class FunctionExecutor<T, R> implements FunctionExecFeature {
     }
 
 
-
     private AtomicInteger getCallCounter(WorkEvent event) {
 
         WorkEvent origin = event.origin();
 
-        String countKeyName = this.fireEventUUID+"<count>";
-        AtomicInteger count = origin.getCounter(countKeyName);
+        String countKeyName = this.fireEventUUID + "<count>";
 
-        return count;
+        return origin.getCounter(countKeyName);
     }
 
 
@@ -228,7 +224,6 @@ public class FunctionExecutor<T, R> implements FunctionExecFeature {
 
         AtomicInteger counter = getCallCounter(event);
         int cnt = counter.addAndGet(1);
-
 
 
         if (maxCallCount > 0 && maxCallCount <= cnt) {
@@ -266,9 +261,9 @@ public class FunctionExecutor<T, R> implements FunctionExecFeature {
             }
 
 
-        }else if (throwableRunFunction != null) {
+        } else if (throwableRunFunction != null) {
             throwableRunFunction.run();
-        }else if(function!=null) {
+        } else if (function != null) {
             T t = (T) WorkHelper.Get(event);
             R r = function.apply(t);
 
@@ -284,7 +279,7 @@ public class FunctionExecutor<T, R> implements FunctionExecFeature {
 
     @Override
     public FunctionExecFeature before(String... eventNames) {
-        if(this.beforeFireEventNames!=null) {
+        if (this.beforeFireEventNames != null) {
             throw new IllegalStateException("The duplicate method play is not prohibited");
         }
         this.beforeFireEventNames = eventNames;
@@ -293,7 +288,7 @@ public class FunctionExecutor<T, R> implements FunctionExecFeature {
 
     @Override
     public FunctionExecFeature success(String... eventNames) {
-        if(this.sucessFireEventNames!=null) {
+        if (this.sucessFireEventNames != null) {
             throw new IllegalStateException("The duplicate method play is not prohibited");
         }
         this.sucessFireEventNames = eventNames;
@@ -316,16 +311,54 @@ public class FunctionExecutor<T, R> implements FunctionExecFeature {
 
     @Override
     public FunctionExecFeature end(String... eventNames) {
-        if(this.endFireEventNames!=null) {
+        if (this.endFireEventNames != null) {
             throw new IllegalStateException("The duplicate method play is not prohibited");
         }
         this.endFireEventNames = eventNames;
         return this;
     }
 
+    private CircuitBreakInfo circuitBreakInfo;
+
+    @Override
+    public FunctionExecFeature circuitBreak(String id, int maxFailCount, long recoveryWaitTime) {
+
+        this.circuitBreakInfo = circuitBreakInfoMap.computeIfAbsent(id, k -> {
+            CircuitBreakInfo newInfo = new CircuitBreakInfo();
+            newInfo.maxFailCount = maxFailCount;
+            newInfo.recoveryWaitTime = recoveryWaitTime;
+
+            return newInfo;
+        });
+
+        return this;
+    }
+
+    public void onFail() {
+        if (circuitBreakInfo != null) {
+            circuitBreakInfo.onFail();
+        }
+    }
+
+    public void onSuccess() {
+        if (circuitBreakInfo != null) {
+            circuitBreakInfo.onSuccess();
+        }
+
+    }
+
+    public void check() {
+        if (circuitBreakInfo != null) {
+            circuitBreakInfo.check();
+        }
+
+
+    }
+
     public long getTimeout() {
         return this.timeout;
     }
+
     public String[] getBeforeFireEventNames() {
         return this.beforeFireEventNames;
     }
@@ -343,7 +376,6 @@ public class FunctionExecutor<T, R> implements FunctionExecFeature {
     }
 
 
-
     public String[] getTimeoutFireEventNames() {
         return this.timeoutFireEventNames;
     }
@@ -351,9 +383,9 @@ public class FunctionExecutor<T, R> implements FunctionExecFeature {
 
     final public static class ResultState {
 
-        private String fireEventUUID;
-        private String fireEventName;
-        private boolean isProcessNext;
+        private final String fireEventUUID;
+        private final String fireEventName;
+        private final boolean isProcessNext;
 
         ResultState(String fireEventUUID, String fireEventName, boolean isProcessNext) {
             this.fireEventUUID = fireEventUUID;
@@ -374,5 +406,55 @@ public class FunctionExecutor<T, R> implements FunctionExecFeature {
             return this.isProcessNext;
         }
 
+    }
+
+    private static final Map<String, CircuitBreakInfo> circuitBreakInfoMap = new HashMap<>();
+
+    final private static class CircuitBreakInfo {
+        private int maxFailCount;
+        private long recoveryWaitTime;
+        private long lastFailTime = 0;
+        private final AtomicInteger failCounter = new AtomicInteger(0);
+
+        private boolean checkFail = true;
+
+        private void onFail() {
+
+            if(checkFail) {
+                int s = this.failCounter.addAndGet(1);
+            }
+        }
+
+        private void onSuccess() {
+            this.failCounter.set(0);
+        }
+
+        void check() {
+            //System.out.println("CHK  "+failCounter.get() + " "+maxFailCount);
+            if (failCounter.get() > maxFailCount) {
+
+                if (lastFailTime > 0) {
+                    long t1 = System.currentTimeMillis();
+                    long t2 = lastFailTime + recoveryWaitTime;
+
+                    if (t1 > t2) {
+                        lastFailTime = 0;
+                        return;
+                    }else {
+                        checkFail = false;
+                        throw new FlowProcessException("Circuit Breaker");
+                    }
+                } else {
+                    lastFailTime = System.currentTimeMillis();
+                    checkFail = false;
+                    throw new FlowProcessException("Circuit Breaker");
+
+                }
+
+
+            }
+
+            checkFail = true;
+        }
     }
 }

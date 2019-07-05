@@ -10,10 +10,6 @@ import java.util.List;
 public class WorkHelper {
 
 
-    public static Activity Reflow(FlowableWork workFlow) {
-        return FlowProcessor.core().reflow(workFlow).activate().block();
-    }
-
     @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
     public static List GetResultList(WorkEvent e) {
 

@@ -14,9 +14,9 @@ import java.util.stream.Stream;
 public class PubSubBroker implements FlowableWork {
 
 
-    private XLogger logger = XLogger.getLogger(PubSubBroker.class);
+    private final XLogger logger = XLogger.getLogger(PubSubBroker.class);
 
-    private Map<String, WorkEvent> eventMap = new ConcurrentHashMap<>();
+    private final Map<String, WorkEvent> eventMap = new ConcurrentHashMap<>();
 
     private WorkEvent[] workEvents = null;
 
@@ -26,17 +26,17 @@ public class PubSubBroker implements FlowableWork {
 
     private Stream<WorkEvent> stream;
 
-    private int pararrelSize = 4;
+    private final int pararrelSize = 4;
 
     private int realPararrelSize = 0;
 
-    private int minUnitSize = 1;
+    private final int minUnitSize = 1;
 
     private boolean isNeedMakeArray = false;
 
-    private AtomicInteger seqCounter = new AtomicInteger();
+    private final AtomicInteger seqCounter = new AtomicInteger();
 
-    public int getPararrelSize() {
+    private int getPararrelSize() {
         return this.pararrelSize;
     }
 

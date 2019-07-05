@@ -17,16 +17,15 @@ package isocline.reflow.flow;
 
 import isocline.reflow.WorkEvent;
 import isocline.reflow.WorkFlow;
-import isocline.reflow.WorkFlowPattern;
 import isocline.reflow.flow.func.*;
 
 import java.util.function.Function;
 
 public class WorkFlowWrapper<T> extends WorkFlow<T> {
 
-    protected WorkFlow workFlowInstance;
+    private final WorkFlow workFlowInstance;
 
-    private String cursor;
+    private final String cursor;
 
 
     public WorkFlowWrapper(WorkFlow workFlow) {
@@ -87,8 +86,8 @@ public class WorkFlowWrapper<T> extends WorkFlow<T> {
     }
 
     @Override
-    public WorkFlow<T> onError() {
-        this.workFlowInstance.onError(this);
+    public WorkFlow<T> onError(WorkEventConsumer consumer) {
+        this.workFlowInstance.onError(consumer);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
@@ -286,11 +285,6 @@ public class WorkFlowWrapper<T> extends WorkFlow<T> {
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
-    @Override
-    public WorkFlow<T> pattern(WorkFlowPattern pattern, WorkFlowPatternFunction... functions) {
-        this.workFlowInstance.pattern(pattern, functions);
-        return new WorkFlowWrapper(this.workFlowInstance);
-    }
 
     @Override
     public WorkFlow<T> fireEvent(String eventName, long time) {

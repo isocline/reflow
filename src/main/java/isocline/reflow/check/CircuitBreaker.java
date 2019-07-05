@@ -8,23 +8,21 @@ import java.util.Map;
 
 public class CircuitBreaker {
 
-    private String id;
+    private final String id;
     private int failCount;
 
     private long lastFailTime = 0;
 
     private int maxFailCount = 3;
 
-    private long retryTimeGap = Time.SECOND * 10;
+    private final long retryTimeGap = Time.SECOND * 10;
 
 
-    private static Map<String, CircuitBreaker> map = new HashMap<>();
+    private static final Map<String, CircuitBreaker> map = new HashMap<>();
 
     public static CircuitBreaker create(String id) {
 
-        CircuitBreaker circuitBreaker = map.computeIfAbsent(id, CircuitBreaker::new);
-
-        return circuitBreaker;
+        return map.computeIfAbsent(id, CircuitBreaker::new);
     }
 
 

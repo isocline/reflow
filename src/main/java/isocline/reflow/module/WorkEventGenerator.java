@@ -26,7 +26,7 @@ import isocline.reflow.log.XLogger;
 public class WorkEventGenerator implements Work {
 
 
-    private static XLogger logger = XLogger.getLogger(WorkEventGenerator.class);
+    private static final XLogger logger = XLogger.getLogger(WorkEventGenerator.class);
 
     private long intervalTime = Work.WAIT;
 

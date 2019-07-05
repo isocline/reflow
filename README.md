@@ -111,7 +111,7 @@ public class SimpleRepeater  {
 }
 ```
 
-Real-time processing mode: Repeats exactly in milliseconds
+Real-time (Time sensitive) processing mode: Repeats exactly in milliseconds
 
 ```java
 

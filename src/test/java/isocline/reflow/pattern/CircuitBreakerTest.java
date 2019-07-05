@@ -55,7 +55,11 @@ public class CircuitBreakerTest extends TestBase {
         WorkFlow flow = WorkFlow.create();
 
         CircuitBreaker.init(flow, conf -> {
-            conf.maxFailCount(3);
+            conf
+                    .id("test")
+                    .maxFailCount(3)
+                    .timeout(500);
+
 
         }).apply(f -> {
             f.next(this::callService1);

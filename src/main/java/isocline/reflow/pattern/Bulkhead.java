@@ -29,9 +29,7 @@ public class Bulkhead implements WorkFlowPattern {
 
     public static Bulkhead create(String id) {
 
-        Bulkhead circuitBreaker = map.computeIfAbsent(id, Bulkhead::new);
-
-        return circuitBreaker;
+        return map.computeIfAbsent(id, Bulkhead::new);
     }
 
 

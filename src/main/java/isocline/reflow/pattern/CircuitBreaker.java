@@ -1,99 +1,29 @@
 package isocline.reflow.pattern;
 
-import isocline.reflow.Time;
-import isocline.reflow.WorkEvent;
-import isocline.reflow.WorkFlow;
-import isocline.reflow.WorkFlowPattern;
+import isocline.reflow.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 public class CircuitBreaker implements WorkFlowPattern {
 
 
-    private String id;
-    private int failCount;
-
-    private long lastFailTime = 0;
-
-    private int maxFailCount = 3;
-
-    private long retryTimeGap = Time.SECOND * 10;
-
-    private long timeout = 3000;
-
-    private String timeoutEventName;
+    private static Map<String, CircuitBreaker.Config> configMap = new HashMap<>();
 
 
-    private static Map<String, CircuitBreaker> map = new HashMap<>();
+    private CircuitBreaker.Config config;
 
-    public static CircuitBreaker create(String id) {
-
-        CircuitBreaker circuitBreaker = map.computeIfAbsent(id, CircuitBreaker::new);
-
-        return circuitBreaker;
-    }
-
-
-    private CircuitBreaker(String id) {
-        this.id = id;
-        this.timeoutEventName = "timeout-" + this.hashCode();
-    }
-
-    public void maxFailCount(int maxFailCount) {
-        this.maxFailCount = maxFailCount;
-    }
-
-    public void timeout(WorkEvent e) {
-        failCount++;
-        lastFailTime = System.currentTimeMillis();
-    }
-
-    public void error(WorkEvent e) {
-
-
-        failCount++;
-        lastFailTime = System.currentTimeMillis();
-
-        System.err.println("!!!!! RAISE ERROR count== " + failCount + " " + e.getEventName());
-    }
-
-    private void ok(WorkEvent e) {
-        failCount--;
-        if (failCount < 0) {
-        }
-    }
-
-
-    public boolean check(WorkEvent event) {
-
-        System.err.println("FAIL COUNT: " + failCount + "  max :" + maxFailCount);
-
-        long gap = System.currentTimeMillis() - lastFailTime;
-
-        if (gap > retryTimeGap) {
-            System.err.println("? === FAIL T");
-            return true;
-        }
-
-        if (maxFailCount > failCount) {
-            System.err.println("___ OK");
-            return true;
-        } else {
-            event.getActivity().setError(new RuntimeException("circuit open"));
-            System.err.println("? === FAIL 1");
-            return false;
-        }
+    private CircuitBreaker() {
 
     }
 
 
     @Override
     public void startFlow(WorkFlow flow) {
-        System.err.println("1 ---" + this.timeoutEventName);
-        flow.fireEvent("error::" + timeoutEventName, this.timeout)
-                .when(this::check);
+        flow.fireEvent("error::" + config.timeoutEventName, config.timeout)
+                .when(config::check);
     }
 
     @Override
@@ -103,13 +33,12 @@ public class CircuitBreaker implements WorkFlowPattern {
 
     @Override
     public void endFlow(WorkFlow flow) {
-        System.err.println("2 ---" + this.timeoutEventName);
         String cursor = flow.cursor();
 
-        flow.next(this::ok);
+        flow.next(config::ok);
 
         //play.onError(cursor, this.timeoutEventName).next(this::error).inactive();
-        flow.onError("*").next(this::error).end();
+        flow.onError("*").next(config::error).end();
     }
 
     private WorkFlow flow;
@@ -120,20 +49,29 @@ public class CircuitBreaker implements WorkFlowPattern {
     }
 
 
-    public static CircuitBreaker init(WorkFlow flow, Consumer<CircuitBreaker> config) {
-        CircuitBreaker circuitBreaker = new CircuitBreaker("wqe");
+    public static CircuitBreaker init(WorkFlow flow, Consumer<CircuitBreaker.Config> config) {
 
-        if(config!=null) {
-            config.accept(circuitBreaker);
+        CircuitBreaker.Config conf = new CircuitBreaker.Config();
+
+        if (config != null) {
+            config.accept(conf);
         }
 
+        CircuitBreaker.Config oldConf = configMap.get(conf.id);
+        if (oldConf == null) {
+            configMap.put(conf.id, conf);
+        } else {
+            conf = oldConf;
+        }
+
+        CircuitBreaker circuitBreaker = new CircuitBreaker();
+        circuitBreaker.config = conf;
         circuitBreaker.flow = flow;
 
         return circuitBreaker;
     }
 
     public WorkFlow apply(Consumer<WorkFlow> func) {
-
 
 
         this.startFlow(flow);
@@ -144,6 +82,92 @@ public class CircuitBreaker implements WorkFlowPattern {
 
 
         return flow;
+    }
+
+
+
+
+    public static class Config {
+
+        private String id;
+
+        private int failCount;
+
+        private long lastFailTime = 0;
+
+        private int maxFailCount = 3;
+
+        private long retryTimeGap = 10 * Time.SECOND;
+
+        private long timeout = 3000;
+
+        private String timeoutEventName = UUID.randomUUID().toString();
+
+
+        public Config id(String id) {
+            this.id = id;
+            return this;
+        }
+
+        public Config maxFailCount(int maxFailCount) {
+            this.maxFailCount = maxFailCount;
+            return this;
+        }
+
+        public Config retryTimeGap(long time) {
+            this.retryTimeGap = time;
+            return this;
+        }
+
+        public Config timeout(long timeout) {
+            this.timeout = timeout;
+            return this;
+        }
+
+        void timeout(WorkEvent e) {
+            failCount++;
+            lastFailTime = System.currentTimeMillis();
+        }
+
+        void error(WorkEvent e) {
+
+
+            failCount++;
+            lastFailTime = System.currentTimeMillis();
+
+            System.err.println("!!!!! RAISE ERROR count== " + failCount + " " + e.getEventName());
+        }
+
+        void ok(WorkEvent e) {
+            failCount = 0;
+        }
+
+
+        boolean check(WorkEvent event) {
+
+            System.err.println("FAIL COUNT: " + failCount + "  max :" + maxFailCount);
+
+            if (failCount > maxFailCount) {
+
+                if (lastFailTime > 0) {
+                    long t1 = System.currentTimeMillis();
+                    long t2 = lastFailTime + retryTimeGap;
+
+                    if (t1 > t2) {
+                        lastFailTime = 0;
+                        return true;
+                    }
+                } else {
+                    lastFailTime = System.currentTimeMillis();
+                    //throw new FlowProcessException("Circuit Breaker ");
+                    return false;
+                }
+
+
+            }
+
+            return true;
+        }
     }
 
 }
