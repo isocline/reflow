@@ -30,7 +30,7 @@ public class FlowProcessorFactory {
 
     private static FlowProcessor flowProcessor;
 
-    private static Map<String, FlowProcessor> processorMap = new HashMap<>();
+    private static final Map<String, FlowProcessor> processorMap = new HashMap<>();
 
 
     /**
@@ -41,7 +41,7 @@ public class FlowProcessorFactory {
     public static FlowProcessor getProcessor() {
 
 
-        if (flowProcessor == null || !flowProcessor.isWorking()) {
+        if (flowProcessor == null || flowProcessor.isWorkingStatus()) {
             flowProcessor = new FlowProcessor("default", getDefaultConfiguration());
         }
 
@@ -81,7 +81,7 @@ public class FlowProcessorFactory {
      */
     public static synchronized FlowProcessor getProcessor(String id, Configuration config) {
         FlowProcessor processor = processorMap.get(id);
-        if (processor == null || !processor.isWorking()) {
+        if (processor == null || processor.isWorkingStatus()) {
             processor = new FlowProcessor(id, config);
             processorMap.put(id, processor);
         }

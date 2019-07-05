@@ -29,9 +29,9 @@ import java.util.List;
  */
 public class CronDescriptor implements PlanDescriptor {
 
-    private CrontabEventChecker checker;
+    private final CrontabEventChecker checker;
 
-    private String className;
+    private final String className;
 
 
     /**

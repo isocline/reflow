@@ -141,15 +141,20 @@ public interface FlowableWork<T> extends Work {
                             new FlowProcessException("timeout"), Thread.currentThread());
                 }
 
+                executor.check();
 
                 //isFireEvent = executor.execute(event);;
                 rs = executor.execute(event);
+
+                executor.onSuccess();
 
                 WorkHelper.emitLocalEvent(plan, event, executor.getSucessFireEventNames(), 0);
 
             } catch (Throwable err) {
 
                 error = err;
+
+                executor.onFail();
 
                 WorkHelper.emitLocalEvent(plan, event, executor.getFailFireEventNames(), err);
 
@@ -204,9 +209,7 @@ public interface FlowableWork<T> extends Work {
 
     default Activity start() {
 
-        Activity p = FlowProcessor.core().execute(this).block();
-
-        return p;
+        return FlowProcessor.core().execute(this).block();
 
     }
 

@@ -52,9 +52,9 @@ public class WorkEventImpl implements WorkEvent {
 
 
 
-    private LinkedBlockingQueue<WorkEvent> workEventQueue = new LinkedBlockingQueue<>();
+    private final LinkedBlockingQueue<WorkEvent> workEventQueue = new LinkedBlockingQueue<>();
 
-    Map<String, Object> attributeMap = new Hashtable();
+    private Map<String, Object> attributeMap = new Hashtable();
 
     private final Map<String,AtomicInteger> counterMap = new HashMap<>();
 
@@ -161,9 +161,8 @@ public class WorkEventImpl implements WorkEvent {
 
     @Override
     public synchronized AtomicInteger getCounter(String key) {
-        AtomicInteger counter = counterMap.computeIfAbsent(key, k -> new AtomicInteger(0));
 
-        return counter;
+        return counterMap.computeIfAbsent(key, k -> new AtomicInteger(0));
     }
 
     /**
@@ -418,7 +417,7 @@ public class WorkEventImpl implements WorkEvent {
             if (!this.isComplete) {
                 wait();
             }
-        } catch (InterruptedException ie) {
+        } catch (InterruptedException ignored) {
 
         }
     }

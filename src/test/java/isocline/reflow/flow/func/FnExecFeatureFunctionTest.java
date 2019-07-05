@@ -1,12 +1,12 @@
 package isocline.reflow.flow.func;
 
 import isocline.reflow.FlowProcessor;
+import isocline.reflow.Re;
 import isocline.reflow.TestUtil;
 import isocline.reflow.WorkEvent;
 import isocline.reflow.log.XLogger;
+import org.junit.Assert;
 import org.junit.Test;
-
-import static isocline.reflow.WorkHelper.Reflow;
 
 public class FnExecFeatureFunctionTest {
 
@@ -20,11 +20,18 @@ public class FnExecFeatureFunctionTest {
         throw new RuntimeException("err");
     }
 
+    private int seq = 0;
+
     private void test2() throws Exception {
 
-        logger.debug("test2");
-        Thread.sleep(3300);
-        logger.debug("test2 end");
+        seq++;
+        logger.debug("START test2");
+        if (seq < 20) {
+            Thread.sleep(3300);
+            Assert.fail();
+        }
+
+        logger.debug("END test2 ");
     }
 
     private void catchEvent(WorkEvent e) {
@@ -41,15 +48,17 @@ public class FnExecFeatureFunctionTest {
     @Test
     public void testTimeout() throws Exception {
 
-        Reflow(flow -> {
-                    flow.next(this::test2, e -> e.timeout(3000, "tt"));
+        Re.flow(flow -> {
+                    flow.next(this::test2, e -> e.timeout(1000, "tt"));
 
-                    flow.wait("tt").next((WorkEvent e)->{e.getThrowable().printStackTrace();}).end();
+                    flow.wait("tt").next((WorkEvent e) -> {
+                        e.getThrowable().printStackTrace();
+                    }).end();
                 }
 
-                        //.wait("tt").next((WorkEvent e)->e.getThrowable().printStackTrace()).end()
+                //.wait("tt").next((WorkEvent e)->e.getThrowable().printStackTrace()).end()
                 //.wait("tt").next(this::catchEvent).end()
-        );
+        ).activate().block();
 
 
     }
@@ -67,5 +76,26 @@ public class FnExecFeatureFunctionTest {
                 .activate();
 
         FlowProcessor.core().shutdown(7000);
+    }
+
+
+    @Test
+    public void testCircuitBreak() throws Exception {
+
+        for (int i = 0; i < 80; i++) {
+            Re.flow(flow -> {
+                        flow.next(this::test2, e -> e.timeout(1000, "tt").circuitBreak("uniqId", 3, 1000));
+
+                        flow.onError("*").next((WorkEvent e) -> {
+                            e.getThrowable().printStackTrace();
+                        }).end();
+                    }
+
+
+            ).activate();
+            TestUtil.waiting(50);
+        }
+
+
     }
 }

@@ -92,7 +92,7 @@ public class PlanImpl implements Plan, Activity {
 
     private FlowProcessor flowProcessor = null;
 
-    private LinkedList<WorkEvent> eventList = new LinkedList<>();
+    private final LinkedList<WorkEvent> eventList = new LinkedList<>();
 
 
     private WorkFlow workFlow = null;
@@ -811,8 +811,7 @@ public class PlanImpl implements Plan, Activity {
 
         Throwable error = schedule.getError();
         if (error != null) {
-            RuntimeException runtimeException = new RuntimeException(error);
-            throw runtimeException;
+            throw new RuntimeException(error);
         }
 
         return schedule;
@@ -854,7 +853,7 @@ public class PlanImpl implements Plan, Activity {
             }
             notifyAll();
 
-            logger.debug("Plan is finished");
+            //logger.debug("Plan is finished");
         }
     }
 
@@ -867,7 +866,7 @@ public class PlanImpl implements Plan, Activity {
                 wait(timeout);
             }
 
-        } catch (InterruptedException ie) {
+        } catch (InterruptedException ignored) {
 
         }
         return this;
@@ -879,7 +878,7 @@ public class PlanImpl implements Plan, Activity {
             if (this.isActivated) {
                 wait();
             }
-        } catch (InterruptedException ie) {
+        } catch (InterruptedException ignored) {
 
         }
         return this;
@@ -934,7 +933,7 @@ public class PlanImpl implements Plan, Activity {
 
     private WorkEvent originEvent = null;
 
-    WorkEvent getOriginWorkEvent() {
+    private WorkEvent getOriginWorkEvent() {
         return this.originEvent;
     }
 
@@ -974,7 +973,7 @@ public class PlanImpl implements Plan, Activity {
     }
 
 
-    private EventRepository eventRepository = new EventRepository();
+    private final EventRepository eventRepository = new EventRepository();
 
 
     /**
@@ -1011,18 +1010,14 @@ public class PlanImpl implements Plan, Activity {
     ExecuteContext enterQueue(boolean isUserEvent, WorkEvent workEvent) {
 
 
-        ExecuteContext ctx = new ExecuteContext(this, isUserEvent, workEvent);
-
-        return ctx;
+        return new ExecuteContext(this, isUserEvent, workEvent);
     }
 
 
     ExecuteContext enterQueue(boolean isUserEvent) {
 
-        ExecuteContext ctx = new ExecuteContext(this, isUserEvent, null);
 
-
-        return ctx;
+        return new ExecuteContext(this, isUserEvent, null);
     }
 
 
@@ -1032,11 +1027,11 @@ public class PlanImpl implements Plan, Activity {
     static class ExecuteContext {
 
 
-        private PlanImpl plan;
+        private final PlanImpl plan;
 
         private boolean isUserEvent = false;
 
-        private WorkEvent workEvent;
+        private final WorkEvent workEvent;
 
 
         ExecuteContext(PlanImpl plan, boolean isUserEvent, WorkEvent event) {

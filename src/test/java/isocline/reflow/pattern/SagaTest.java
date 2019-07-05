@@ -47,18 +47,22 @@ public class SagaTest extends TestBase {
     @Test
     public void startBasic() {
 
-        WorkFlow f = WorkFlow.create();
+        Saga saga = Saga.init(conf -> {
+            conf.setPrintError(false);
+        });
 
-        f.next(this::init);
+        WorkFlow flow = WorkFlow.create();
 
-        Saga.init(f).apply(f2 -> {
+        flow.next(this::init);
+
+        saga.apply(flow, f2 -> {
             f2.transaction(this::callSvc1, this::compensateSvc1);
             f2.transaction(this::callSvc2, this::compensateSvc2);
             f2.transaction(this::callSvc3, this::compensateSvc3);
 
         });
 
-        Re.flow(f).activate();
+        Re.flow(flow).activate();
 
     }
 

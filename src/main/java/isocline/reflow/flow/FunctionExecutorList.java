@@ -9,9 +9,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class FunctionExecutorList {
 
-    private String evetName;
+    private final String evetName;
 
-    private AtomicInteger counter;
+    private final AtomicInteger counter;
 
 
     private List<FunctionExecutor> functionExecutorList = new ArrayList();
@@ -71,7 +71,7 @@ public class FunctionExecutorList {
 
 
     final static public class Wrapper {
-        private FunctionExecutor functionExecutor;
+        private final FunctionExecutor functionExecutor;
         private boolean hasNext = false;
 
         Wrapper(FunctionExecutor functionExecutor, boolean hasNext) {

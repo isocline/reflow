@@ -1,6 +1,5 @@
 package isocline.reflow.pattern;
 
-import isocline.reflow.FlowPattern;
 import isocline.reflow.WorkEvent;
 import isocline.reflow.WorkFlow;
 import isocline.reflow.flow.func.WorkEventConsumer;
@@ -9,13 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class Saga implements FlowPattern {
 
+/**
+ * Saga interaction pattern (Long-running transaction) [https://en.wikipedia.org/wiki/Long-running_transaction]
+ */
+public class Saga {
 
-    public static Saga instance() {
-        return new Saga();
-    }
-
+    private boolean printError = true;
 
     private static void error(WorkEvent e) {
 
@@ -23,70 +22,38 @@ public class Saga implements FlowPattern {
 
     }
 
-    private WorkFlow workFlow;
 
-    public static Saga init(WorkFlow flow) {
-        return init(flow, null);
+
+    public static Saga init() {
+        return init(null);
     }
 
 
-    public static Saga init(WorkFlow flow, Consumer<Saga> config) {
+    public static Saga init(Consumer<Saga> config) {
         Saga saga = new Saga();
 
-        if(config!=null) {
+        if (config != null) {
             config.accept(saga);
         }
 
-        saga.workFlow = flow;
+
 
         return saga;
     }
 
-    public WorkFlow apply(  Consumer<SagaWorkFlow> func) {
-
-
-        SagaWorkFlow sfl = new SagaWorkFlow();
-
-        func.accept(sfl);
-
-        List<SagaWorkFlow.Basket> list = sfl.getList();
-
-        for (SagaWorkFlow.Basket basket : list) {
-
-            WorkEventConsumer t = basket.getTransaction();
-
-            workFlow.next(t, basket.getEventName());
-        }
-
-        workFlow.end();
-
-
-        int size = list.size();
-
-        for (int j = (size - 1); j >= 0; j--) {
-            SagaWorkFlow.Basket basket = list.get(j);
-            String eventName = basket.getEventName();
-
-            WorkFlow f = workFlow.onError(eventName);
-
-            for (int i = j; i >= 0; i--) {
-                f = f.next(list.get(i).getConpensation());
-            }
-            f.end();
-        }
-
-        workFlow.onError("*").next(Saga::error);
-
-        return workFlow;
-
+    protected void setPrintError(boolean isPrintError) {
+        this.printError = isPrintError;
     }
 
 
+    public WorkFlow apply(WorkFlow workFlow, Consumer<SagaFlow> func) {
 
 
-    @Override
-    public void end(WorkFlow workFlow) {
+        SagaFlow sfl = new SagaFlow();
 
+        func.accept(sfl);
+
+        List<Basket> list = sfl.getList();
 
         for (Basket basket : list) {
 
@@ -107,37 +74,46 @@ public class Saga implements FlowPattern {
             WorkFlow f = workFlow.onError(eventName);
 
             for (int i = j; i >= 0; i--) {
-                f = f.next(list.get(i).getConpensation());
+                f = f.next(list.get(i).getCompensation());
             }
             f.end();
         }
 
-        workFlow.onError("*").next(Saga::error);
+        if(printError) {
+            workFlow.onError("*").next(Saga::error);
+        }
 
+
+
+        return workFlow;
 
     }
 
 
-    private List<Basket> list = new ArrayList<>();
+    protected static class SagaFlow {
+
+        private final List<Basket> list = new ArrayList<>();
 
 
-    public Saga transaction(WorkEventConsumer runnable, WorkEventConsumer compentation) {
+        protected SagaFlow transaction(WorkEventConsumer runnable, WorkEventConsumer compensation) {
 
-        list.add(new Basket(runnable, compentation));
+            list.add(new Basket(runnable, compensation));
 
-        return this;
+            return this;
+        }
+
+        private List<Basket> getList() {
+            return this.list;
+        }
+
+
     }
 
-    private List<Basket> getList() {
-        return list;
-    }
+    private static class Basket {
+        private final WorkEventConsumer t;
+        private final WorkEventConsumer c;
 
-
-    private class Basket {
-        private WorkEventConsumer t;
-        private WorkEventConsumer c;
-
-        private String eventName;
+        private final String eventName;
 
         Basket(WorkEventConsumer t, WorkEventConsumer c) {
             this.t = t;
@@ -146,16 +122,18 @@ public class Saga implements FlowPattern {
             this.eventName = "ST-" + t.hashCode();
         }
 
-        public WorkEventConsumer getTransaction() {
+        WorkEventConsumer getTransaction() {
             return this.t;
         }
 
-        public WorkEventConsumer getConpensation() {
+        WorkEventConsumer getCompensation() {
             return c;
         }
 
-        public String getEventName() {
+        String getEventName() {
             return this.eventName;
         }
     }
+
+
 }
