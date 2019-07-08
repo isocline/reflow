@@ -64,10 +64,10 @@ public class MailSender implements Work {
        FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-       String[] emails = new String[] {"proto@proto.com","test2@test.com"};
+       String[] emails = new String[] {"proto@proto.com","test2@_dummy.com"};
        for(String email:emails) {
 
-           MailSender checker = new MailSender( email, "Test", "test");
+           MailSender checker = new MailSender( email, "Test", "_dummy");
            Plan schedule = processor.task(checker);
            schedule.activate();
        }

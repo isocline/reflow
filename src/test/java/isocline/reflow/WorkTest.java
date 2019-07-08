@@ -89,14 +89,14 @@ public class WorkTest extends TestBase {
                     + e.origin().get("z"));
             return Work.WAIT;
         })
-                .on("test")
+                .on("_dummy")
                 .daemonMode()
                 .activate();
 
 
         Re.play(() -> {
             System.out.println("FIRE");
-            Re.quest("test", e -> e.put("z", "zz").put("z", "sdf"));
+            Re.quest("_dummy", e -> e.put("z", "zz").put("z", "sdf"));
         })
                 .interval(1000)
                 .initialDelay(2 * Time.SECOND)

@@ -26,3 +26,5 @@ target
 reflow.iml
 **/.DS_Store
 .java-version
+
+src/test/java/isoclline/reflow/_dummy/**

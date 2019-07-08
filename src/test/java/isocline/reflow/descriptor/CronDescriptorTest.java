@@ -8,8 +8,8 @@ import java.util.Calendar;
 import static org.junit.Assert.assertEquals;
 
 /**
- * *　　　　　　*　　　　　　*　　　　　　*　　　　　　*
- * 분(0-59)　　시간(0-23)　　일(1-31)　　월(1-12)　　　요일(0-7)
+ * *　　　　　　     *　　　　　　   *　　　　　　  *　　　　　　     *
+ * Minutes(0-59)　Hour(0-23)　　Day(1-31)　　Month(1-12)　　Day of week(0-7)
  */
 public class CronDescriptorTest {
 

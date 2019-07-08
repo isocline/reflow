@@ -1,4 +1,4 @@
-package isocline.reflow.dummy;
+package isocline.reflow._dummy;
 
 import isocline.reflow.FlowProcessor;
 import isocline.reflow.Re;

@@ -15,7 +15,7 @@ public class FnExecFeatureFunctionTest {
 
     private void test() {
 
-        logger.debug("test");
+        logger.debug("_dummy");
         TestUtil.waiting(5000);
         throw new RuntimeException("err");
     }
