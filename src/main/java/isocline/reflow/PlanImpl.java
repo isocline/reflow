@@ -103,6 +103,16 @@ public class PlanImpl implements Plan, Activity {
     private Consumer consumer = null;
 
 
+    private final Map<String, AtomicInteger> eventCheckMap = new Hashtable<>();
+
+    private final static int STATUS_RECEIVE_OK = -1;
+
+    private final static int STATUS_NOBODY_RECEIVE = -2;
+
+
+    private int maximumEventSkipCount = 0;
+
+
     PlanImpl(FlowProcessor flowProcessor, WorkEventConsumer runnable) {
         Work work = (WorkEvent e) -> {
             runnable.accept(e);
@@ -144,7 +154,7 @@ public class PlanImpl implements Plan, Activity {
         };
 
         this.flowProcessor = flowProcessor;
-        this.work = (Work) work;
+        this.work = work;
         this.workFlow = flow;
 
 
@@ -621,14 +631,7 @@ public class PlanImpl implements Plan, Activity {
 
     ////////////////
 
-    private Map<String, AtomicInteger> eventCheckMap = new Hashtable<>();
 
-    private final static int STATUS_RECEIVE_OK = -1;
-
-    private final static int STATUS_NOBODY_RECEIVE = -2;
-
-
-    private int maximumEventSkipCount = 0;
 
 
     public void setMaximumEventSkipCount(int maximumEventSkipCount) {
@@ -719,8 +722,8 @@ public class PlanImpl implements Plan, Activity {
     public Plan on(Object... eventNames) {
         checkLocking();
 
-        for (int i = 0; i < eventNames.length; i++) {
-            String eventName = eventNames[i].toString();
+        for (Object eventName1 : eventNames) {
+            String eventName = eventName1.toString();
             String[] subEventNames = eventRepository.setBindEventNames(eventName);
             for (String subEventName : subEventNames) {
                 this.flowProcessor.bindEvent(this, subEventName);
@@ -773,14 +776,8 @@ public class PlanImpl implements Plan, Activity {
     @Override
     public boolean isDaemonMode() {
 
-        if (intervalTime4Flow > 0) {
-            return true;
-        }
+        return intervalTime4Flow > 0 || isEventBindding || this.isDaemonMode;
 
-        if (isEventBindding) {
-            return true;
-        }
-        return this.isDaemonMode;
     }
 
     @Override
@@ -805,6 +802,7 @@ public class PlanImpl implements Plan, Activity {
      * @param consumer Consumer
      * @return an instance of Plan
      */
+    @SuppressWarnings("unchecked")
     @Override
     public Activity activate(Consumer consumer) {
         if (isActivated) {

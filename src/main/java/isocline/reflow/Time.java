@@ -223,8 +223,7 @@ public class Time {
         TimeZone tz = TimeZone.getTimeZone(timezone);
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
         df.setTimeZone(tz);
-        String nowAsISO = df.format(new Date(date));
 
-        return nowAsISO;
+        return df.format(new Date(date));
     }
 }

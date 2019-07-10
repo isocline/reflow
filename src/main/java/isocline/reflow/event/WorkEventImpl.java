@@ -54,6 +54,7 @@ public class WorkEventImpl implements WorkEvent {
 
     private final LinkedBlockingQueue<WorkEvent> workEventQueue = new LinkedBlockingQueue<>();
 
+    @SuppressWarnings("unchecked")
     private Map<String, Object> attributeMap = new Hashtable();
 
     private final Map<String,AtomicInteger> counterMap = new HashMap<>();

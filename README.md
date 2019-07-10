@@ -9,7 +9,7 @@
 [![Build Status](https://travis-ci.org/isocline/reflow.svg)](https://travis-ci.org/isocline/reflow)
 
 
-**re:Flow** is a powerful integrated workflow engine that combines various workflow methods into one. 
+**re:Flow** is a elastic process flow control engine that combines various workflow methods into one. 
 In some cases, real-time processing may be required, but in some cases, 
 it must be executed after some event processing. Or at a particular time, like a scheduler, Many things need to be done.
 There are cases where other work processing methods are combined. 
@@ -22,7 +22,7 @@ and code each time using a different API The Flow Processor can solve this probl
 
 ## Advantages
 
-- **Optimized Dynamic Work Processor**: Clockwork is a versatile job execution tool that satisfies job execution conditions under any circumstances.
+- **Optimized Dynamic Work Processor**: re:Flow is a versatile job execution tool that satisfies job execution conditions under any circumstances.
 - **Self-control process**: Optimized for dynamic control environments such as various edge computing environments by dynamically changing its schedule status during job execution.
 - **Elastic scheduler**:  Scheduling is similar to the Unix crontab setting method and provides various setting functions through extended API.
 - **Accurate execution**: You can precisely adjust the execution in 1 ms increments aiming at the almost real-time level.
@@ -263,7 +263,7 @@ public class EventReceiver implements Work {
 ```java
 import isocline.reflow.*;
 
-public class BasicWorkFlowTest implements FlowableWork {
+public class BasicWorkFlowTest {
 
     public void checkMemory() {
         log("check MEMORY");
@@ -290,31 +290,60 @@ public class BasicWorkFlowTest implements FlowableWork {
     }
 
 
-    /**
-     * control flow 
-     *
-    **/
-    public void defineWorkFlow(WorkFlow flow) {
-
-        WorkFlow p1 = flow.next(this::checkMemory).next(this::checkStorage);
-
-        WorkFlow t1 = flow.wait(p1).next(this::sendSignal);
-        WorkFlow t2 = flow.wait(p1).next(this::sendStatusMsg).next(this::sendReportMsg);
-
-        flow.waitAll(t1, t2).next(this::report).finish();
-    }
-
+     
 
     @Test
     public void startMethod() {
-        Re.flow(this).activate(); // Async
+        
+        
+        // design process flow
+        WorkFlow flow = WorkFlow.create();
+        
+        WorkFlow p1 = flow.next(this::checkMemory).next(this::checkStorage);
+        
+        WorkFlow t1 = flow.wait(p1).next(this::sendSignal);
+        WorkFlow t2 = flow.wait(p1).next(this::sendStatusMsg).next(this::sendReportMsg);
+        
+        flow.waitAll(t1, t2).next(this::report).end();
+       
+        // execute flow
+        Re.flow(flow).activate().block();
         
         // Re.flow(this).activate().block(); // sync mode
     }
 
+
+
 }
 
 ```
+
+setup timeout for sendSignla method
+ 
+```java
+        @Test
+        public void testTimeout() {
+            
+            
+            // design process flow
+            WorkFlow flow = WorkFlow.create();
+            
+            WorkFlow p1 = flow.next(this::checkMemory).next(this::checkStorage);
+            
+            // timeout 1 seconds for sendSignal method
+            WorkFlow t1 = flow.wait(p1).next(this::sendSignal,e -> e.timeout(1000));
+            WorkFlow t2 = flow.wait(p1).next(this::sendStatusMsg).next(this::sendReportMsg);
+            
+            flow.waitAll(t1, t2).next(this::report).end();
+           
+            // execute flow
+            Re.flow(flow).activate().block();
+            
+            // Re.flow(this).activate().block(); // sync mode
+        }
+
+```
+
 
 More examples
 ------

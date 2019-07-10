@@ -28,7 +28,6 @@ public class CircuitBreaker implements WorkFlowPattern {
 
     @Override
     public void middleFlow(WorkFlow flow, int seq) {
-        return;
     }
 
     @Override

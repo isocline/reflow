@@ -21,7 +21,7 @@ import isocline.reflow.flow.func.*;
 
 import java.util.function.Function;
 
-public class WorkFlowWrapper<T> extends WorkFlow<T> {
+public class WorkFlowWrapper<T> extends WorkFlow<Object> {
 
     private final WorkFlow workFlowInstance;
 
@@ -38,74 +38,74 @@ public class WorkFlowWrapper<T> extends WorkFlow<T> {
 
 
     @Override
-    public WorkFlow<T> wait(String... eventNames) {
+    public WorkFlow<Object> wait(String... eventNames) {
         this.workFlowInstance.wait(eventNames);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
     @Override
-    public WorkFlow<T> waitAll() {
+    public WorkFlow<Object> waitAll() {
         this.workFlowInstance.waitAll();
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
     @Override
-    public WorkFlow<T> waitAll(String... eventNames) {
+    public WorkFlow<Object> waitAll(String... eventNames) {
         this.workFlowInstance.waitAll(eventNames);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
     @Override
-    public WorkFlow<T> onError(String... eventNames) {
+    public WorkFlow<Object> onError(String... eventNames) {
         this.workFlowInstance.onError(eventNames);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
     @Override
-    public WorkFlow<T> wait(WorkFlow... workFlows) {
+    public WorkFlow<Object> wait(WorkFlow... workFlows) {
         this.workFlowInstance.wait(workFlows);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
     @Override
-    public WorkFlow<T> waitAll(WorkFlow... workFlows) {
+    public WorkFlow<Object> waitAll(WorkFlow... workFlows) {
         this.workFlowInstance.waitAll(workFlows);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
     @Override
-    public WorkFlow<T> onError(WorkFlow... workFlows) {
+    public WorkFlow<Object> onError(WorkFlow... workFlows) {
         this.workFlowInstance.onError(workFlows);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
     @Override
-    public WorkFlow<T> onError(Class... errorClasses) {
+    public WorkFlow<Object> onError(Class... errorClasses) {
         this.workFlowInstance.onError(errorClasses);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
     @Override
-    public WorkFlow<T> onError(WorkEventConsumer consumer) {
+    public WorkFlow<Object> onError(WorkEventConsumer consumer) {
         this.workFlowInstance.onError(consumer);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
     @Override
-    public WorkFlow<T> runAsync(Runnable... execObject) {
+    public WorkFlow<Object> runAsync(Runnable... execObject) {
         this.workFlowInstance.runAsync(execObject);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
 
     @Override
-    public WorkFlow<T> runAsync(Runnable execObject, String eventName) {
+    public WorkFlow<Object> runAsync(Runnable execObject, String eventName) {
         this.workFlowInstance.runAsync(execObject, eventName);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
     @Override
-    public WorkFlow<T> runAsync(Runnable execObject, int count) {
+    public WorkFlow<Object> runAsync(Runnable execObject, int count) {
         this.workFlowInstance.runAsync(execObject, count);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
@@ -125,7 +125,7 @@ public class WorkFlowWrapper<T> extends WorkFlow<T> {
     */
 
     @Override
-    public WorkFlow<T> runAsync(WorkEventConsumer... execObject) {
+    public WorkFlow<Object> runAsync(WorkEventConsumer... execObject) {
         this.workFlowInstance.runAsync(execObject);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
@@ -161,8 +161,9 @@ public class WorkFlowWrapper<T> extends WorkFlow<T> {
     }
 
 
+    @SafeVarargs
     @Override
-    public <R> WorkFlow<R> extract(WorkEventFunction<? extends R>... execObjects) {
+    public final <R> WorkFlow<R> extract(WorkEventFunction<? extends R>... execObjects) {
         this.workFlowInstance.extract(execObjects);
         return (WorkFlow<R>) new WorkFlowWrapper(this.workFlowInstance);
     }
@@ -223,13 +224,13 @@ public class WorkFlowWrapper<T> extends WorkFlow<T> {
 */
 
     @Override
-    public WorkFlow<T> next(WorkEventConsumer execObject) {
+    public WorkFlow<Object> next(WorkEventConsumer execObject) {
         this.workFlowInstance.next(execObject);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
     @Override
-    public WorkFlow<T> next(WorkEventConsumer execObject, String eventName) {
+    public WorkFlow<Object> next(WorkEventConsumer execObject, String eventName) {
         this.workFlowInstance.next(execObject, eventName);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
@@ -248,13 +249,13 @@ public class WorkFlowWrapper<T> extends WorkFlow<T> {
     }
 
     @Override
-    public WorkFlow<T> next(ThrowableRunFunction execObject, FnExecFeatureFunction fnExecFeatureFunction) {
+    public WorkFlow<Object> next(ThrowableRunFunction execObject, FnExecFeatureFunction fnExecFeatureFunction) {
         this.workFlowInstance.next(execObject, fnExecFeatureFunction);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
     @Override
-    public WorkFlow<T> next(WorkEventConsumer execObject, FnExecFeatureFunction fnExecFeatureFunction) {
+    public WorkFlow<Object> next(WorkEventConsumer execObject, FnExecFeatureFunction fnExecFeatureFunction) {
         this.workFlowInstance.next(execObject, fnExecFeatureFunction);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
@@ -268,7 +269,7 @@ public class WorkFlowWrapper<T> extends WorkFlow<T> {
 
 
     @Override
-    public <R> WorkFlow<R> trans(Function<? super T, ? extends R> mapper) {
+    public <R> WorkFlow<R> trans(Function<? super Object, ? extends R> mapper) {
         this.workFlowInstance.trans(mapper);
         return new WorkFlowWrapper(this.workFlowInstance);
     }

@@ -143,7 +143,7 @@ public class FlowProcessor extends ThreadGroup {
     public Plan task(Work work, String... eventNames) {
         Plan Plan = new PlanImpl(this, work);
         Plan.daemonMode();
-        Plan.on(eventNames);
+        Plan.on((Object[]) eventNames);
 
 
         return Plan;
