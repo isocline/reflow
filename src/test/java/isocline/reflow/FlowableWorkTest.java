@@ -28,13 +28,13 @@ public class FlowableWorkTest {
      */
     public double getExhangeRate(double money, int formCountryCode, int toCountryCode) {
 
-        logger.debug(money + " > play");
+        //logger.debug(money + " > play");
 
         TestUtil.waiting(500 + (long) (100 * Math.random()));
 
         double result = money + money * (formCountryCode / toCountryCode);
 
-        logger.debug(money + " > result : " + result);
+        //logger.debug(money + " > result : " + result);
         return result;
     }
 
@@ -197,7 +197,7 @@ public class FlowableWorkTest {
 
         long t1 = System.currentTimeMillis();
         Thread.sleep(2000);
-        for (int i = 0; i < 40; i++) {
+        for (int i = 0; i < 4000; i++) {
             int crntCount = count.get();
 
             logger.debug(crntCount + "/" + generator.getCount() + " " + (System.currentTimeMillis() - t1));
@@ -239,7 +239,7 @@ public class FlowableWorkTest {
 
         Thread.sleep(5000);
 
-        logger.debug("terninate activity of flow ");
+        logger.debug("terminate activity of flow ");
         plan.inactive();
 
 

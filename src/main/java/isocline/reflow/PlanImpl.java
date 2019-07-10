@@ -628,7 +628,7 @@ public class PlanImpl implements Plan, Activity {
     private final static int STATUS_NOBODY_RECEIVE = -2;
 
 
-    private int maximumEventSkipCount = 2;
+    private int maximumEventSkipCount = 0;
 
 
     public void setMaximumEventSkipCount(int maximumEventSkipCount) {
