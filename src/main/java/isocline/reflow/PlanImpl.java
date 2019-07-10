@@ -22,9 +22,8 @@ import isocline.reflow.flow.func.WorkEventConsumer;
 import isocline.reflow.log.XLogger;
 
 import java.text.ParseException;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 
@@ -622,9 +621,57 @@ public class PlanImpl implements Plan, Activity {
 
     ////////////////
 
+    private Map<String, AtomicInteger> eventCheckMap = new Hashtable<>();
+
+    private final static int STATUS_RECEIVE_OK = -1;
+
+    private final static int STATUS_NOBODY_RECEIVE = -2;
+
+
+    private int maximumEventSkipCount = 2;
+
+
+    public void setMaximumEventSkipCount(int maximumEventSkipCount) {
+        if (maximumEventSkipCount < 0) {
+            throw new IllegalArgumentException("maximumEventSkipCount is too small");
+        }
+        this.maximumEventSkipCount = maximumEventSkipCount;
+    }
 
     @Override
     public Activity emit(WorkEvent event) {
+
+        if (event == null) {
+            throw new FlowProcessException("Event is null");
+        }
+
+        String fireEventName = event.getFireEventName();
+
+        if (maximumEventSkipCount > 0) {
+
+            AtomicInteger counter = eventCheckMap.computeIfAbsent(fireEventName, k -> new AtomicInteger(0));
+            int chkCount = counter.get();
+
+
+            if (chkCount > maximumEventSkipCount) {
+                counter.set(STATUS_NOBODY_RECEIVE);
+            } else {
+                switch (chkCount) {
+                    case STATUS_NOBODY_RECEIVE:
+                        return this;
+
+                    case STATUS_RECEIVE_OK:
+                        break;
+
+                    default:
+                        counter.addAndGet(1);
+
+                }
+
+            }
+        }
+
+        //System.out.println(" [0] >> " + event.getEventName() + " : " + event.getFireEventName());
 
         this.flowProcessor.addWorkSchedule(this, event);
 
@@ -632,14 +679,32 @@ public class PlanImpl implements Plan, Activity {
 
     }
 
+    void checkEvent(WorkEvent event) {
+
+        String fireEventName = event.getFireEventName();
+
+        if (fireEventName == null) return;
+
+        AtomicInteger counter = eventCheckMap.get(fireEventName);
+        if (counter != null && counter.get() != STATUS_RECEIVE_OK) {
+            counter.set(STATUS_RECEIVE_OK);
+        }
+
+    }
+
 
     @Override
     public Activity emit(WorkEvent event, long delayTime) {
 
+        if (event == null) {
+            throw new FlowProcessException("Event is null");
+        }
+
         if (delayTime > 0) {
             //this.flowProcessor.workChecker
+            //System.out.println(" [1] >> " + event.getEventName() + " : " + event.getFireEventName() + " delayTime:" + delayTime + "\n");
 
-            this.getFlowProcessor().addWorkSchedule(this, event, delayTime);
+            this.flowProcessor.addWorkSchedule(this, event, delayTime);
 
         } else {
             emit(event);

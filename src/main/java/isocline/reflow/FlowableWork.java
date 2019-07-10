@@ -141,7 +141,13 @@ public interface FlowableWork<T> extends Work {
                             new FlowProcessException("timeout"), Thread.currentThread());
                 }
 
+                //System.out.println(" < ==< "+event.getEventName() + " "+event.getFireEventName());
+
                 executor.check();
+
+
+                ((PlanImpl) plan).checkEvent(event);
+
 
                 //isFireEvent = executor.execute(event);;
                 rs = executor.execute(event);

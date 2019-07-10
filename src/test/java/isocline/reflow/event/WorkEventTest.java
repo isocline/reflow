@@ -53,4 +53,21 @@ public class WorkEventTest {
         assertEquals("val1", event2.origin().get("key1"));
 
     }
+
+    @Test
+    public void testTirgetName() {
+
+        WorkEvent event = WorkEventFactory.createOrigin("evt");
+
+
+        assertEquals("evt", event.getFireEventName());
+
+
+        event.setFireEventName("evt2");
+
+        assertEquals("evt2", event.getFireEventName());
+
+
+
+    }
 }
