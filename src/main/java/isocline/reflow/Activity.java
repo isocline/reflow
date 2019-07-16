@@ -18,42 +18,112 @@ package isocline.reflow;
 import java.util.Date;
 
 /**
+ * Indicates that an activity can be controlled.
+ * The <tt>Activity</tt> interface provides synchronized execution by the block method.
  *
  * @see Plan
  */
 public interface Activity {
 
 
-
+    /**
+     * Inactive this activity.
+     */
     void inactive();
 
+
+    /**
+     * Wait until the activity process is complete.
+     *
+     * @return
+     */
     Activity block();
 
+    /**
+     * @param timeout
+     * @return
+     */
     Activity block(long timeout);
 
+    /**
+     * Returns Throwable object if an error exists
+     *
+     * @return Throwable
+     */
     Throwable getError();
 
+    /**
+     * Sets a Throwable error object
+     *
+     * @param error
+     */
     void setError(Throwable error);
 
+    /**
+     * Returns a Workflow instance which generates this Activity
+     *
+     * @return WorkFlow instance
+     */
     WorkFlow getWorkFlow();
 
+
+    /**
+     * Emits a WorkEvent which is valid only in the local scope
+     *
+     * @param event
+     * @return
+     */
     Activity emit(WorkEvent event);
 
+    /**
+     * Emits a WorkEvent which is valid only in the local scope
+     *
+     * @param event
+     * @param delayTime
+     * @return
+     */
     Activity emit(WorkEvent event, long delayTime);
 
 
+    /**
+     * Returns a FlowProcessor object.
+     *
+     * @return
+     */
     FlowProcessor getFlowProcessor();
 
 
+    /**
+     * Finish an Activity at a user-defined time.
+     *
+     * @param isoDateTime
+     * @return
+     * @throws java.text.ParseException
+     */
     Activity finish(String isoDateTime) throws java.text.ParseException;
 
+    /**
+     * Finish an Activity at a user-defined time.
+     *
+     * @param endDateTime
+     * @return
+     */
     Activity finish(Date endDateTime);
 
+
+    /**
+     * Finish an Activity at a user-defined time.
+     *
+     * @param milliSeconds
+     * @return
+     */
     Activity finishFromNow(long milliSeconds);
 
+    /**
+     * Returns an interval time
+     *
+     * @return
+     */
     long getIntervalTime();
 
-    long getNextExecDelayTime();
 
-
-    }

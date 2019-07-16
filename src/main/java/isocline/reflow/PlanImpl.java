@@ -465,9 +465,7 @@ public class PlanImpl implements Plan, Activity {
         return this.interval(intervalTime);
     }
 
-    public long getNextExecDelayTime() {
-        return this.intervalTime4Flow;
-    }
+
 
     /**
      * @param intervalTime
