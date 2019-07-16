@@ -126,4 +126,4 @@ public interface Activity {
      */
     long getIntervalTime();
 
-
+}
