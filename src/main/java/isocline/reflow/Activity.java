@@ -111,7 +111,7 @@ public interface Activity {
     Activity finish(Date endDateTime);
 
 
-    /**
+    /**s
      * Finish an Activity at a user-defined time.
      *
      * @param milliSeconds
@@ -120,7 +120,7 @@ public interface Activity {
     Activity finishFromNow(long milliSeconds);
 
     /**
-     * Returns an interval time
+     * Returns an execute interval time
      *
      * @return
      */

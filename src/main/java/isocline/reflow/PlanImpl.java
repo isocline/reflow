@@ -85,7 +85,7 @@ public class PlanImpl implements Plan, Activity {
 
     private Work work;
 
-    private WorkSession workSession = null;
+
 
     private Object lockOwner = null;
 
@@ -579,47 +579,6 @@ public class PlanImpl implements Plan, Activity {
         return (Activity) finishTimeFromNow(milliSeconds);
     }
 
-    /**
-     * @param className name of class
-     * @return an instance of Plan
-     * @throws ClassNotFoundException if the class cannot be located
-     * @throws InstantiationException if this Class represents an abstract class, an interface, an array class, a primitive type, or void; or if the class has no nullary constructor; or if the instantiation fails for some other reason.
-     * @throws IllegalAccessException if the class or its nullary constructor is not accessible.
-     */
-    public Plan workSession(String className) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-        checkLocking();
-        this.workSession = (WorkSession) Class.forName(className).newInstance();
-        return this;
-    }
-
-    /**
-     * Sets a {@link WorkSession}
-     *
-     * @param workSession an instance of WorkSession
-     * @return an instance of Plan
-     */
-    public Plan workSession(WorkSession workSession) {
-        checkLocking();
-
-        this.workSession = workSession;
-        return this;
-    }
-
-
-    /**
-     * Returns a {@link WorkSession}
-     *
-     * @return an instance of WorkSession
-     */
-    public WorkSession getWorkSession() {
-
-        if (this.workSession == null) {
-            this.workSession = new BasicWorkSession();
-
-        }
-
-        return this.workSession;
-    }
 
 
     public WorkFlow getWorkFlow() {
