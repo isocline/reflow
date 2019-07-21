@@ -1,7 +1,7 @@
 
 
 # re:Flow [Alpha Version]
-### Multi-purpose event flow processing engine for JVM,Android,IoT and Edge Computing
+### Resilience flow processing engine for JVM,Android,IoT and Edge Computing
 
 <img src="https://raw.github.com/isocline/reflow/master/docs/img/title.png" width="300">
 
@@ -9,16 +9,16 @@
 [![Build Status](https://travis-ci.org/isocline/reflow.svg)](https://travis-ci.org/isocline/reflow)
 
 
-**re:Flow** is a elastic process flow control engine that combines various workflow methods into one. 
-In some cases, real-time processing may be required, but in some cases, 
-it must be executed after some event processing. Or at a particular time, like a scheduler, Many things need to be done.
-There are cases where other work processing methods are combined. 
-For example, after checking the job every 10 minutes based on the scheduler 
-If certain conditions are met, an event can be triggered to signal the start of another task Conversely, 
-you can start a newly started scheduler after a specific event occurs.
+**re:Flow** is a resilience process flow control engine that combines various workflow methods. 
 
-It is a very inefficient task to select a library for each of these cases 
-and code each time using a different API The Flow Processor can solve this problem very easily.
+Let's take an example in Edge computing.
+The program process the data from the sensor in every 1 minute, and if it receives the external trouble event, we must record the data every 1 second.
+Besides, you should call the external alert API. But if a invoke API problem occurs, take another action, or periodically retry until a specified number of times.
+At the same time, we process to invoke other API  asynchronous for functional safety.
+
+Like the example above, for data pipe processing,  we require schedule programming, event programming, and scalable flow processing, and consider data coding and control coupling. Resilience is also an essential feature of functional safety.
+
+"re: Flow" is designed to handle this problem with a single programming API.
 
 ## Advantages
 
@@ -26,6 +26,7 @@ and code each time using a different API The Flow Processor can solve this probl
 - **Self-control process**: Optimized for dynamic control environments such as various edge computing environments by dynamically changing its schedule status during job execution.
 - **Elastic scheduler**:  Scheduling is similar to the Unix crontab setting method and provides various setting functions through extended API.
 - **Accurate execution**: You can precisely adjust the execution in 1 ms increments aiming at the almost real-time level.
+- **Resilience feature**: provide the variety resilence feature. (timeout,retry,saga...) 
 - **Easy coding**: Simple, easy to understand coding method, the code is straightforward.
 - **Small footprint library**: Provides a tiny size library without compromising other libraries.
 

@@ -28,6 +28,8 @@ import java.lang.annotation.*;
 
 /**
  *
+ * for TEST
+ *
  * @deprecated
  */
 public @interface WorkInfo {

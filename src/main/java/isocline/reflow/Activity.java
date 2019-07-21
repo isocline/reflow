@@ -35,13 +35,13 @@ public interface Activity {
     /**
      * Wait until the activity process is complete.
      *
-     * @return
+     * @return an instance of Activity
      */
     Activity block();
 
     /**
-     * @param timeout
-     * @return
+     * @param timeout milli seconds for timeout
+     * @return an instance of Activity
      */
     Activity block(long timeout);
 
@@ -55,14 +55,14 @@ public interface Activity {
     /**
      * Sets a Throwable error object
      *
-     * @param error
+     * @param error the error (which is saved for later retrieval by the getError() method)
      */
     void setError(Throwable error);
 
     /**
      * Returns a Workflow instance which generates this Activity
      *
-     * @return WorkFlow instance
+     * @return an instance of WorkFlow
      */
     WorkFlow getWorkFlow();
 
@@ -70,17 +70,17 @@ public interface Activity {
     /**
      * Emits a WorkEvent which is valid only in the local scope
      *
-     * @param event
-     * @return
+     * @param event WorkEvent object
+     * @return an instance of WorkFlow
      */
     Activity emit(WorkEvent event);
 
     /**
      * Emits a WorkEvent which is valid only in the local scope
      *
-     * @param event
-     * @param delayTime
-     * @return
+     * @param event WorkEvent object
+     * @param delayTime delay time
+     * @return an instance of WorkFlow
      */
     Activity emit(WorkEvent event, long delayTime);
 
@@ -88,7 +88,7 @@ public interface Activity {
     /**
      * Returns a FlowProcessor object.
      *
-     * @return
+     * @return an instance of FlowProcessor
      */
     FlowProcessor getFlowProcessor();
 
@@ -96,8 +96,8 @@ public interface Activity {
     /**
      * Finish an Activity at a user-defined time.
      *
-     * @param isoDateTime
-     * @return
+     * @param isoDateTime this date-time as a String, such as 2019-06-16T10:15:30Z or 2019-06-16T10:15:30+01:00[Europe/Paris].
+     * @return an instance of WorkFlow
      * @throws java.text.ParseException
      */
     Activity finish(String isoDateTime) throws java.text.ParseException;
@@ -105,8 +105,8 @@ public interface Activity {
     /**
      * Finish an Activity at a user-defined time.
      *
-     * @param endDateTime
-     * @return
+     * @param endDateTime Date for end time
+     * @return an instance of WorkFlow
      */
     Activity finish(Date endDateTime);
 
@@ -115,14 +115,14 @@ public interface Activity {
      * Finish an Activity at a user-defined time.
      *
      * @param milliSeconds
-     * @return
+     * @return an instance of WorkFlow
      */
     Activity finishFromNow(long milliSeconds);
 
     /**
      * Returns an execute interval time
      *
-     * @return
+     * @return interval time
      */
     long getIntervalTime();
 

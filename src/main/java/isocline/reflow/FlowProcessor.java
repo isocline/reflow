@@ -456,6 +456,12 @@ public class FlowProcessor extends ThreadGroup {
 
     boolean addWorkSchedule(PlanImpl plan, WorkEvent workEvent, long delayTime) {
 
+        if(delayTime==0) {
+            return addWorkSchedule(plan, workEvent);
+        }else if(delayTime<0) {
+            return false;
+        }
+
         workEvent.setFireTime(System.currentTimeMillis() + delayTime);
 
         this.workChecker.addWorkStatusWrapper(plan, workEvent);
