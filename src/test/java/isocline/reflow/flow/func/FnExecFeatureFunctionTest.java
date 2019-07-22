@@ -13,7 +13,7 @@ public class FnExecFeatureFunctionTest {
     private XLogger logger = XLogger.getLogger(FnExecFeatureFunction.class);
 
 
-    private void test() {
+    private void slowMethod() {
 
         logger.debug("_dummy");
         TestUtil.waiting(5000);
@@ -22,16 +22,16 @@ public class FnExecFeatureFunctionTest {
 
     private int seq = 0;
 
-    private void test2() throws Exception {
+    private void delaySerice() throws Exception {
 
         seq++;
-        logger.debug("START test2");
+        logger.debug("START delaySerice");
         if (seq < 20) {
             Thread.sleep(3300);
             Assert.fail();
         }
 
-        logger.debug("END test2 ");
+        logger.debug("END delaySerice ");
     }
 
     private void catchEvent(WorkEvent e) {
@@ -49,15 +49,13 @@ public class FnExecFeatureFunctionTest {
     public void testTimeout() throws Exception {
 
         Re.flow(flow -> {
-                    flow.next(this::test2, e -> e.timeout(1000, "tt"));
+                    flow.next(this::delaySerice, e -> e.timeout(1000, "tt"));
 
                     flow.wait("tt").next((WorkEvent e) -> {
                         e.getThrowable().printStackTrace();
                     }).end();
                 }
 
-                //.wait("tt").next((WorkEvent e)->e.getThrowable().printStackTrace()).end()
-                //.wait("tt").next(this::catchEvent).end()
         ).activate().block();
 
 
@@ -68,8 +66,8 @@ public class FnExecFeatureFunctionTest {
 
         FlowProcessor.core()
                 .reflow(f -> f
-                        .next(this::test2, exec ->
-                                exec.before("b1", "b2").success("s1", "s2").fail("f1").end("e1").timeout(3000))
+                        .next(this::delaySerice, p ->
+                                p.before("b1", "b2").success("s1", "s2").fail("f1").end("e1").timeout(3000))
                         .wait("b1", "b2", "s1", "s2", "f1", "e1").next(this::catchEvent)
                         .wait("x").end())
 
@@ -84,7 +82,7 @@ public class FnExecFeatureFunctionTest {
 
         for (int i = 0; i < 80; i++) {
             Re.flow(flow -> {
-                        flow.next(this::test2, e -> e.timeout(1000, "tt").circuitBreak("uniqId", 3, 1000));
+                        flow.next(this::delaySerice, ft -> ft.timeout(1000, "tt").circuitBreak("uniqId", 3, 1000));
 
                         flow.onError("*").next((WorkEvent e) -> {
                             e.getThrowable().printStackTrace();

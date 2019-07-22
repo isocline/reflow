@@ -15,13 +15,15 @@ public class PreciseRepeater implements Work {
 
         logger.debug("activate:" + seq++);
 
+        if(seq>100) return TERMINATE;
+
         return 10;
     }
 
     @Test
     public void case1() throws Exception {
 
-        Re.play(new PreciseRepeater())
+        Re.play(this)
                 .strictMode()
                 .activate();
 

@@ -143,7 +143,7 @@ public class FlowProcessor extends ThreadGroup {
     public Plan task(Work work, String... eventNames) {
         Plan Plan = new PlanImpl(this, work);
         Plan.daemonMode();
-        Plan.on(eventNames);
+        Plan.on((Object[]) eventNames);
 
 
         return Plan;
@@ -456,6 +456,12 @@ public class FlowProcessor extends ThreadGroup {
 
     boolean addWorkSchedule(PlanImpl plan, WorkEvent workEvent, long delayTime) {
 
+        if(delayTime==0) {
+            return addWorkSchedule(plan, workEvent);
+        }else if(delayTime<0) {
+            return false;
+        }
+
         workEvent.setFireTime(System.currentTimeMillis() + delayTime);
 
         this.workChecker.addWorkStatusWrapper(plan, workEvent);
@@ -709,6 +715,21 @@ public class FlowProcessor extends ThreadGroup {
      ****************************************/
     static final class ThreadWorker extends Thread {
 
+
+        private final static short RUNNING = 0;
+        private final static short TERMINATE_BY_USER = 1;
+        private final static short TERMINATE_BY_TIMEOVER = 2;
+        private final static short TERMINATE_BY_ERROR = 3;
+        private final static short TERMINATE_BY_FLOW = 4;
+
+
+        private final static short ENTER_MONITOR_QUEUE = 11;
+        private final static short ENTER_EXEC_QUEUE = 12;
+        private final static short ENTER_EXEC_QUEUE2 = 13;
+
+        private final static short ENTER_EXEC_JUST = 20;
+
+
         private final FlowProcessor flowProcessor;
 
 
@@ -786,18 +807,6 @@ public class FlowProcessor extends ThreadGroup {
         }
 
 
-        private final static short RUNNING = 0;
-        private final static short TERMINATE_BY_USER = 1;
-        private final static short TERMINATE_BY_TIMEOVER = 2;
-        private final static short TERMINATE_BY_ERROR = 3;
-        private final static short TERMINATE_BY_FLOW = 4;
-
-
-        private final static short ENTER_MONITOR_QUEUE = 11;
-        private final static short ENTER_EXEC_QUEUE = 12;
-        private final static short ENTER_EXEC_QUEUE2 = 13;
-
-        private final static short ENTER_EXEC_JUST = 20;
 
 
         private void adjustThread(int runningCount) {

@@ -9,9 +9,8 @@ import isocline.reflow.WorkEvent;
  * to operate via side-effects.
  * <p>
  * <p>This is a <a href="package-summary.html">functional interface</a>
- * whose functional method is {@link #accept(Object)}.
+
  *
- * @param <T> the type of the input to the operation
  * @since 1.8
  */
 @FunctionalInterface

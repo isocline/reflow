@@ -26,9 +26,9 @@ public class PubSubBroker implements FlowableWork {
 
     private Stream<WorkEvent> stream;
 
-    private final int pararrelSize = 4;
+    private final int parallelSize = 4;
 
-    private int realPararrelSize = 0;
+    private int realParallelSize = 0;
 
     private final int minUnitSize = 1;
 
@@ -36,8 +36,8 @@ public class PubSubBroker implements FlowableWork {
 
     private final AtomicInteger seqCounter = new AtomicInteger();
 
-    private int getPararrelSize() {
-        return this.pararrelSize;
+    private int getParallelSize() {
+        return this.parallelSize;
     }
 
 
@@ -48,7 +48,7 @@ public class PubSubBroker implements FlowableWork {
         }
 
         if (workEvents.length == 0) {
-            realPararrelSize = 0;
+            realParallelSize = 0;
             return;
         }
 
@@ -56,12 +56,12 @@ public class PubSubBroker implements FlowableWork {
         workEvents2 = workEvents;
         seqCounter.set(-1);
 
-        realPararrelSize = (workEvents2.length - 1) / minUnitSize + 1;
-        if (realPararrelSize > pararrelSize) {
-            realPararrelSize = pararrelSize;
+        realParallelSize = (workEvents2.length - 1) / minUnitSize + 1;
+        if (realParallelSize > parallelSize) {
+            realParallelSize = parallelSize;
         }
 
-        //logger.info("init :: " + realPararrelSize + " "+workEvents2.length);
+        //logger.info("init :: " + realParallelSize + " "+workEvents2.length);
 
 
     }
@@ -69,13 +69,13 @@ public class PubSubBroker implements FlowableWork {
     private void receive(WorkEvent event) {
 
         int seq = this.seqCounter.addAndGet(1);
-        if (seq >= realPararrelSize) {
+        if (seq >= realParallelSize) {
             return;
         }
 
 
 
-        for (int i = (0 + seq); i < workEvents2.length; i = i + realPararrelSize) {
+        for (int i = (0 + seq); i < workEvents2.length; i = i + realParallelSize) {
             try {
                 workEvents2[i].callback(event.origin());
             } catch (Throwable e) {
@@ -135,7 +135,7 @@ public class PubSubBroker implements FlowableWork {
 
     @Override
     public void defineWorkFlow(WorkFlow f) {
-        f.next(this::receiveInit).runAsync(this::receive, this.getPararrelSize()).end();
+        f.next(this::receiveInit).runAsync(this::receive, this.getParallelSize()).end();
 
         f.wait("regist").next(this::regist).end();
         f.wait("unregist").next(this::unregist).end();

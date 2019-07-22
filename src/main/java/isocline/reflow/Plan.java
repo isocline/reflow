@@ -18,13 +18,39 @@ package isocline.reflow;
 import java.util.Date;
 import java.util.function.Consumer;
 
+
+/**
+ * Plan class for process flow.
+ * It is responsible for planning the processing time, such as
+ * setting the start time and ending time for method execution
+ * or process flow execution.
+ *
+ */
 public interface Plan {
 
 
+    /**
+     * Returns a ID of this Plan instance.
+     *
+     * @return ID of this Plan.
+     */
     String getId();
 
+    /**
+     * Lock this plan object against modifying parameters of this Plan instance.
+     *
+     * @param lockOwner an owner instance to lock this Plan instance
+     * @throws IllegalAccessException IllegalAccessException
+     */
     void lock(Object lockOwner) throws IllegalAccessException;
 
+
+    /**
+     * Unlock this plan object to release locking for modifying parameters of this Plan instance.
+     *
+     * @param lockOwner an owner instance to lock this Plan instance
+     * @throws IllegalAccessException IllegalAccessException
+     */
     void unlock(Object lockOwner) throws IllegalAccessException;
 
 
@@ -40,12 +66,38 @@ public interface Plan {
 
     Plan startTime(Date startDateTime);
 
+    /**
+     * Set the finish time at which the Plan should quit repeating (and be automatically deleted).
+     *
+     * @param isoDateTime this date-time as a String, such as 2019-06-16T10:15:30Z or 2019-06-16T10:15:30+01:00[Europe/Paris].
+     * @return an instance of Plan
+     * @throws java.text.ParseException If isoDataTime is not correct format
+     */
     Plan finishTime(String isoDateTime) throws java.text.ParseException;
 
+    /**
+     * Set the finish time at which the Plan should quit repeating (and be automatically deleted).
+     *
+     * @param endDateTime this date-time
+     * @return an instance of Plan
+     */
     Plan finishTime(Date endDateTime);
 
+
+    /**
+     * Sets the time to end from the current time.
+     *
+     * @param milliSeconds Milli seconds from current time
+     * @return an instance of Plan
+     */
     Plan finishTimeFromNow(long milliSeconds);
 
+    /**
+     * Sets the time to finish from the start time.
+     *
+     * @param milliSeconds Milli seconds from the start time
+     * @return an instance of Plan
+     */
     Plan finishTimeFromStart(long milliSeconds);
 
 

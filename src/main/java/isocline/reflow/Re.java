@@ -45,9 +45,7 @@ public class Re {
     public static WorkEvent quest(String evnetName, Object input) {
         WorkEvent event = WorkEventFactory.createOrigin(evnetName);
         try {
-            WorkEventConsumer consumer = e -> {
-                e.put("input", input);
-            };
+            WorkEventConsumer consumer = e -> e.put("input", input);
 
             consumer.accept(event);
         } catch (Throwable e) {

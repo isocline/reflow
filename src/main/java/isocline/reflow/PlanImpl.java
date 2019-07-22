@@ -22,9 +22,8 @@ import isocline.reflow.flow.func.WorkEventConsumer;
 import isocline.reflow.log.XLogger;
 
 import java.text.ParseException;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 
@@ -86,7 +85,7 @@ public class PlanImpl implements Plan, Activity {
 
     private Work work;
 
-    private WorkSession workSession = null;
+
 
     private Object lockOwner = null;
 
@@ -102,6 +101,16 @@ public class PlanImpl implements Plan, Activity {
     private Throwable error = null;
 
     private Consumer consumer = null;
+
+
+    private final Map<String, AtomicInteger> eventCheckMap = new Hashtable<>();
+
+    private final static int STATUS_RECEIVE_OK = -1;
+
+    private final static int STATUS_NOBODY_RECEIVE = -2;
+
+
+    private int maximumEventSkipCount = 0;
 
 
     PlanImpl(FlowProcessor flowProcessor, WorkEventConsumer runnable) {
@@ -145,7 +154,7 @@ public class PlanImpl implements Plan, Activity {
         };
 
         this.flowProcessor = flowProcessor;
-        this.work = (Work) work;
+        this.work = work;
         this.workFlow = flow;
 
 
@@ -456,9 +465,7 @@ public class PlanImpl implements Plan, Activity {
         return this.interval(intervalTime);
     }
 
-    public long getNextExecDelayTime() {
-        return this.intervalTime4Flow;
-    }
+
 
     /**
      * @param intervalTime
@@ -572,47 +579,6 @@ public class PlanImpl implements Plan, Activity {
         return (Activity) finishTimeFromNow(milliSeconds);
     }
 
-    /**
-     * @param className name of class
-     * @return an instance of Plan
-     * @throws ClassNotFoundException if the class cannot be located
-     * @throws InstantiationException if this Class represents an abstract class, an interface, an array class, a primitive type, or void; or if the class has no nullary constructor; or if the instantiation fails for some other reason.
-     * @throws IllegalAccessException if the class or its nullary constructor is not accessible.
-     */
-    public Plan workSession(String className) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-        checkLocking();
-        this.workSession = (WorkSession) Class.forName(className).newInstance();
-        return this;
-    }
-
-    /**
-     * Sets a {@link WorkSession}
-     *
-     * @param workSession an instance of WorkSession
-     * @return an instance of Plan
-     */
-    public Plan workSession(WorkSession workSession) {
-        checkLocking();
-
-        this.workSession = workSession;
-        return this;
-    }
-
-
-    /**
-     * Returns a {@link WorkSession}
-     *
-     * @return an instance of WorkSession
-     */
-    public WorkSession getWorkSession() {
-
-        if (this.workSession == null) {
-            this.workSession = new BasicWorkSession();
-
-        }
-
-        return this.workSession;
-    }
 
 
     public WorkFlow getWorkFlow() {
@@ -623,8 +589,49 @@ public class PlanImpl implements Plan, Activity {
     ////////////////
 
 
+
+
+    public void setMaximumEventSkipCount(int maximumEventSkipCount) {
+        if (maximumEventSkipCount < 0) {
+            throw new IllegalArgumentException("maximumEventSkipCount is too small");
+        }
+        this.maximumEventSkipCount = maximumEventSkipCount;
+    }
+
     @Override
     public Activity emit(WorkEvent event) {
+
+        if (event == null) {
+            throw new FlowProcessException("Event is null");
+        }
+
+        String fireEventName = event.getFireEventName();
+
+        if (maximumEventSkipCount > 0) {
+
+            AtomicInteger counter = eventCheckMap.computeIfAbsent(fireEventName, k -> new AtomicInteger(0));
+            int chkCount = counter.get();
+
+
+            if (chkCount > maximumEventSkipCount) {
+                counter.set(STATUS_NOBODY_RECEIVE);
+            } else {
+                switch (chkCount) {
+                    case STATUS_NOBODY_RECEIVE:
+                        return this;
+
+                    case STATUS_RECEIVE_OK:
+                        break;
+
+                    default:
+                        counter.addAndGet(1);
+
+                }
+
+            }
+        }
+
+        //System.out.println(" [0] >> " + event.getEventName() + " : " + event.getFireEventName());
 
         this.flowProcessor.addWorkSchedule(this, event);
 
@@ -632,14 +639,32 @@ public class PlanImpl implements Plan, Activity {
 
     }
 
+    void checkEvent(WorkEvent event) {
+
+        String fireEventName = event.getFireEventName();
+
+        if (fireEventName == null) return;
+
+        AtomicInteger counter = eventCheckMap.get(fireEventName);
+        if (counter != null && counter.get() != STATUS_RECEIVE_OK) {
+            counter.set(STATUS_RECEIVE_OK);
+        }
+
+    }
+
 
     @Override
     public Activity emit(WorkEvent event, long delayTime) {
 
+        if (event == null) {
+            throw new FlowProcessException("Event is null");
+        }
+
         if (delayTime > 0) {
             //this.flowProcessor.workChecker
+            //System.out.println(" [1] >> " + event.getEventName() + " : " + event.getFireEventName() + " delayTime:" + delayTime + "\n");
 
-            this.getFlowProcessor().addWorkSchedule(this, event, delayTime);
+            this.flowProcessor.addWorkSchedule(this, event, delayTime);
 
         } else {
             emit(event);
@@ -654,8 +679,8 @@ public class PlanImpl implements Plan, Activity {
     public Plan on(Object... eventNames) {
         checkLocking();
 
-        for (int i = 0; i < eventNames.length; i++) {
-            String eventName = eventNames[i].toString();
+        for (Object eventName1 : eventNames) {
+            String eventName = eventName1.toString();
             String[] subEventNames = eventRepository.setBindEventNames(eventName);
             for (String subEventName : subEventNames) {
                 this.flowProcessor.bindEvent(this, subEventName);
@@ -708,14 +733,8 @@ public class PlanImpl implements Plan, Activity {
     @Override
     public boolean isDaemonMode() {
 
-        if (intervalTime4Flow > 0) {
-            return true;
-        }
+        return intervalTime4Flow > 0 || isEventBindding || this.isDaemonMode;
 
-        if (isEventBindding) {
-            return true;
-        }
-        return this.isDaemonMode;
     }
 
     @Override
@@ -740,6 +759,7 @@ public class PlanImpl implements Plan, Activity {
      * @param consumer Consumer
      * @return an instance of Plan
      */
+    @SuppressWarnings("unchecked")
     @Override
     public Activity activate(Consumer consumer) {
         if (isActivated) {
@@ -800,7 +820,9 @@ public class PlanImpl implements Plan, Activity {
 
 
     /**
-     * @return
+     * Run this object synchronously
+     *
+     * @return an instance of Activity
      */
     @Override
     public Activity run() {

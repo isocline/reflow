@@ -141,7 +141,13 @@ public interface FlowableWork<T> extends Work {
                             new FlowProcessException("timeout"), Thread.currentThread());
                 }
 
+                //System.out.println(" < ==< "+event.getEventName() + " "+event.getFireEventName());
+
                 executor.check();
+
+
+                ((PlanImpl) plan).checkEvent(event);
+
 
                 //isFireEvent = executor.execute(event);;
                 rs = executor.execute(event);
@@ -207,9 +213,20 @@ public interface FlowableWork<T> extends Work {
     }
 
 
-    default Activity start() {
+    /**
+     * Executes this object according to the implementation flow logic.
+     *
+     * @param isAsync true to execute asynchronously ; false to execute synchronously.
+     * @return an instance of Activity
+     */
+    default Activity start(boolean isAsync) {
 
-        return FlowProcessor.core().execute(this).block();
+        Activity activity = FlowProcessor.core().execute(this);
+        if(!isAsync) {
+            activity.block();
+        }
+
+        return  activity;
 
     }
 

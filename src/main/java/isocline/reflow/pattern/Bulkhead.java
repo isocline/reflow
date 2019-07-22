@@ -12,6 +12,7 @@ public class Bulkhead implements WorkFlowPattern {
 
 
     private String id;
+
     private int failCount;
 
     private long lastFailTime = 0;
@@ -95,7 +96,6 @@ public class Bulkhead implements WorkFlowPattern {
 
     @Override
     public void middleFlow(WorkFlow flow, int seq) {
-        return;
     }
 
     @Override

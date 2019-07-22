@@ -14,13 +14,13 @@ public class DynamicRepeater implements Work {
     public long execute(WorkEvent event) throws InterruptedException {
 
 
-        long nexttime = 500 + (long) (Math.random()*1000);
+        long nexttime = 500 + (long) (Math.random() * 1000);
 
-        logger.debug("activate:" + (seq++) + " nexttime:"+nexttime );
+        logger.debug("activate:" + (seq++) + " nexttime:" + nexttime);
 
+        if (seq > 3) return TERMINATE;
 
         return nexttime;
-
 
     }
 
@@ -30,13 +30,11 @@ public class DynamicRepeater implements Work {
         FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
+        Plan plan = processor.task(new DynamicRepeater());
 
-        Plan schedule = processor.task(new DynamicRepeater());
-
-        schedule.activate();
+        plan.activate();
 
         processor.shutdown(TestConfiguration.TIMEOUT);
-
 
 
     }

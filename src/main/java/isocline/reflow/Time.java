@@ -15,8 +15,10 @@
  */
 package isocline.reflow;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * Utility Class with time setting related functions
@@ -206,5 +208,22 @@ public class Time {
         Date date = new Date(time);
 
         return dt.format(date);
+    }
+
+    public static String toIsoDateFormat(long date) {
+        return toIsoDateFormat(date, "UTC");
+    }
+
+    public static String toIsoDateFormat() {
+        return toIsoDateFormat(System.currentTimeMillis(), "UTC");
+    }
+
+
+    public static String toIsoDateFormat(long date, String timezone) {
+        TimeZone tz = TimeZone.getTimeZone(timezone);
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
+        df.setTimeZone(tz);
+
+        return df.format(new Date(date));
     }
 }

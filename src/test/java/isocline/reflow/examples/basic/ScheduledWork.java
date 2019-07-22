@@ -2,8 +2,8 @@ package isocline.reflow.examples.basic;
 
 import isocline.reflow.*;
 import isocline.reflow.descriptor.CronDescriptor;
-import isocline.reflow.examples.TestConfiguration;
 import isocline.reflow.log.XLogger;
+import org.junit.AfterClass;
 import org.junit.Test;
 
 public class ScheduledWork implements Work {
@@ -20,31 +20,35 @@ public class ScheduledWork implements Work {
         return WAIT;
     }
 
+
     @Test
     public void caseSchedule() throws Exception {
 
+        String startTime = Time.toIsoDateFormat();
+        String endTime = Time.toIsoDateFormat(System.currentTimeMillis() + 3000);
+        logger.debug("startTime : " + startTime);
+        logger.debug("endTime : " + endTime);
+
         Re.play(new ScheduledWork())
-                .interval(1 * Time.HOUR)
-                .startTime("2020-04-24T09:00:00Z")
+                .interval(1 * Time.SECOND)
+                .startTime(startTime)
                 .finishTime("2020-06-16T16:00:00Z")
                 .activate();
 
-
-        FlowProcessor.core().shutdown(TestConfiguration.TIMEOUT);
-        //processor.awaitShutdown();
     }
 
 
     @Test
     public void caseCron() throws Exception {
 
+        String endTime = Time.toIsoDateFormat(System.currentTimeMillis() + 3000);
+        logger.debug("endTime : " + endTime); //"2020-06-16T16:00:00Z"
+
         Re.play(new CronDescriptor("* 1,4-6 * * *"), new ScheduledWork())
-                .finishTime("2020-06-16T16:00:00Z")
-                .activate();
+                .finishTime(endTime)
+                .activate().block();
 
 
-        FlowProcessor.core().shutdown(TestConfiguration.TIMEOUT);
-        //processor.awaitShutdown();
     }
 
 
@@ -54,13 +58,13 @@ public class ScheduledWork implements Work {
         FlowProcessor manager = FlowProcessorFactory.getProcessor();
 
 
-        Plan schedule = manager.task(ScheduledWork.class);
+        Plan plan = manager.task(ScheduledWork.class);
 
-        schedule.interval(1 * Time.SECOND);
-        schedule.activate();
+        plan.interval(1 * Time.SECOND)
+                .finishTimeFromNow(3 * Time.SECOND)
+                .activate().block();
 
 
-        manager.shutdown(TestConfiguration.TIMEOUT);
     }
 
     @Test
@@ -69,14 +73,14 @@ public class ScheduledWork implements Work {
         FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-        Plan schedule = processor.task(ScheduledWork.class);
+        Plan plan = processor.task(ScheduledWork.class);
 
-        schedule.interval(1 * Time.SECOND);
-        schedule.strictMode();
-        schedule.activate();
+        plan.interval(1 * Time.SECOND)
+                .finishTimeFromNow(3 * Time.SECOND)
+                .strictMode()
+                .activate().block();
 
 
-        processor.shutdown(TestConfiguration.TIMEOUT);
     }
 
     @Test
@@ -85,14 +89,14 @@ public class ScheduledWork implements Work {
         FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-        Plan schedule = processor.task(ScheduledWork.class);
+        Plan plan = processor.task(ScheduledWork.class);
 
-        schedule.interval(1 * Time.SECOND);
-        schedule.initialDelay(Time.milliseconds(0, 0, 2));
-        schedule.activate();
+        plan.interval(1 * Time.SECOND)
+                .initialDelay(Time.milliseconds(0, 0, 2))
+                .finishTimeFromNow(5 * Time.SECOND)
+                .activate().block();
 
 
-        processor.shutdown(TestConfiguration.TIMEOUT);
     }
 
 
@@ -102,13 +106,20 @@ public class ScheduledWork implements Work {
         FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
 
-        Plan schedule = processor.task(ScheduledWork.class);
+        Plan plan = processor.task(ScheduledWork.class);
 
-        schedule.interval(1 * Time.SECOND);
-        schedule.startTime(Time.nextSecond() + Time.SECOND * 2);
-        schedule.activate();
+        plan.interval(1 * Time.SECOND)
+                .startTime(Time.nextSecond() + Time.SECOND * 2)
+                .finishTimeFromNow(5 * Time.SECOND)
+                .activate().block();
 
 
-        processor.shutdown(TestConfiguration.TIMEOUT);
+    }
+
+
+    @AfterClass
+    public static void shutdown() {
+
+        //FlowProcessor.core().shutdown(3000);
     }
 }
