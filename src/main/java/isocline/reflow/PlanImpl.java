@@ -820,7 +820,9 @@ public class PlanImpl implements Plan, Activity {
 
 
     /**
-     * @return
+     * Run this object synchronously
+     *
+     * @return an instance of Activity
      */
     @Override
     public Activity run() {

@@ -98,7 +98,7 @@ public interface Activity {
      *
      * @param isoDateTime this date-time as a String, such as 2019-06-16T10:15:30Z or 2019-06-16T10:15:30+01:00[Europe/Paris].
      * @return an instance of WorkFlow
-     * @throws java.text.ParseException
+     * @throws java.text.ParseException If isoDataTime is not correct format
      */
     Activity finish(String isoDateTime) throws java.text.ParseException;
 
@@ -114,7 +114,7 @@ public interface Activity {
     /**s
      * Finish an Activity at a user-defined time.
      *
-     * @param milliSeconds
+     * @param milliSeconds Milli seconds from current time
      * @return an instance of WorkFlow
      */
     Activity finishFromNow(long milliSeconds);

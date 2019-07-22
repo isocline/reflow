@@ -217,7 +217,7 @@ public interface FlowableWork<T> extends Work {
      * Executes this object according to the implementation flow logic.
      *
      * @param isAsync true to execute asynchronously ; false to execute synchronously.
-     * @return
+     * @return an instance of Activity
      */
     default Activity start(boolean isAsync) {
 

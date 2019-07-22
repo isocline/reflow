@@ -71,7 +71,7 @@ public interface Plan {
      *
      * @param isoDateTime this date-time as a String, such as 2019-06-16T10:15:30Z or 2019-06-16T10:15:30+01:00[Europe/Paris].
      * @return an instance of Plan
-     * @throws java.text.ParseException
+     * @throws java.text.ParseException If isoDataTime is not correct format
      */
     Plan finishTime(String isoDateTime) throws java.text.ParseException;
 
