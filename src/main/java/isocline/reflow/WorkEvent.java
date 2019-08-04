@@ -65,6 +65,7 @@ public interface WorkEvent {
      *
      * @param key   the key name to which the object is bound; cannot be null
      * @param value the object to be bound
+     * @return an instance of WorkEvent
      */
     WorkEvent put(String key, Object value);
 
@@ -87,7 +88,6 @@ public interface WorkEvent {
 
 
     void reset();
-
 
 
     AtomicInteger getCounter(String key);
@@ -123,6 +123,7 @@ public interface WorkEvent {
      * Set error information.
      *
      * @param e Throwable error
+     * @return an instance of WorkEvent
      */
     WorkEvent setThrowable(Throwable e);
 
@@ -145,6 +146,7 @@ public interface WorkEvent {
      * Defines the valid time at which the event occurs.
      *
      * @param time the milliseconds since January 1, 1970, 00:00:00 GMT.
+     * @return an instance of WorkEvent
      */
     WorkEvent setFireTime(long time);
 
@@ -157,39 +159,98 @@ public interface WorkEvent {
     long getFireTime();
 
 
+    /**
+     * Returns name of fire event.
+     * @return name of event
+     */
     String getFireEventName();
 
 
+    /**
+     * Set name of fire event.
+     *
+     * @param eventName name of event
+     * @return instance of WorkEvent
+     */
     WorkEvent setFireEventName(String eventName);
 
 
-
-
+    /**
+     * Returns result object for internal process.
+     *
+     * @return instance of result, if exist. or null
+     */
     Object getResult();
 
 
+    /**
+     * Return data stream.
+     *
+     * @return instance of normal stream.
+     */
     Stream getStream();
 
 
+    /**
+     * Returns integer stream, if internal work process produces stream.
+     *
+     * @return integer stream
+     */
     IntStream getIntStream();
 
 
+    /**
+     * Returns long stream, if internal work process produces stream.
+     * @return long stream
+     */
     LongStream getLongStream();
 
 
+    /**
+     * Returns double stream, if internal work process produces stream.
+     *
+     * @return double stream.
+     */
     DoubleStream getDoubleStream();
 
 
+    /**
+     * Set an instance of WorkEventPredicate for filtering process.
+     *
+     * @param tester an instance of WorkEventPredicate
+     * @return an instance of WorkEvent
+     */
     WorkEvent filter(WorkEventPredicate tester);
 
+
+    /**
+     * Set an instance or WorkEventConsumer for receiving result.
+     *
+     * @param consumer an instance of WorkEventConsumer
+     * @return an instance of WorkEvent
+     */
     WorkEvent subscribe(WorkEventConsumer consumer);
 
 
+    /**
+     * Set an instance of WorkEvent for callback.
+     *
+     * @param event an instance of WorkEvent
+     * @return true if success setup.
+     */
     boolean callback(WorkEvent event);
 
 
+    /**
+     * execute method if you want to ternminate internal work process.
+     *
+     */
     void complete();
 
+    /**
+     * Blocking until internal work process complete.
+     *
+     */
     void block();
 
 }
