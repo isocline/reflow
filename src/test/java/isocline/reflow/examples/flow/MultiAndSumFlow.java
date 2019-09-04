@@ -65,7 +65,8 @@ public class MultiAndSumFlow implements FlowableWork {
 
     @Test
     public void test() throws InterruptedException {
-        Activity plan  = start();
+
+        Activity plan  = start(false);
 
         plan.block();
 
