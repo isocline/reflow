@@ -46,8 +46,8 @@ public class WorkEventFactory {
      *
      * Create a implement object of WorkEvent
      *
-     * @param eventName
-     * @return
+     * @param eventName name of event
+     * @return instance of WorkEvent
      */
     @SuppressWarnings("JavaDoc")
     public static WorkEvent createOrigin(String eventName) {
@@ -60,7 +60,7 @@ public class WorkEventFactory {
     /**
      * Create a implement object of WorkEvent
      *
-     * @return
+     * @return instance of WorkEvent
      */
     public static WorkEvent createOrigin() {
 
