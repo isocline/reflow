@@ -123,7 +123,9 @@ public class WorkEventImpl implements WorkEvent {
 
 
     /**
-     * @return
+     * Get instance of Activity.
+     *
+     * @return instance of Activity
      */
     public Activity getActivity() {
 
@@ -132,8 +134,10 @@ public class WorkEventImpl implements WorkEvent {
 
 
     /**
-     * @param key
-     * @param value
+     * Put value with key.
+     *
+     * @param key key of value
+     * @param value value
      */
     public WorkEvent put(String key, Object value) {
         this.attributeMap.put(key, value);
@@ -142,8 +146,10 @@ public class WorkEventImpl implements WorkEvent {
     }
 
     /**
-     * @param key
-     * @return
+     * Get value by key
+     *
+     * @param key key of value
+     * @return value
      */
     public Object get(String key) {
         return this.attributeMap.get(key);
@@ -167,8 +173,11 @@ public class WorkEventImpl implements WorkEvent {
     }
 
     /**
-     * @param key
-     * @return
+     *
+     * Remove value by key.
+     *
+     * @param key key of value
+     * @return removed value
      */
     public Object remove(String key) {
         return this.attributeMap.remove(key);
@@ -180,7 +189,9 @@ public class WorkEventImpl implements WorkEvent {
     }
 
     /**
-     * @param event
+     * copy internal properties to another instance of WorkEvent.
+     *
+     * @param event instance of event
      */
     public void copyTo(WorkEvent event) {
         WorkEventImpl event2 = (WorkEventImpl) event;

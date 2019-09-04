@@ -21,10 +21,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * EventRespository
  *
  *
- * @param <K>
- * @param <V>
+ * @param <K> key
+ * @param <V> value
  */
 public class EventRepository<K,V> extends HashMap<K,V> {
 

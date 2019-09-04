@@ -34,9 +34,9 @@ public class SimultaneousEventSet  {
 
     /**
      * SimultaneousEventSet is bundle of event names.
-     * ex)  event1&event2
+     * ex)  event1&amp;event2
      *
-     * @param eventSetName
+     * @param eventSetName name of eventSet
      */
     public SimultaneousEventSet(String eventSetName) {
         this.eventSetName = eventSetName;
@@ -54,7 +54,7 @@ public class SimultaneousEventSet  {
     /**
      * Returns a EventSetName
      *
-     * @return
+     * @return A name of EventSet
      */
     public String getEventSetName() {
         return this.eventSetName;
@@ -64,8 +64,9 @@ public class SimultaneousEventSet  {
     /**
      * Check
      *
-     * @param eventName
-     * @return
+     * @param event instance of WorkEvent
+     * @param eventName a name of event
+     * @return if event ready, return true, else false.
      */
     public boolean isRaiseEventReady(WorkEvent event, String eventName) {
 
