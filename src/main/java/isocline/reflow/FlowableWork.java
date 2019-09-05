@@ -230,4 +230,9 @@ public interface FlowableWork<T> extends Work {
 
     }
 
+
+    default Activity start() {
+        return start(true);
+    }
+
 }
