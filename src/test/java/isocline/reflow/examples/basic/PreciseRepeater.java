@@ -1,11 +1,13 @@
 package isocline.reflow.examples.basic;
 
-import isocline.reflow.*;
-import isocline.reflow.examples.TestConfiguration;
+import isocline.reflow.Re;
+import isocline.reflow.TestBase;
+import isocline.reflow.Work;
+import isocline.reflow.WorkEvent;
 import isocline.reflow.log.XLogger;
 import org.junit.Test;
 
-public class PreciseRepeater implements Work {
+public class PreciseRepeater extends TestBase implements Work {
 
     private static XLogger logger = XLogger.getLogger(PreciseRepeater.class);
 
@@ -15,7 +17,7 @@ public class PreciseRepeater implements Work {
 
         logger.debug("activate:" + seq++);
 
-        if(seq>100) return TERMINATE;
+        if (seq > 100) return TERMINATE;
 
         return 10;
     }
@@ -27,8 +29,9 @@ public class PreciseRepeater implements Work {
                 .strictMode()
                 .activate();
 
+        // check logging time
 
-        FlowProcessor.core().shutdown(TestConfiguration.TIMEOUT);
+
     }
 
 }

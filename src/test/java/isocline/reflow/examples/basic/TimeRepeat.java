@@ -5,7 +5,7 @@ import isocline.reflow.descriptor.CronDescriptor;
 import isocline.reflow.log.XLogger;
 import org.junit.Test;
 
-public class TimeRepeat implements Work {
+public class TimeRepeat extends TestBase implements Work {
 
     private static XLogger logger = XLogger.getLogger(TimeRepeat.class);
 
@@ -19,11 +19,8 @@ public class TimeRepeat implements Work {
     @Test
     public void case1() throws Exception {
 
-        FlowProcessor processor = FlowProcessorFactory.getProcessor();
-        processor.task(new CronDescriptor("49 1 * * *"), this).activate();
+        Re.play(new CronDescriptor("49 1 * * *"), this).activate();
 
-        processor.shutdown(3000);
-        //processor.awaitShutdown();
     }
 
 

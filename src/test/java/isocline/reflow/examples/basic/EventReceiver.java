@@ -1,7 +1,6 @@
 package isocline.reflow.examples.basic;
 
 import isocline.reflow.*;
-import isocline.reflow.examples.TestConfiguration;
 import isocline.reflow.log.XLogger;
 import isocline.reflow.module.WorkEventGenerator;
 import org.junit.Test;
@@ -10,7 +9,7 @@ import org.junit.Test;
 /**
  * https://www-01.ibm.com/support/docview.wss?uid=swg21089949
  */
-public class EventReceiver implements Work {
+public class EventReceiver extends TestBase implements Work {
 
     private static XLogger logger = XLogger.getLogger(EventReceiver.class);
 
@@ -51,7 +50,7 @@ public class EventReceiver implements Work {
                 .activate();
 
 
-        FlowProcessor.core().shutdown(TestConfiguration.TIMEOUT);
+
     }
 
 
@@ -71,6 +70,6 @@ public class EventReceiver implements Work {
                 (Time.nextSecond()).activate();
 
 
-        processor.shutdown(TestConfiguration.TIMEOUT);
+
     }
 }

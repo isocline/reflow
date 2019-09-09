@@ -1,14 +1,13 @@
 package isocline.reflow.examples.basic;
 
-import isocline.reflow.FlowProcessor;
-import isocline.reflow.FlowProcessorFactory;
+import isocline.reflow.Re;
+import isocline.reflow.TestBase;
 import isocline.reflow.Work;
 import isocline.reflow.WorkEvent;
-import isocline.reflow.examples.TestConfiguration;
 import isocline.reflow.log.XLogger;
 import org.junit.Test;
 
-public class SimpleExecute implements Work {
+public class SimpleExecute extends TestBase implements Work {
 
     private static XLogger logger = XLogger.getLogger(SimpleExecute.class);
 
@@ -26,15 +25,8 @@ public class SimpleExecute implements Work {
     @Test
     public void case1() throws Exception {
 
-        FlowProcessor processor = FlowProcessorFactory.getProcessor();
+        Re.play(new SimpleExecute()).activate();
 
-
-
-        // activate async
-        processor.execute(new SimpleExecute());
-
-
-        processor.shutdown(TestConfiguration.TIMEOUT);
 
     }
 

@@ -17,6 +17,9 @@ public class Re {
         return FlowProcessor.core().task(runnable);
     }
 
+    public static Plan play(Class runClass) throws InstantiationException, IllegalAccessException  {
+        return FlowProcessor.core().task(runClass);
+    }
 
     public static Plan play(WorkEventConsumer work) {
         return FlowProcessor.core().task(work);
