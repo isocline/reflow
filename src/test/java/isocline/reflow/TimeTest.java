@@ -86,7 +86,12 @@ public class TimeTest {
         int it1 = Integer.parseInt(items1[1]);
         int it2 = Integer.parseInt(items2[1]);
 
-        assertEquals(it1 + 1, it2);
+        // if it1 is 59,  it2 is 0.
+        if(it2!=0) {
+            assertEquals(it1 + 1, it2);
+        }
+
+
 
         float f1 = Float.parseFloat(items2[2]);
 
