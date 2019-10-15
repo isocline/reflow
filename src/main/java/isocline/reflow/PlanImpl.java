@@ -468,8 +468,10 @@ public class PlanImpl implements Plan, Activity {
 
 
     /**
-     * @param intervalTime
-     * @return
+     * Adjust interval time to repeat
+     *
+     * @param intervalTime interval time to repeat
+     * @return instance of Plan object
      */
     Plan adjustRepeatInterval(long intervalTime) {
 
