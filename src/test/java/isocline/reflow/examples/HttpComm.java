@@ -63,7 +63,7 @@ public class HttpComm implements Work {
                     return TERMINATE;
                 return Work.LOOP;
             }
-        }catch (IOException ioe) {
+        }catch (IOException ignored) {
 
         }
         return TERMINATE;

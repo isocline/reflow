@@ -67,11 +67,7 @@ public class EventRepositoryTest {
     private void bindEventRepository(String eventName, FunctionExecutor functionExecutor) {
 
 
-        Queue<FunctionExecutor> queue = this.eventRepository.get(eventName);
-        if (queue == null) {
-            queue = new ConcurrentLinkedQueue<FunctionExecutor>();
-            this.eventRepository.put(eventName, queue);
-        }
+        Queue<FunctionExecutor> queue = this.eventRepository.computeIfAbsent(eventName, k -> new ConcurrentLinkedQueue<>());
 
         queue.add(functionExecutor);
 
