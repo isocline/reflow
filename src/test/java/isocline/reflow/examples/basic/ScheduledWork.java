@@ -15,7 +15,6 @@ public class ScheduledWork extends TestBase implements Work {
 
         logger.debug("activate:" + seq++);
 
-
         return WAIT;
     }
 
@@ -37,6 +36,11 @@ public class ScheduledWork extends TestBase implements Work {
     }
 
 
+    /**
+     * execute with cron style
+     *
+     * @throws Exception
+     */
     @Test
     public void caseCron() throws Exception {
 
@@ -58,7 +62,7 @@ public class ScheduledWork extends TestBase implements Work {
         Plan plan = Re.play(ScheduledWork.class);
 
         plan.interval(1 * Time.SECOND)
-                .finishTimeFromNow(3 * Time.SECOND)
+                .finishTimeFromNow(3 * Time.SECOND)  // finish after 3 seconds
                 .activate().block();
 
 

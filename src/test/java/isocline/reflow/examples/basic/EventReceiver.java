@@ -32,7 +32,7 @@ public class EventReceiver extends TestBase implements Work {
     }
 
     @Test
-    public void basicStyle() throws Exception {
+    public void invokeRepeat() throws Exception {
 
         // Receiver
         Re.play(new EventReceiver()).on("example-event")
@@ -66,8 +66,10 @@ public class EventReceiver extends TestBase implements Work {
         WorkEventGenerator gen = new WorkEventGenerator();
         gen.setEventName("example-event");
 
-        processor.task(gen).finishTimeFromNow(30 * Time.SECOND).strictMode().startTime
-                (Time.nextSecond()).activate();
+        processor.task(gen).strictMode()
+                .startTime(Time.nextSecond()) //start next exact second
+                .finishTimeFromNow(30 * Time.SECOND) // finish after 30 secs but this event process fire event only one.
+                .activate();
 
 
 

@@ -17,13 +17,22 @@ public class PreciseRepeater extends TestBase implements Work {
 
         logger.debug("activate:" + seq++);
 
+
+        // repeat 100 times
         if (seq > 100) return TERMINATE;
 
+        // execute after 10 milli seconds
         return 10;
     }
 
+
+    /**
+     *
+     *
+     *
+     */
     @Test
-    public void case1() throws Exception {
+    public void case1()   {
 
         Re.play(this)
                 .strictMode()
