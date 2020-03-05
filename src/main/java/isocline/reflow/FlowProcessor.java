@@ -592,7 +592,7 @@ public class FlowProcessor extends ThreadGroup {
     }
 
     public FlowProcessor emit(WorkEvent event) {
-        String eventName = event.getEventName();
+        String eventName = event.getFireEventName();
         if (eventName != null && eventName.length() > 0) {
             emit(eventName, event);
         }
