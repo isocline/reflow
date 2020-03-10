@@ -66,7 +66,7 @@ public class WorkEventGenerator implements Work {
         //event.getActivity().getFlowProcessor().emit(eventName, event);
         //FlowProcessorFactory.getProcessor().emit(eventName, newEvent);
 
-        logger.error("fire event [" + eventName+"] nexttime:"+ intervalTime);
+        logger.debug("fire event [" + eventName+"] nexttime:"+ intervalTime);
 
         return intervalTime;
     }

@@ -197,9 +197,7 @@ public class ReceiveTest {
 
         // subscribe
 
-        Re.ceive("rcv", "regist", e -> {
-            e.put("id", "jj");
-        })
+        Re.ceive("rcv", "regist", e -> e.put("id", "jj"))
                 .filter(e -> true)
                 .subscribe(event -> {
                     logger.debug("Re.ceive >" + event.get("x"));

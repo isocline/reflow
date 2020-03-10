@@ -39,7 +39,7 @@ public class OrderProcess2 implements FlowableWork {
 
         try {
             Thread.sleep(3000);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
 
         }
 
@@ -54,7 +54,7 @@ public class OrderProcess2 implements FlowableWork {
 
         try {
             Thread.sleep(3500);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
 
         }
 

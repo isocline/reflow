@@ -64,7 +64,7 @@ public class ConfigurationTest {
         try {
             conf.setInitThreadWorkerSize(3);
             assertEquals(true, false);
-        }catch(RuntimeException re) {
+        }catch(RuntimeException ignored) {
 
         }
 

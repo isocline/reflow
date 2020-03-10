@@ -146,7 +146,7 @@ public class Loader2 extends Application{
 
         xAxis.setLabel("x");
 
-        final LineChart<Number,Number> lineChart = new LineChart<Number, Number>(xAxis,yAxis);
+        final LineChart<Number,Number> lineChart = new LineChart<>(xAxis, yAxis);
         Scene scene = new Scene(lineChart,800,600);
 
         String path = "/Users/sungkwonkim/Downloads/mnist_test.csv";

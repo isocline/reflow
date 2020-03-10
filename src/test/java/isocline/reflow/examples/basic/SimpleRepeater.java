@@ -1,11 +1,10 @@
 package isocline.reflow.examples.basic;
 
 import isocline.reflow.*;
-import isocline.reflow.examples.TestConfiguration;
 import isocline.reflow.log.XLogger;
 import org.junit.Test;
 
-public class SimpleRepeater implements Work {
+public class SimpleRepeater extends TestBase implements Work {
 
     private static XLogger logger = XLogger.getLogger(SimpleRepeater.class);
 
@@ -29,23 +28,20 @@ public class SimpleRepeater implements Work {
                 .finishTimeFromNow(5 * Time.SECOND)
                 .activate();
 
-        FlowProcessor.core().shutdown(TestConfiguration.TIMEOUT);
-        //processor.awaitShutdown();
     }
 
 
     @Test
     public void startMethod() throws Exception {
 
-        Re.play( (WorkEvent event) -> {
+        Re.play((WorkEvent event) -> {
             // DO YOUR WORK
             return 10 * Time.SECOND;
         })
                 .finishTimeFromNow(5 * Time.SECOND)
                 .activate();
 
-        FlowProcessor.core().shutdown(TestConfiguration.TIMEOUT);
-        //processor.awaitShutdown();
+
     }
 
 
@@ -61,7 +57,6 @@ public class SimpleRepeater implements Work {
         schedule.activate();
 
 
-        processor.shutdown(TestConfiguration.TIMEOUT);
     }
 
     @Test
@@ -77,7 +72,6 @@ public class SimpleRepeater implements Work {
         schedule.activate();
 
 
-        processor.shutdown(TestConfiguration.TIMEOUT);
     }
 
     @Test
@@ -92,8 +86,6 @@ public class SimpleRepeater implements Work {
         schedule.initialDelay(Time.milliseconds(0, 0, 2));
         schedule.activate();
 
-
-        processor.shutdown(TestConfiguration.TIMEOUT);
     }
 
 
@@ -110,6 +102,5 @@ public class SimpleRepeater implements Work {
         schedule.activate();
 
 
-        processor.shutdown(TestConfiguration.TIMEOUT);
     }
 }

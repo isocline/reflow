@@ -119,9 +119,7 @@ public class FunctionExecutor<T, R> implements FunctionExecFeature {
                 this.workEventFunction = (WorkEventFunction) obj;
             } else if (obj instanceof ThrowableRunFunction) {
                 this.throwableRunFunction = (ThrowableRunFunction) obj;
-            } else if (obj instanceof Function) {
-                this.function = (Function) obj;
-            } else {
+            }  else {
                 throw new IllegalArgumentException("Not Support type");
             }
         }

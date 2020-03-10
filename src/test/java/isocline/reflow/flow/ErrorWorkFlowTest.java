@@ -104,7 +104,7 @@ public class ErrorWorkFlowTest implements FlowableWork {
             try {
                 logger.debug(msg + " #WAIT - " + delayTime);
                 Thread.sleep(delayTime);
-            } catch (Exception e) {
+            } catch (Exception ignored) {
 
             }
         }

@@ -195,6 +195,7 @@ class RaceThreadx2 extends Thread {
             try {
                 Thread.sleep(r.nextInt(300) + 30);
             } catch (Exception e) {
+                e.printStackTrace();
             }
             System.err.println(this.x);
         }

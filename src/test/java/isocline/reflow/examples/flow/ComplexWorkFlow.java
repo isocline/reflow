@@ -20,7 +20,7 @@ public class ComplexWorkFlow implements FlowableWork {
         logger.debug("invoke - sendSMS ** start");
         try {
             Thread.sleep(1000);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
 
         }
         logger.debug("invoke - sendSMS ** end");
@@ -32,7 +32,7 @@ public class ComplexWorkFlow implements FlowableWork {
         logger.debug("invoke - sendMail start");
         try {
             Thread.sleep(2000);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
 
         }
         logger.debug("invoke - sendMail end");

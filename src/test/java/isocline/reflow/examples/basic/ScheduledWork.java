@@ -3,10 +3,9 @@ package isocline.reflow.examples.basic;
 import isocline.reflow.*;
 import isocline.reflow.descriptor.CronDescriptor;
 import isocline.reflow.log.XLogger;
-import org.junit.AfterClass;
 import org.junit.Test;
 
-public class ScheduledWork implements Work {
+public class ScheduledWork extends TestBase implements Work {
 
     private static XLogger logger = XLogger.getLogger(ScheduledWork.class);
 
@@ -15,7 +14,6 @@ public class ScheduledWork implements Work {
     public long execute(WorkEvent event) throws InterruptedException {
 
         logger.debug("activate:" + seq++);
-
 
         return WAIT;
     }
@@ -38,6 +36,11 @@ public class ScheduledWork implements Work {
     }
 
 
+    /**
+     * execute with cron style
+     *
+     * @throws Exception
+     */
     @Test
     public void caseCron() throws Exception {
 
@@ -55,13 +58,11 @@ public class ScheduledWork implements Work {
     @Test
     public void case2() throws Exception {
 
-        FlowProcessor manager = FlowProcessorFactory.getProcessor();
 
-
-        Plan plan = manager.task(ScheduledWork.class);
+        Plan plan = Re.play(ScheduledWork.class);
 
         plan.interval(1 * Time.SECOND)
-                .finishTimeFromNow(3 * Time.SECOND)
+                .finishTimeFromNow(3 * Time.SECOND)  // finish after 3 seconds
                 .activate().block();
 
 
@@ -70,10 +71,7 @@ public class ScheduledWork implements Work {
     @Test
     public void caseStrictMode() throws Exception {
 
-        FlowProcessor processor = FlowProcessorFactory.getProcessor();
-
-
-        Plan plan = processor.task(ScheduledWork.class);
+        Plan plan = Re.play(ScheduledWork.class);
 
         plan.interval(1 * Time.SECOND)
                 .finishTimeFromNow(3 * Time.SECOND)
@@ -86,10 +84,7 @@ public class ScheduledWork implements Work {
     @Test
     public void delayStart1() throws Exception {
 
-        FlowProcessor processor = FlowProcessorFactory.getProcessor();
-
-
-        Plan plan = processor.task(ScheduledWork.class);
+        Plan plan = Re.play(ScheduledWork.class);
 
         plan.interval(1 * Time.SECOND)
                 .initialDelay(Time.milliseconds(0, 0, 2))
@@ -103,10 +98,7 @@ public class ScheduledWork implements Work {
     @Test
     public void delayStart2() throws Exception {
 
-        FlowProcessor processor = FlowProcessorFactory.getProcessor();
-
-
-        Plan plan = processor.task(ScheduledWork.class);
+        Plan plan = Re.play(ScheduledWork.class);
 
         plan.interval(1 * Time.SECOND)
                 .startTime(Time.nextSecond() + Time.SECOND * 2)
@@ -117,9 +109,4 @@ public class ScheduledWork implements Work {
     }
 
 
-    @AfterClass
-    public static void shutdown() {
-
-        //FlowProcessor.core().shutdown(3000);
-    }
 }

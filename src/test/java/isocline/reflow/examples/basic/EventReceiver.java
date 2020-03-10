@@ -1,7 +1,6 @@
 package isocline.reflow.examples.basic;
 
 import isocline.reflow.*;
-import isocline.reflow.examples.TestConfiguration;
 import isocline.reflow.log.XLogger;
 import isocline.reflow.module.WorkEventGenerator;
 import org.junit.Test;
@@ -10,7 +9,7 @@ import org.junit.Test;
 /**
  * https://www-01.ibm.com/support/docview.wss?uid=swg21089949
  */
-public class EventReceiver implements Work {
+public class EventReceiver extends TestBase implements Work {
 
     private static XLogger logger = XLogger.getLogger(EventReceiver.class);
 
@@ -33,7 +32,7 @@ public class EventReceiver implements Work {
     }
 
     @Test
-    public void basicStyle() throws Exception {
+    public void invokeRepeat() throws Exception {
 
         // Receiver
         Re.play(new EventReceiver()).on("example-event")
@@ -51,7 +50,7 @@ public class EventReceiver implements Work {
                 .activate();
 
 
-        FlowProcessor.core().shutdown(TestConfiguration.TIMEOUT);
+
     }
 
 
@@ -67,10 +66,12 @@ public class EventReceiver implements Work {
         WorkEventGenerator gen = new WorkEventGenerator();
         gen.setEventName("example-event");
 
-        processor.task(gen).finishTimeFromNow(30 * Time.SECOND).strictMode().startTime
-                (Time.nextSecond()).activate();
+        processor.task(gen).strictMode()
+                .startTime(Time.nextSecond()) //start next exact second
+                .finishTimeFromNow(30 * Time.SECOND) // finish after 30 secs but this event process fire event only one.
+                .activate();
 
 
-        processor.shutdown(TestConfiguration.TIMEOUT);
+
     }
 }
