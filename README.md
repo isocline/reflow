@@ -319,7 +319,7 @@ public class BasicWorkFlowTest {
 
 ```
 
-setup timeout for sendSignla method
+setup timeout for sendSignal method
  
 ```java
         @Test
