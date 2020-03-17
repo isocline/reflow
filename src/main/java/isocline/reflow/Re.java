@@ -41,26 +41,53 @@ public class Re {
         return FlowProcessor.core().task(descriptor, work);
     }
 
-    public static FlowProcessor quest(WorkEvent event) {
-        return FlowProcessor.core().emit(event);
+    public static ResultEvent quest(WorkEvent event) {
+        FlowProcessor.core().emit(event);
+        return event;
     }
 
-    public static WorkEvent quest(String evnetName, Object input) {
-        WorkEvent event = WorkEventFactory.createOrigin(evnetName);
-        try {
-            WorkEventConsumer consumer = e -> e.put("input", input);
+    public static ResultEvent quest(String eventName, DataChannel dataChannel) {
+        return quest(eventName, dataChannel, null);
+    }
 
-            consumer.accept(event);
+    public static ResultEvent quest(String eventName, Object input) {
+        return quest(eventName, new DataChannel(input) , null);
+    }
+
+    public static ResultEvent quest(String eventName, DataChannel dataChannel, WorkEventConsumer consumer) {
+        WorkEvent event = WorkEventFactory.createOrigin(eventName);
+        event.dataChannel(dataChannel);
+
+        int sp = eventName.indexOf("://");
+        if(sp>0) {
+            event.setFireEventName(eventName.substring(0, sp+3));
+        }
+
+        try {
+            if(consumer!=null) {
+                event.subscribe(consumer);
+            }
+
+
+            //consumer.accept(event);
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }
-        FlowProcessor.core().emit(evnetName, event);
+        FlowProcessor.core().emit(event);
 
         return event;
     }
 
+    public static ResultEvent quest(WorkEvent event, WorkEventConsumer consumer) {
 
-    public static WorkEvent quest(String eventName, WorkEventConsumer consumer) {
+        event.subscribe(consumer);
+
+        FlowProcessor.core().emit(event);
+
+        return event;
+    }
+
+    public static ResultEvent quest(String eventName, WorkEventConsumer consumer) {
         WorkEvent event = WorkEventFactory.createOrigin(eventName);
         try {
             consumer.accept(event);
@@ -72,7 +99,7 @@ public class Re {
         return event;
     }
 
-    public static WorkEvent quest(String eventName, WorkEventConsumer eventPublisher, WorkEventConsumer eventConsumer) {
+    public static ResultEvent quest(String eventName, WorkEventConsumer eventPublisher, WorkEventConsumer eventConsumer) {
         WorkEvent event = WorkEventFactory.createOrigin(eventName);
 
         event.subscribe(eventConsumer);

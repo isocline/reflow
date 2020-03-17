@@ -65,12 +65,20 @@ public class ComplexWorkFlow implements FlowableWork {
 
         Activity schedule = start();
 
-        schedule.block();
 
 
         FlowProcessorFactory.getProcessor().awaitShutdown();
 
 
+    }
+
+    @Test
+    public void test2() throws Exception {
+        FlowProcessor processor = FlowProcessorFactory.getProcessor();
+
+        processor.reflow(this).activate().block();
+
+        logger.info("END");
     }
 
 

@@ -1,10 +1,8 @@
 package isocline.reflow.examples.basic;
 
-import isocline.reflow.Re;
-import isocline.reflow.TestBase;
-import isocline.reflow.Work;
-import isocline.reflow.WorkEvent;
+import isocline.reflow.*;
 import isocline.reflow.log.XLogger;
+import org.junit.Assert;
 import org.junit.Test;
 
 
@@ -30,8 +28,13 @@ public class DynamicRepeater extends TestBase implements Work {
     @Test
     public void case1() throws Exception {
 
+        DynamicRepeater worker = new DynamicRepeater();
 
-        Re.play(new DynamicRepeater()).activate();
+        //Re.play(worker).activate().block();
+        FlowProcessor fp = FlowProcessorFactory.getProcessor();
+        fp.task(worker).activate().block();
+
+        Assert.assertEquals(worker.seq, 4);
 
        
     }

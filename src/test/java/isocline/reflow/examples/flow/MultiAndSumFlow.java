@@ -68,7 +68,10 @@ public class MultiAndSumFlow implements FlowableWork {
 
         Activity plan  = start(false);
 
+        System.err.println("--1");
         plan.block();
+        System.err.println("--2");
+        Thread.sleep(10000);
 
         FlowProcessorFactory.getProcessor().awaitShutdown();
 

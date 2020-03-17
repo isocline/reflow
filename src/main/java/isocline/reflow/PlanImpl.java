@@ -143,11 +143,7 @@ public class PlanImpl implements Plan, Activity {
     }
 
 
-    PlanImpl(FlowProcessor flowProcessor, FlowableWork work) {
-        this(flowProcessor, (Work) work);
 
-        this.isFlowableWork = true;
-    }
 
     PlanImpl(FlowProcessor flowProcessor, WorkFlow flow) {
         FlowableWork work = workFlow -> {
@@ -167,6 +163,10 @@ public class PlanImpl implements Plan, Activity {
     PlanImpl(FlowProcessor flowProcessor, Work work) {
         this.flowProcessor = flowProcessor;
         this.work = work;
+
+        if(work instanceof FlowableWork) {
+            this.isFlowableWork = true;
+        }
 
         this.uuid = UUID.randomUUID().toString();
     }
@@ -227,15 +227,7 @@ public class PlanImpl implements Plan, Activity {
         }
 
 
-        if (this.waitingTime == 0) {
-            if (this.isStrictMode) {
-                needWaiting = true;
-            }
-
-            return 0;
-        } else if (this.eventList.size() > 0) {
-            return 0;
-        } else if (this.nextExecuteTime > 0) {
+        if (this.nextExecuteTime > 0) {
 
             long t1 = this.nextExecuteTime - System.currentTimeMillis();
 
@@ -249,6 +241,15 @@ public class PlanImpl implements Plan, Activity {
 
             return t1;
 
+        }
+        else if (this.waitingTime == 0) {
+            if (this.isStrictMode) {
+                needWaiting = true;
+            }
+
+            return 0;
+        } else if (this.eventList.size() > 0) {
+            return 0;
         }
 
 
@@ -635,7 +636,7 @@ public class PlanImpl implements Plan, Activity {
 
         //System.out.println(" [0] >> " + event.getEventName() + " : " + event.getFireEventName());
 
-        this.flowProcessor.addWorkSchedule(this, event);
+        this.flowProcessor.addWorkSchedule(this, event ,0);
 
         return this;
 
@@ -1031,17 +1032,17 @@ public class PlanImpl implements Plan, Activity {
     ////////////////////////////
 
 
-    ExecuteContext enterQueue(boolean isUserEvent, WorkEvent workEvent) {
+    ExecuteContext createExecuteContext(boolean isExecuteImmediately, WorkEvent workEvent) {
 
 
-        return new ExecuteContext(this, isUserEvent, workEvent);
+        return new ExecuteContext(this, isExecuteImmediately, workEvent);
     }
 
 
-    ExecuteContext enterQueue(boolean isUserEvent) {
+    ExecuteContext createExecuteContext(boolean isExecuteImmediately) {
 
 
-        return new ExecuteContext(this, isUserEvent, null);
+        return new ExecuteContext(this, isExecuteImmediately, null);
     }
 
 
@@ -1053,17 +1054,24 @@ public class PlanImpl implements Plan, Activity {
 
         private final PlanImpl plan;
 
-        private boolean isUserEvent = false;
-
         private final WorkEvent workEvent;
 
+        private boolean isExecuteImmediately = false;
 
-        ExecuteContext(PlanImpl plan, boolean isUserEvent, WorkEvent event) {
+        ExecuteContext(PlanImpl plan, WorkEvent event) {
 
             this.plan = plan;
-            this.isUserEvent = isUserEvent;
-
             this.workEvent = event;
+
+        }
+
+
+        ExecuteContext(PlanImpl plan, boolean isExecuteImmediately, WorkEvent event) {
+
+            this.plan = plan;
+            this.workEvent = event;
+
+            this.isExecuteImmediately = isExecuteImmediately;
 
             /*
             if(event!=null) {
@@ -1073,10 +1081,14 @@ public class PlanImpl implements Plan, Activity {
             */
         }
 
+        void setExecuteImmediately(boolean isExecuteImmediately) {
+            this.isExecuteImmediately = isExecuteImmediately;
+        }
 
-        boolean isExecuteImmediately() {
-            if (isUserEvent) {
-                this.isUserEvent = false;
+
+        boolean isEnableExecuteImmediately() {
+            if (isExecuteImmediately) {
+                this.isExecuteImmediately = false;
 
                 return true;
             }

@@ -10,9 +10,16 @@ public class TestBase {
 
     private Map<String, AtomicInteger> counterMap = new Hashtable();
 
+    protected static long shutdownTimeout = 3000;
+
+
     @AfterClass
     public static void shutdown() {
-        FlowProcessor.core().shutdown(3000);
+        if(shutdownTimeout>0) {
+            FlowProcessor.core().shutdown(shutdownTimeout);
+            shutdownTimeout = 3000;
+        }
+
     }
 
 

@@ -31,7 +31,7 @@ import java.util.stream.Stream;
  * @see Work
  * @see FlowableWork
  */
-public interface WorkEvent {
+public interface WorkEvent extends ResultEvent {
 
 
     /**
@@ -69,14 +69,7 @@ public interface WorkEvent {
      */
     WorkEvent put(String key, Object value);
 
-    /**
-     * Returns the object bound with the specified name in this session,
-     * or null if no object is bound under the name.
-     *
-     * @param key a string specifying the name of the object
-     * @return the object with the specified name
-     */
-    Object get(String key);
+
 
     /**
      * Delete the attribute value.
@@ -128,12 +121,7 @@ public interface WorkEvent {
     WorkEvent setThrowable(Throwable e);
 
 
-    /**
-     * Returns error information. Null is returned in normal state.
-     *
-     * @return an instance of Throwable
-     */
-    Throwable getThrowable();
+
 
 
     WorkEvent setTimeoutThread(Thread thread);
@@ -247,10 +235,17 @@ public interface WorkEvent {
      */
     void complete();
 
-    /**
-     * Blocking until internal work process complete.
-     *
-     */
-    void block();
+
+
+
+    WorkEvent dataChannel(DataChannel dataChannel);
+
+
+    boolean publish();
+
+
+    boolean isComplete();
+
+
 
 }

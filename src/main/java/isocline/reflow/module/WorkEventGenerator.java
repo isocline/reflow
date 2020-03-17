@@ -61,12 +61,14 @@ public class WorkEventGenerator implements Work {
         //WorkEvent newEvent = WorkEventFactory.createOrigin(eventName);
 
 
+        if(intervalTime>0) {
+            logger.debug("fire event [" + eventName+"] nexttime:"+ intervalTime);
+        }else {
+            logger.debug("fire event [" + eventName+"]");
+        }
+
         event.getActivity().getFlowProcessor().emit(eventName, newEvent);
 
-        //event.getActivity().getFlowProcessor().emit(eventName, event);
-        //FlowProcessorFactory.getProcessor().emit(eventName, newEvent);
-
-        logger.debug("fire event [" + eventName+"] nexttime:"+ intervalTime);
 
         return intervalTime;
     }

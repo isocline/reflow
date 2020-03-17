@@ -26,6 +26,7 @@ import isocline.reflow.flow.func.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -44,7 +45,6 @@ public class WorkFlow<T> {
     public final static String ERROR = "error::*";
 
 
-    private int funcExecSequence = 0;
 
     private String[] regReadyEventNameArray = new String[]{WorkFlow.START};
 
@@ -425,7 +425,12 @@ public class WorkFlow<T> {
             throw new IllegalArgumentException("Event name is empty.");
         }
 
-        return processNext(null, eventName, true, false, delayTime);
+        return processNext(null, new FuntionalInteraceContext().with($->{
+            $.allowNullFunction = true;
+            $.fireEventName = eventName;
+            $.delayTime = delayTime;
+        }));
+
     }
 
 
@@ -457,8 +462,14 @@ public class WorkFlow<T> {
 
             this.onError(uuid);
 
+            return processNext(null, new FuntionalInteraceContext().with($->{
+                $.fireEventName = prestepRegEventNameArray[0];
+                $.allowNullFunction = true;
+                $.delayTime = delayTime;
+                $.maxCallCount = maxCount;
 
-            return processNext(null, prestepRegEventNameArray[0], true, false, delayTime, maxCount, null);
+            }));
+
         } else {
             throw new IllegalStateException("retryOnError position is not valid");
         }
@@ -468,12 +479,12 @@ public class WorkFlow<T> {
 
 
     public WorkFlow branch(ReturnEventFunction execObject) {
-        return processNext(execObject, null, false);
+        return processNext(execObject);
     }
 
 
     public WorkFlow when(CheckFunction execObject) {
-        return processNext(execObject, null, false);
+        return processNext(execObject);
     }
 
 
@@ -482,12 +493,14 @@ public class WorkFlow<T> {
     }
 
     public WorkFlow next(ThrowableRunFunction execObject) {
-        return processNext(execObject, null, false);
+        return processNext(execObject);
     }
 
 
     public WorkFlow next(ThrowableRunFunction execObject, String eventName) {
-        return processNext(execObject, eventName, false);
+        return processNext(execObject, new FuntionalInteraceContext().with($->{
+            $.fireEventName = eventName;
+        }));
     }
 
 
@@ -508,40 +521,54 @@ public class WorkFlow<T> {
 
 
     public <R> WorkFlow<R> next(WorkEventFunction<? extends R> execObject) {
-        return (WorkFlow<R>) processNext(execObject, null, false);
+        return (WorkFlow<R>) processNext(execObject);
     }
 
 
     public <R> WorkFlow<R> next(WorkEventFunction<? extends R> execObject, String fireEventName) {
-        return (WorkFlow<R>) processNext(execObject, fireEventName, false);
+        return (WorkFlow<R>) processNext(execObject, new FuntionalInteraceContext().with($->{
+            $.fireEventName = fireEventName;
+        }));
+
     }
 
 
     public WorkFlow<T> next(WorkEventConsumer execObject) {
-        return processNext(execObject, null, false);
+        return processNext(execObject);
     }
 
     public WorkFlow<T> next(WorkEventConsumer execObject, String eventName) {
-        return processNext(execObject, eventName, false);
+        return processNext(execObject, new FuntionalInteraceContext().with($->{
+            $.fireEventName = eventName;
+        }));
+
     }
 
 
     public WorkFlow<T> next(ThrowableRunFunction execObject, FnExecFeatureFunction fnExecFeatureFunction) {
-        return processNext(execObject, null, false, false, 0, -1, fnExecFeatureFunction);
+        return processNext(execObject, new FuntionalInteraceContext().with($->{
+            $.featureFunction = fnExecFeatureFunction;
+        }));
+
     }
 
 
     public WorkFlow<T> next(WorkEventConsumer execObject, FnExecFeatureFunction fnExecFeatureFunction) {
-        return processNext(execObject, null, false, false, 0, -1, fnExecFeatureFunction);
+        return processNext(execObject, new FuntionalInteraceContext().with($->{
+            $.featureFunction = fnExecFeatureFunction;
+        }));
     }
 
     public <R> WorkFlow<R> next(WorkEventFunction<? extends R> execObject, FnExecFeatureFunction fnExecFeatureFunction) {
-        return (WorkFlow<R>) processNext(execObject, null, false, false, 0, -1, fnExecFeatureFunction);
+        return (WorkFlow<R>) processNext(execObject, new FuntionalInteraceContext().with($->{
+            $.featureFunction = fnExecFeatureFunction;
+        }));
+
     }
 
 
     public <R> WorkFlow<R> trans(Function<? super T, ? extends R> mapper) {
-        return (WorkFlow<R>) processNext(mapper, null, false);
+        return (WorkFlow<R>) processNext(mapper);
     }
 
 
@@ -558,31 +585,35 @@ public class WorkFlow<T> {
 
 
 
-    WorkFlow<T> processNext(Object execObject, String eventName, boolean allowFuncInfNull) {
-        return processNext(execObject, eventName, allowFuncInfNull, false, 0);
-    }
-
-
-    WorkFlow<T> processNext(Object functionalInterface, String fireEventName, boolean allowFuncInfNull, boolean isLastExecuteMethod, long delayTime) {
-        return processNext(functionalInterface, fireEventName, allowFuncInfNull, isLastExecuteMethod, delayTime, -1, null);
-    }
-
-
     static void processTimeout(WorkEvent event) {
         Thread t = event.getTimeoutThread();
         t.interrupt();
     }
 
-    WorkFlow<T> processNext(Object functionalInterface, String fireEventName, boolean allowFuncInfNull, boolean isLastExecuteMethod, long delayTime, int maxCallCount, FnExecFeatureFunction featureFunction) {
 
-        if (!allowFuncInfNull && functionalInterface == null) {
+
+    WorkFlow<T> processNext(Object functionalInterface) {
+        return processNext(functionalInterface, new FuntionalInteraceContext());
+    }
+
+
+        /**
+         *
+         * @param functionalInterface
+         * @param ctx
+         * @return
+         */
+    WorkFlow<T> processNext(Object functionalInterface, FuntionalInteraceContext ctx) {
+
+
+        if (!ctx.allowNullFunction && functionalInterface == null) {
             throw new IllegalArgumentException("function interface is null");
         }
 
         FunctionExecutor newFuncExecutor = new FunctionExecutor(functionalInterface);
 
-        if (featureFunction != null) {
-            featureFunction.apply(newFuncExecutor);
+        if (ctx.featureFunction != null) {
+            ctx.featureFunction.apply(newFuncExecutor);
         }
 
         long timeout = newFuncExecutor.getTimeout();
@@ -608,15 +639,15 @@ public class WorkFlow<T> {
             bindEventRepository(firstTimeoutEventName, timeoutProcess);
         }
 
-        if (isLastExecuteMethod) {
+        if (ctx.isLastExecute) {
             newFuncExecutor.setLastExecutor(true);
         }
-        if (fireEventName != null) {
-            newFuncExecutor.setFireEventName(fireEventName);
-            newFuncExecutor.setDelayTimeFireEvent(delayTime);
+        if (ctx.fireEventName != null) {
+            newFuncExecutor.setFireEventName(ctx.fireEventName);
+            newFuncExecutor.setDelayTimeFireEvent(ctx.delayTime);
 
-            if (maxCallCount > 0)
-                newFuncExecutor.setMaxCallCount(maxCallCount);
+            if (ctx.maxCallCount > 0)
+                newFuncExecutor.setMaxCallCount(ctx.maxCallCount);
         }
 
 
@@ -640,16 +671,22 @@ public class WorkFlow<T> {
             functionExecutorList.add(this.lastFuncExecutor);
         }
 
-        if (isLastExecuteMethod) {
+        if (ctx.isLastExecute) {
             clearLastFunctionExecutor();
         }
 
         return this;
     }
 
+
+
     public WorkFlow end() {
         this.isSetFinish = true;
-        return processNext(null, null, true, true, 0);
+        return processNext(null, new FuntionalInteraceContext().with($->{
+            $.allowNullFunction = true;
+            $.isLastExecute = true;
+        }));
+
     }
 
     public boolean isSetFinish() {
@@ -728,5 +765,64 @@ public class WorkFlow<T> {
         return null;
     }
 
+    static class FuntionalInteraceContext {
 
+        private String fireEventName;
+
+        private boolean allowNullFunction = true;
+        private boolean isLastExecute = false;
+        private long delayTime=0;
+        private int maxCallCount = -1;
+        private FnExecFeatureFunction featureFunction;
+
+        static FuntionalInteraceContext create() {
+            return new FuntionalInteraceContext();
+
+        }
+
+        FuntionalInteraceContext delayTime(long delayTime) {
+            this.delayTime = delayTime;
+            return this;
+        }
+
+        FuntionalInteraceContext maxCallCount(int maxCallCount) {
+            this.maxCallCount = maxCallCount;
+            return this;
+        }
+
+        FuntionalInteraceContext featureFunction(FnExecFeatureFunction featureFunction) {
+            this.featureFunction = featureFunction;
+            return this;
+        }
+
+        FuntionalInteraceContext allowFunctionNull(boolean allowFuncInfNull) {
+            this.allowNullFunction = allowFuncInfNull;
+            return this;
+        }
+
+        FuntionalInteraceContext lastExecute(boolean isLastExecute) {
+            this.isLastExecute = isLastExecute;
+            return this;
+        }
+
+        public FuntionalInteraceContext with(
+                Consumer<FuntionalInteraceContext> builderFunction) {
+            builderFunction.accept(this);
+            return this;
+        }
+
+
+    }
+
+
+    public static void main(String[] args) {
+        FuntionalInteraceContext ctx = new FuntionalInteraceContext().with($->{
+
+            $.delayTime = 123;
+            $.maxCallCount=12;
+        });
+
+
+        System.err.println( ctx.delayTime );
+    }
 }

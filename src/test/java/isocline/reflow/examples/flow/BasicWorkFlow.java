@@ -60,9 +60,10 @@ public class BasicWorkFlow implements FlowableWork {
     public void test() {
         FlowProcessor processor = FlowProcessorFactory.getProcessor();
 
-        processor.reflow(this).initialDelay(2000).activate();
+        processor.reflow(this).activate().block();
 
-        //processor.activate(this);
+        logger.info("END");
+
 
         processor.awaitShutdown();
 

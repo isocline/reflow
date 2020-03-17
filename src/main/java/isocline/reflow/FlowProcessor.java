@@ -414,32 +414,18 @@ public class FlowProcessor extends ThreadGroup {
     }
 
 
-    boolean addWorkSchedule(PlanImpl plan) {
-
-        return addWorkSchedule(plan, false);
-    }
 
 
-    boolean addWorkSchedule(PlanImpl plan, boolean isUserEvent) {
-
-        boolean result = this.workQueue.offer(plan.enterQueue(isUserEvent));
-        if (result) {
 
 
-            int sz = this.workQueue.size();
-            if (sz > checkpointWorkQueueSize) {
-                this.checkPoolThread();
-            }
-        } else {
-            this.checkPoolThread();
-        }
 
-        return result;
-    }
 
-    boolean addWorkSchedule(PlanImpl plan, WorkEvent workEvent) {
+    boolean addWorkSchedule(PlanImpl.ExecuteContext executeContext) {
 
-        boolean result = this.workQueue.offer(plan.enterQueue(true, workEvent));
+        boolean isExecuteImmediately = executeContext.getWorkEvent()==null?false:true;
+        executeContext.setExecuteImmediately(isExecuteImmediately);
+
+        boolean result = this.workQueue.offer(executeContext);
         if (result) {
 
             int sz = this.workQueue.size();
@@ -451,20 +437,37 @@ public class FlowProcessor extends ThreadGroup {
         }
 
         return result;
+    }
+
+
+    boolean addWorkSchedule(PlanImpl plan, boolean isExecuteImmediately) {
+
+        return addWorkSchedule(plan.createExecuteContext(isExecuteImmediately));
+
     }
 
 
     boolean addWorkSchedule(PlanImpl plan, WorkEvent workEvent, long delayTime) {
 
-        if(delayTime==0) {
-            return addWorkSchedule(plan, workEvent);
+        boolean isExecuteImmediately = false;
+
+        if(workEvent!=null) {
+            if(delayTime>0)
+                workEvent.setFireTime(System.currentTimeMillis() + delayTime);
+
+            isExecuteImmediately = true;
+        }
+
+        PlanImpl.ExecuteContext executeContext = plan.createExecuteContext(isExecuteImmediately, workEvent);
+
+        if(delayTime <= plan.getPreemptiveMilliTime()) {
+            return addWorkSchedule(executeContext);
         }else if(delayTime<0) {
             return false;
         }
 
-        workEvent.setFireTime(System.currentTimeMillis() + delayTime);
 
-        this.workChecker.addWorkStatusWrapper(plan, workEvent);
+        this.workChecker.executeContextQueue.add(executeContext);
 
         return true;
     }
@@ -641,7 +644,7 @@ public class FlowProcessor extends ThreadGroup {
                         newWorkEvent.setFireEventName(internalTargetEventName);
                     }
 
-                    this.workQueue.offer(schedule.enterQueue(true, newWorkEvent));
+                    this.workQueue.offer(schedule.createExecuteContext(true, newWorkEvent));
 
                 }
 
@@ -907,7 +910,7 @@ public class FlowProcessor extends ThreadGroup {
                         long remainTime = plan.checkRemainMilliTime();
 
                         //logger.error("** "+remainTime + " "+plan.getPreemptiveMilliTime());
-                        if (remainTime < 1 || ctx.isExecuteImmediately() || remainTime < plan.getPreemptiveMilliTime()) {
+                        if (remainTime < 1 || ctx.isEnableExecuteImmediately() || remainTime < plan.getPreemptiveMilliTime()) {
 
                             stoplessCount++;
 
@@ -1034,7 +1037,7 @@ public class FlowProcessor extends ThreadGroup {
 
 
                                 }else if (plan.isDaemonMode() && stateMode!=TERMINATE_BY_TIMEOVER) {
-                                    this.flowProcessor.workChecker.addWorkStatusWrapper(plan);
+                                    this.flowProcessor.workChecker.addQueue(plan);
                                 }else {
                                     plan.inactive();
                                 }
@@ -1042,16 +1045,16 @@ public class FlowProcessor extends ThreadGroup {
                                 break;
 
                             case ENTER_EXEC_QUEUE:
-                                this.flowProcessor.addWorkSchedule(plan);
+                                this.flowProcessor.addWorkSchedule(plan, true);
                                 break;
 
                             case ENTER_MONITOR_QUEUE:
-                                this.flowProcessor.workChecker.addWorkStatusWrapper(plan);
+                                this.flowProcessor.workChecker.addQueue(plan);
                                 break;
 
                             case ENTER_EXEC_QUEUE2:
                                 try {
-                                    this.flowProcessor.workQueue.put(plan.enterQueue(false));
+                                    this.flowProcessor.workQueue.put(plan.createExecuteContext(false));
                                 } catch (InterruptedException ignored) {
 
                                 }
@@ -1061,7 +1064,7 @@ public class FlowProcessor extends ThreadGroup {
 
 
                     //if(plan!=null)
-                    // logger.debug(maxWaitTime+" "+stateMode+">> "+this.flowProcessor.workQueue.size() + " / "+this.flowProcessor.workChecker.statusWrappers.size());
+                    // logger.debug(maxWaitTime+" "+stateMode+">> "+this.flowProcessor.workQueue.size() + " / "+this.flowProcessor.workChecker.executeContextQueue.size());
 
                 }
             }
@@ -1078,32 +1081,6 @@ public class FlowProcessor extends ThreadGroup {
 
     }
 
-    private static class WorkScheduleWrapper {
-
-        private PlanImpl plan = null;
-
-        private WorkEvent workEvent = null;
-
-        WorkScheduleWrapper(PlanImpl plan) {
-            this.plan = plan;
-        }
-
-        WorkScheduleWrapper(PlanImpl plan, WorkEvent workEvent) {
-            this(plan);
-            this.workEvent = workEvent;
-        }
-
-
-        PlanImpl getPlan() {
-            return plan;
-        }
-
-        WorkEvent getWorkEvent() {
-            return workEvent;
-        }
-
-
-    }
 
 
     /****************************************
@@ -1114,19 +1091,19 @@ public class FlowProcessor extends ThreadGroup {
 
         private final FlowProcessor flowProcessor;
 
-        private final BlockingQueue<WorkScheduleWrapper> statusWrappers = new LinkedBlockingQueue<>();
+        private final BlockingQueue<PlanImpl.ExecuteContext> executeContextQueue = new LinkedBlockingQueue<>();
 
         WorkChecker(FlowProcessor flowProcessor) {
             this.flowProcessor = flowProcessor;
         }
 
 
-        void addWorkStatusWrapper(PlanImpl sb) {
-            statusWrappers.add(new WorkScheduleWrapper(sb));
+        void addQueue(PlanImpl plan) {
+            executeContextQueue.add(new PlanImpl.ExecuteContext(plan,null));
         }
 
-        void addWorkStatusWrapper(PlanImpl sb, WorkEvent event) {
-            statusWrappers.add(new WorkScheduleWrapper(sb, event));
+        void addQueue(PlanImpl plan, WorkEvent event) {
+            executeContextQueue.add(new PlanImpl.ExecuteContext(plan, event));
         }
 
         @Override
@@ -1136,15 +1113,15 @@ public class FlowProcessor extends ThreadGroup {
             while (flowProcessor.isWorking) {
 
                 try {
-                    WorkScheduleWrapper workScheduleWrapper = statusWrappers.poll(5, TimeUnit.SECONDS);
+                    PlanImpl.ExecuteContext executeContext = executeContextQueue.poll(5, TimeUnit.SECONDS);
 
 
-                    if (workScheduleWrapper != null) {
-                        PlanImpl plan = workScheduleWrapper.getPlan();
+                    if (executeContext != null) {
+                        PlanImpl plan = executeContext.getPlan();
 
                         long nextExecuteTime = -1;
 
-                        WorkEvent event = workScheduleWrapper.getWorkEvent();
+                        WorkEvent event = executeContext.getWorkEvent();
                         if (event != null) {
                             nextExecuteTime = event.getFireTime();
                         }
@@ -1160,18 +1137,12 @@ public class FlowProcessor extends ThreadGroup {
                         }
                         if (gap >= 0) {
 
-                            if (event != null) {
-                                flowProcessor.addWorkSchedule(plan, event);
-                            } else {
-                                flowProcessor.addWorkSchedule(plan);
-                            }
-
+                            flowProcessor.addWorkSchedule(executeContext);
 
                         } else {
 
-
                             Thread.sleep(1);
-                            statusWrappers.add(workScheduleWrapper);
+                            executeContextQueue.add(executeContext);
 
 
                         }
@@ -1186,7 +1157,7 @@ public class FlowProcessor extends ThreadGroup {
                 }
             }
 
-            statusWrappers.clear();
+            executeContextQueue.clear();
         }
     }
 

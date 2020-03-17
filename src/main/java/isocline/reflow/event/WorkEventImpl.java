@@ -16,6 +16,7 @@
 package isocline.reflow.event;
 
 import isocline.reflow.Activity;
+import isocline.reflow.DataChannel;
 import isocline.reflow.WorkEvent;
 import isocline.reflow.flow.func.WorkEventConsumer;
 import isocline.reflow.flow.func.WorkEventPredicate;
@@ -66,6 +67,8 @@ public class WorkEventImpl implements WorkEvent {
     private Throwable throwable;
 
     private Thread timeoutThread = null;
+
+    protected DataChannel dataChannel = null;
 
     WorkEventImpl() {
         this.originWorkEvent = this;
@@ -216,6 +219,7 @@ public class WorkEventImpl implements WorkEvent {
         WorkEventImpl newEvent = new WorkEventImpl(eventName, this.originWorkEvent);
         newEvent.attributeMap = this.attributeMap;
         newEvent.activity = this.activity;
+        newEvent.dataChannel = this.dataChannel;
 
 
 
@@ -404,6 +408,22 @@ public class WorkEventImpl implements WorkEvent {
         }
     }
 
+    @Override
+    public boolean publish() {
+
+        if( this.originWorkEvent != this) {
+            return this.originWorkEvent.publish();
+        }
+
+
+        if(this.consumer!=null) {
+            consumer.accept(this);
+            return true;
+        }
+
+        return false;
+    }
+
     private boolean isComplete = false;
     @Override
     public synchronized void complete() {
@@ -458,5 +478,21 @@ public class WorkEventImpl implements WorkEvent {
                 "name:'" + eventName + "', " +
                 "origin: " + this.originWorkEvent  +
                 '}';
+    }
+
+    @Override
+    public WorkEvent dataChannel(DataChannel dataChannel) {
+        this.dataChannel = dataChannel;
+        return this;
+    }
+
+    @Override
+    public DataChannel dataChannel() {
+        return this.dataChannel;
+    }
+
+    @Override
+    public boolean isComplete() {
+        return this.isComplete;
     }
 }
