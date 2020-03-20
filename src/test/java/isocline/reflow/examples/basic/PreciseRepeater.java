@@ -34,7 +34,7 @@ public class PreciseRepeater extends TestBase implements Work {
     @Test
     public void case1()   {
 
-        Re.play(this)
+        Re.flow(this)
                 .strictMode()
                 .activate();
 

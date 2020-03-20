@@ -30,7 +30,7 @@ public class DynamicRepeater extends TestBase implements Work {
 
         DynamicRepeater worker = new DynamicRepeater();
 
-        //Re.play(worker).activate().block();
+        //Re.flow(worker).activate().block();
         FlowProcessor fp = FlowProcessorFactory.getProcessor();
         fp.task(worker).activate().block();
 

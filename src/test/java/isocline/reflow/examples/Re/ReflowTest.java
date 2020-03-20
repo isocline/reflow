@@ -91,12 +91,14 @@ public class ReflowTest {
                 .activate();
 
 
-        Re.play(e->{
+        Re.flow(e->{
 
             testFlow();
 
             return Work.WAIT;
-        }).activate().block();
+        }).activate().block(1000);
+
+
 
     }
 

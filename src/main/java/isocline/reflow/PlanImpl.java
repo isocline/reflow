@@ -117,7 +117,7 @@ public class PlanImpl implements Plan, Activity {
         Work work = (WorkEvent e) -> {
             runnable.accept(e);
 
-            return intervalTime;
+            return Work.WAIT;
         };
         this.flowProcessor = flowProcessor;
         this.work = work;
@@ -460,7 +460,7 @@ public class PlanImpl implements Plan, Activity {
 
 
     @Override
-    public Plan interval(long initialDelay, long intervalTime) {
+    public Plan interval(long intervalTime, long initialDelay) {
         this.initialDelay(initialDelay);
 
         return this.interval(intervalTime);
@@ -962,20 +962,23 @@ public class PlanImpl implements Plan, Activity {
         return this.originEvent;
     }
 
+
+    /**
+     * If there is no user defined origin event,
+     * it is created by itself and stored in Plan instance for reuse.
+     *
+     * @param inputWorkEvent Early custom origin event
+     * @return
+     */
     WorkEvent getOriginWorkEvent(WorkEvent inputWorkEvent) {
 
         WorkEvent event;
 
         if (inputWorkEvent == null) {
-            //System.err.println("== 0 ===============");
-            if (originEvent == null) {
+             if (originEvent == null) {
                 originEvent = WorkEventFactory.createOrigin();
                 originEvent.setActivity(this);
-                //System.err.println("== 1");
-            } else {
-                //System.err.println("== 2 "+originEvent.getEventName());
             }
-            //event = originEvent;
 
             event = WorkEventFactory.createWithOrigin(null, originEvent);
             event.setActivity(originEvent.getActivity());
@@ -983,9 +986,6 @@ public class PlanImpl implements Plan, Activity {
         } else {
             if (originEvent == null) {
                 originEvent = inputWorkEvent;
-                //System.err.println("== 3 "+inputWorkEvent.getEventName());
-            } else {
-                //System.err.println("== 4 "+inputWorkEvent.getEventName());
             }
 
             event = inputWorkEvent;
@@ -1015,7 +1015,7 @@ public class PlanImpl implements Plan, Activity {
             return eventName;
         }
 
-        WorkEvent originEvent = event.origin();
+        //WorkEvent originEvent = event.origin();
 
 
         if (simultaneousEventSet.isRaiseEventReady(event, eventName)) {
@@ -1029,9 +1029,13 @@ public class PlanImpl implements Plan, Activity {
     }
 
 
-    ////////////////////////////
-
-
+    /**
+     *
+     *
+     * @param isExecuteImmediately
+     * @param workEvent
+     * @return
+     */
     ExecuteContext createExecuteContext(boolean isExecuteImmediately, WorkEvent workEvent) {
 
 
@@ -1039,6 +1043,12 @@ public class PlanImpl implements Plan, Activity {
     }
 
 
+    /**
+     *
+     *
+     * @param isExecuteImmediately
+     * @return
+     */
     ExecuteContext createExecuteContext(boolean isExecuteImmediately) {
 
 
@@ -1098,12 +1108,7 @@ public class PlanImpl implements Plan, Activity {
 
         PlanImpl getPlan() {
 
-            //if (this.contextId == this.plan.contextCheckId)
-            {
-                return plan;
-            }
-
-            //return null;
+            return plan;
 
         }
 

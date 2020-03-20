@@ -27,7 +27,7 @@ public class ScheduledWork extends TestBase implements Work {
         logger.debug("startTime : " + startTime);
         logger.debug("endTime : " + endTime);
 
-        Re.play(new ScheduledWork())
+        Re.flow(new ScheduledWork())
                 .interval(1 * Time.SECOND)
                 .startTime(startTime)
                 .finishTime("2020-06-16T16:00:00Z")
@@ -47,7 +47,7 @@ public class ScheduledWork extends TestBase implements Work {
         String endTime = Time.toIsoDateFormat(System.currentTimeMillis() + 3000);
         logger.debug("endTime : " + endTime); //"2020-06-16T16:00:00Z"
 
-        Re.play(new CronDescriptor("* 1,4-6 * * *"), new ScheduledWork())
+        Re.flow(new CronDescriptor("* 1,4-6 * * *"), new ScheduledWork())
                 .finishTime(endTime)
                 .activate().block();
 
@@ -59,7 +59,7 @@ public class ScheduledWork extends TestBase implements Work {
     public void case2() throws Exception {
 
 
-        Plan plan = Re.play(ScheduledWork.class);
+        Plan plan = Re.flow(ScheduledWork.class);
 
         plan.interval(1 * Time.SECOND)
                 .finishTimeFromNow(3 * Time.SECOND)  // finish after 3 seconds
@@ -71,7 +71,7 @@ public class ScheduledWork extends TestBase implements Work {
     @Test
     public void caseStrictMode() throws Exception {
 
-        Plan plan = Re.play(ScheduledWork.class);
+        Plan plan = Re.flow(ScheduledWork.class);
 
         plan.interval(1 * Time.SECOND)
                 .finishTimeFromNow(3 * Time.SECOND)
@@ -84,7 +84,7 @@ public class ScheduledWork extends TestBase implements Work {
     @Test
     public void delayStart1() throws Exception {
 
-        Plan plan = Re.play(ScheduledWork.class);
+        Plan plan = Re.flow(ScheduledWork.class);
 
         plan.interval(1 * Time.SECOND)
                 .initialDelay(Time.milliseconds(0, 0, 2))
@@ -98,7 +98,7 @@ public class ScheduledWork extends TestBase implements Work {
     @Test
     public void delayStart2() throws Exception {
 
-        Plan plan = Re.play(ScheduledWork.class);
+        Plan plan = Re.flow(ScheduledWork.class);
 
         plan.interval(1 * Time.SECOND)
                 .startTime(Time.nextSecond() + Time.SECOND * 2)

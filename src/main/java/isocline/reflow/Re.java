@@ -6,40 +6,47 @@ import isocline.reflow.flow.func.WorkEventConsumer;
 public class Re {
 
     public static Plan flow(FlowableWork work) {
-        return FlowProcessor.core().reflow(work);
+        return FlowProcessor.core().task(work);
     }
 
     public static Plan flow(WorkFlow flow) {
         return FlowProcessor.core().reflow(flow);
     }
 
-    public static Plan play(Runnable runnable) {
-        return FlowProcessor.core().task(runnable);
-    }
 
-    public static Plan play(Class runClass) throws InstantiationException, IllegalAccessException  {
+
+    public static Plan flow(Class runClass) throws InstantiationException, IllegalAccessException  {
         return FlowProcessor.core().task(runClass);
     }
 
-    public static Plan play(WorkEventConsumer work) {
+
+    public static Plan flow(Work work) {
+
         return FlowProcessor.core().task(work);
     }
 
-    public static Plan play(Work work) {
-        return FlowProcessor.core().task(work);
-    }
 
-
-    public static Plan play(Work work, String... eventNames) {
+    public static Plan flow(Work work, String... eventNames) {
 
         return FlowProcessor.core().task(work, eventNames);
     }
 
 
-    public static Plan play(PlanDescriptor descriptor, Work work) {
+    public static Plan flow(PlanDescriptor descriptor, Work work) {
 
         return FlowProcessor.core().task(descriptor, work);
     }
+
+
+    public static Plan peat(Runnable runnable) {
+        return FlowProcessor.core().task(runnable);
+    }
+
+    public static Plan peat(WorkEventConsumer work) {
+        return FlowProcessor.core().task(work);
+    }
+
+
 
     public static ResultEvent quest(WorkEvent event) {
         FlowProcessor.core().emit(event);

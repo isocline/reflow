@@ -1,7 +1,6 @@
 package isocline.reflow.examples.Re;
 
 import isocline.reflow.*;
-import isocline.reflow.event.WorkEventFactory;
 import isocline.reflow.log.XLogger;
 import org.junit.Test;
 
@@ -194,7 +193,8 @@ public class RequestTest {
         e.put("count",cnt);
 
         if(cnt>1) {
-            e.getActivity().emit(WorkEventFactory.createOrigin("end"));
+            //e.getActivity().emit(WorkEventFactory.createOrigin("end"));
+            e.propagate("end");
             System.err.println("END FIRE!!!!!!!~  "+cnt);
             return;
         }
@@ -221,7 +221,7 @@ public class RequestTest {
 
 
 
-            f.flag("push").next(this::push).fireEvent("end",3000);
+            f.flag("push").next(this::push).fireEvent("push",2000);
 
             f.wait("end").next(this::zzzz).end();
 
@@ -261,7 +261,7 @@ public class RequestTest {
             });
         }
 
-        TestUtil.waiting(10000);
+        TestUtil.waiting(5000);
 
     }
 }

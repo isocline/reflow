@@ -134,7 +134,7 @@ public class FlowProcessor extends ThreadGroup {
     }
 
     /**
-     * Register the play to be bound to the input events.
+     * Register the flow to be bound to the input events.
      *
      * @param work       an instance of Work
      * @param eventNames an event names

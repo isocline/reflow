@@ -247,5 +247,8 @@ public interface WorkEvent extends ResultEvent {
     boolean isComplete();
 
 
+    Activity propagate(String eventName);
+
+
 
 }

@@ -26,7 +26,7 @@ public class WorkTest extends TestBase {
     public void executeSimple() throws Exception {
 
 
-        Re.play(e -> {
+        Re.flow(e -> {
 
             int seq= getCounter("executeSimple").addAndGet(1);
 
@@ -44,7 +44,7 @@ public class WorkTest extends TestBase {
     public void executeSimple2() throws Exception {
 
 
-        Re.play(e -> {
+        Re.flow(e -> {
             int seq=getCounter("executeSimple2").addAndGet(1);
 
             logger.debug("exec " + seq);
@@ -66,9 +66,9 @@ public class WorkTest extends TestBase {
 
         count = 0;
 
-        Re.play(() -> {
+        Re.peat(() -> {
             count++;
-            logger.debug("Hello Re.play ! ");
+            logger.debug("Hello Re.flow ! ");
         })
                 .interval(1000)
                 .finishTimeFromNow(Time.SECOND * 3)
@@ -82,10 +82,10 @@ public class WorkTest extends TestBase {
     public void executeSimple4() throws Exception {
 
 
-        Re.play((WorkEvent e) -> {
+        Re.flow((WorkEvent e) -> {
 
             getCounter("executeSimple4").addAndGet(1);
-            logger.debug("Hello Re.play ! "
+            logger.debug("Hello Re.flow ! "
                     + e.origin().get("z"));
             return Work.WAIT;
         })
@@ -94,7 +94,7 @@ public class WorkTest extends TestBase {
                 .activate();
 
 
-        Re.play(() -> {
+        Re.peat(() -> {
             System.out.println("FIRE");
             Re.quest("_dummy", e -> e.put("z", "zz").put("z", "sdf"));
         })
@@ -111,7 +111,7 @@ public class WorkTest extends TestBase {
     public void executeByEvent() throws Exception {
 
 
-        Activity plan = Re.play((WorkEvent event) -> {
+        Activity plan = Re.flow((WorkEvent event) -> {
 
             int seq = getCounter("executeByEvent").addAndGet(1);
 
@@ -121,7 +121,7 @@ public class WorkTest extends TestBase {
         }, "testEvent").activate();
 
 
-        Re.play((WorkEvent event) -> {
+        Re.flow((WorkEvent event) -> {
             logger.debug("fire event:" + event.getEventName());
 
             event.getActivity().getFlowProcessor().emit("testEvent", event);
@@ -141,7 +141,7 @@ public class WorkTest extends TestBase {
     public void executeOneTime() throws Exception {
 
 
-        Plan plan = Re.play((WorkEvent event) -> {
+        Plan plan = Re.flow((WorkEvent event) -> {
             int seq = getCounter("executeOneTime").addAndGet(1);
             logger.debug("exec " + seq);
 
@@ -158,7 +158,7 @@ public class WorkTest extends TestBase {
     @Test
     public void executeSleep() throws Exception {
 
-        Plan plan = Re.play((WorkEvent event) -> {
+        Plan plan = Re.flow((WorkEvent event) -> {
             int seq=getCounter("executeSleep").addAndGet(1);
             logger.debug("executeSleep " + seq);
 
@@ -174,7 +174,7 @@ public class WorkTest extends TestBase {
     @Test
     public void executeLoop() throws Exception {
 
-        Plan plan = Re.play((WorkEvent event) -> {
+        Plan plan = Re.flow((WorkEvent event) -> {
             int seq = getCounter("executeLoop").addAndGet(1);
             logger.debug("exec " + seq);
 
@@ -203,7 +203,7 @@ public class WorkTest extends TestBase {
         };
 
 
-        Re.play(runnable)
+        Re.peat(runnable)
                 .initialDelay(2 * Time.SECOND)
                 .activate()
                 .block();

@@ -21,8 +21,8 @@ import isocline.reflow.flow.FunctionExecutor;
 import isocline.reflow.flow.FunctionExecutorList;
 
 /**
- * It is an interface that enables play control.
- * If you want to control play with several methods in an object that implements this interface, you can inherit the interface.
+ * It is an interface that enables flow control.
+ * If you want to control flow with several methods in an object that implements this interface, you can inherit the interface.
  *
  * @see isocline.reflow.Work
  */
@@ -40,24 +40,24 @@ public interface FlowableWork<T> extends Work {
 
 
     /**
-     * It is a method that must be implemented in order to do play control.
+     * It is a method that must be implemented in order to do flow control.
      * <p>
      * <strong>Example:</strong>
      * <blockquote>
      * <pre>
      *
-     *  public void defineWorkFlow(WorkFlow play) {
+     *  public void defineWorkFlow(WorkFlow flow) {
      *    // step1 : activate this.checkMemory() then activate this.checkStorage()
-     *    WorkFlow p1 = play.next(this::checkMemory).next(this::checkStorage);
+     *    WorkFlow p1 = flow.next(this::checkMemory).next(this::checkStorage);
      *
      *    // Until wait inactive of step1, then this.sendSignal()
-     *    WorkFlow t1 = play.wait(p1).next(this::sendSignal);
+     *    WorkFlow t1 = flow.wait(p1).next(this::sendSignal);
      *
      *    // Until wait inactive of step1, then this.sendStatusMsg() and this.sendReportMsg()
-     *    WorkFlow t2 = play.wait(p1).next(this::sendStatusMsg).next(this::sendReportMsg);
+     *    WorkFlow t2 = flow.wait(p1).next(this::sendStatusMsg).next(this::sendReportMsg);
      *
      *    // Wait until both step1 and step2 are finished, then activate this.report()
-     *    play.waitAll(t1, t2).next(this::report).inactive();
+     *    flow.waitAll(t1, t2).next(this::report).inactive();
      *  }
      * </pre>
      * </blockquote>
@@ -76,10 +76,14 @@ public interface FlowableWork<T> extends Work {
      */
     default long execute(WorkEvent event) throws InterruptedException {
 
+        if(event.origin().isComplete()) {
+            return TERMINATE;
+        }
 
-        final Activity plan = event.getActivity();
 
-        final WorkFlow flow = plan.getWorkFlow();
+        final Activity activity = event.getActivity();
+
+        final WorkFlow flow = activity.getWorkFlow();
 
         if (flow == null) {
             return TERMINATE;
@@ -87,29 +91,26 @@ public interface FlowableWork<T> extends Work {
 
         final String eventName = event.getFireEventName();
 
-        //XLogger.getLogger(this.getClass()).debug(Thread.currentThread().getId()+" RECV ["+eventName + "] "+event);
 
 
         FunctionExecutor executor = null;
 
         boolean existNextExecutor = false;
 
+
         if (eventName != null) {
             FunctionExecutorList functionExecutorList = flow.getFunctionExecutorList(event, eventName);
 
             if (functionExecutorList != null) {
-                //XLogger.getLogger(this.getClass()).error( Thread.currentThread().getId() + " "+eventName+" SIZE << "+functionExecutorList.size());
-
                 FunctionExecutorList.Wrapper wrapper = functionExecutorList.getNextstepFunctionExecutor();
 
                 if (wrapper != null) {
 
                     executor = wrapper.getFunctionExecutor();
-                    //XLogger.getLogger(this.getClass()).error( Thread.currentThread().getId() + " "+eventName+" RECV<< "+functionExecutorList.size());
 
                     if (wrapper.hasNext()) {
-                        //plan.emit(event.createChild(eventName));
-                        plan.emit(event);
+                        // In case of user-defined event, additional event is generated to call the event repeatedly
+                        activity.emit(event);
                     }
 
                 }
@@ -133,11 +134,11 @@ public interface FlowableWork<T> extends Work {
 
             try {
 
-                WorkHelper.emitLocalEvent(plan, event, executor.getBeforeFireEventNames(), 0);
+                WorkHelper.emitLocalEvent(activity, event, executor.getBeforeFireEventNames(), 0);
 
                 long timeout = executor.getTimeout();
                 if (timeout > 0) {
-                    WorkHelper.emitLocalEvent(plan, event, executor.getTimeoutFireEventNames(), timeout,
+                    WorkHelper.emitLocalEvent(activity, event, executor.getTimeoutFireEventNames(), timeout,
                             new FlowProcessException("timeout"), Thread.currentThread());
                 }
 
@@ -146,7 +147,7 @@ public interface FlowableWork<T> extends Work {
                 executor.check();
 
 
-                ((PlanImpl) plan).checkEvent(event);
+                ((PlanImpl) activity).checkEvent(event);
 
 
                 //isFireEvent = executor.execute(event);;
@@ -154,7 +155,7 @@ public interface FlowableWork<T> extends Work {
 
                 executor.onSuccess();
 
-                WorkHelper.emitLocalEvent(plan, event, executor.getSucessFireEventNames(), 0);
+                WorkHelper.emitLocalEvent(activity, event, executor.getSucessFireEventNames(), 0);
 
             } catch (Throwable err) {
 
@@ -162,31 +163,31 @@ public interface FlowableWork<T> extends Work {
 
                 executor.onFail();
 
-                WorkHelper.emitLocalEvent(plan, event, executor.getFailFireEventNames(), err);
+                WorkHelper.emitLocalEvent(activity, event, executor.getFailFireEventNames(), err);
 
 
                 String errClassEventName = WorkEventKey.PREFIX_ERROR + err.getClass().getName();
-                WorkHelper.emitLocalEvent(plan, event, errClassEventName, 0, err);
+                WorkHelper.emitLocalEvent(activity, event, errClassEventName, 0, err);
 
 
                 String errEventName = WorkEventKey.PREFIX_ERROR + executor.getFireEventUUID();
-                WorkHelper.emitLocalEvent(plan, event, errClassEventName, 0, err);
+                WorkHelper.emitLocalEvent(activity, event, errClassEventName, 0, err);
 
 
-                WorkHelper.emitLocalErrorEvent(plan, event, errEventName, 0, err);
+                WorkHelper.emitLocalErrorEvent(activity, event, errEventName, 0, err);
 
 
             } finally {
                 if (rs != null && rs.isProcessNext()) {
 
-                    WorkHelper.emitLocalEvent(plan, event, rs.getFireEventUUID(), 0);
+                    WorkHelper.emitLocalEvent(activity, event, rs.getFireEventUUID(), 0);
 
-                    WorkHelper.emitLocalEvent(plan, event, rs.getFireEventName(), executor.getDelayTimeFireEvent());
+                    WorkHelper.emitLocalEvent(activity, event, rs.getFireEventName(), executor.getDelayTimeFireEvent());
 
-                    WorkHelper.emitLocalErrorEvent(plan, event, rs.getFireEventName(), executor.getDelayTimeFireEvent(), null);
+                    WorkHelper.emitLocalErrorEvent(activity, event, rs.getFireEventName(), executor.getDelayTimeFireEvent(), null);
                 }
 
-                WorkHelper.emitLocalEvent(plan, event, executor.getEndFireEventNames(), 0);
+                WorkHelper.emitLocalEvent(activity, event, executor.getEndFireEventNames(), 0);
 
             }
 
@@ -194,11 +195,13 @@ public interface FlowableWork<T> extends Work {
             if (executor.isLastExecutor()) {
 
 
+                //event.origin().complete();
+
                 return TERMINATE;
             } else {
 
                 if (error != null) {
-                    plan.setError(error);
+                    activity.setError(error);
                 }
 
             }

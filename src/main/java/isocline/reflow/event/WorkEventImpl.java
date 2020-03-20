@@ -70,8 +70,11 @@ public class WorkEventImpl implements WorkEvent {
 
     protected DataChannel dataChannel = null;
 
+    public String uuid = UUID.randomUUID().toString();
+
     WorkEventImpl() {
         this.originWorkEvent = this;
+        //System.err.println("NEW _ORIGIN_"+uuid);
     }
 
     /**
@@ -80,6 +83,8 @@ public class WorkEventImpl implements WorkEvent {
     WorkEventImpl(String eventName) {
         this.eventName = eventName;
         this.originWorkEvent = this;
+
+        //System.err.println("NEW _ORIGIN_"+uuid + " - "+eventName);
     }
 
     /**
@@ -89,6 +94,7 @@ public class WorkEventImpl implements WorkEvent {
     WorkEventImpl(String eventName, WorkEvent originWorkEvent) {
         this.eventName = eventName;
         this.originWorkEvent = originWorkEvent;
+
         /*
         try {
             throw new RuntimeException("xxx");
@@ -432,7 +438,8 @@ public class WorkEventImpl implements WorkEvent {
             return;
         }
         isComplete = true;
-        if(this.consumer!=null) {
+        if(this.consumer!=null && tester==null) {
+
             consumer.accept(this);
         }
 
@@ -494,5 +501,13 @@ public class WorkEventImpl implements WorkEvent {
     @Override
     public boolean isComplete() {
         return this.isComplete;
+    }
+
+    @Override
+    public Activity propagate(String eventName) {
+
+        return this.getActivity().emit(this.createChild(eventName));
+
+
     }
 }

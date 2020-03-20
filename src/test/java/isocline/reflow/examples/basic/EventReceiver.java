@@ -60,7 +60,7 @@ public class EventReceiver extends TestBase implements Work {
 
 
         // Receiver
-        Re.play(this)
+        Re.flow(this)
                 .daemonMode()
                 .on("example-event")
                 .activate();
@@ -71,7 +71,7 @@ public class EventReceiver extends TestBase implements Work {
         gen.setEventName("example-event");
 
 
-        Re.play(gen)
+        Re.flow(gen)
                 .strictMode()
                 .interval(1 * Time.SECOND)
                 .startTime(Time.nextSecond())

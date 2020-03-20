@@ -23,7 +23,7 @@ public class SimpleRepeater extends TestBase implements Work {
     @Test
     public void case1() throws Exception {
 
-        Re.play(new SimpleRepeater())
+        Re.flow(new SimpleRepeater())
                 .interval(1 * Time.SECOND)
                 .finishTimeFromNow(5 * Time.SECOND)
                 .activate();
@@ -34,7 +34,7 @@ public class SimpleRepeater extends TestBase implements Work {
     @Test
     public void startMethod() throws Exception {
 
-        Re.play((WorkEvent event) -> {
+        Re.flow((WorkEvent event) -> {
             // DO YOUR WORK
             return 10 * Time.SECOND;
         })

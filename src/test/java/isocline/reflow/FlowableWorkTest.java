@@ -28,7 +28,7 @@ public class FlowableWorkTest {
      */
     public double getExhangeRate(double money, int formCountryCode, int toCountryCode) {
 
-        //logger.debug(money + " > play");
+        //logger.debug(money + " > flow");
 
         TestUtil.waiting(500 + (long) (100 * Math.random()));
 
@@ -187,13 +187,13 @@ public class FlowableWorkTest {
 
         WorkEventGenerator generator = new WorkEventGenerator("calc", 400);
 
-        Re.play(generator)
+        Re.flow(generator)
                 .startTime(Time.nextSecond())
                 .finishTimeFromStart(3 * Time.SECOND)
                 .strictMode()
                 .activate();
 
-        logger.debug("play define completed");
+        logger.debug("flow define completed");
 
         long t1 = System.currentTimeMillis();
         Thread.sleep(2000);
@@ -247,7 +247,7 @@ public class FlowableWorkTest {
 
 
     /***
-     * Test for event emiting frame external play process
+     * Test for event emiting frame external flow process
      *
      * @throws Exception
      */
@@ -267,7 +267,7 @@ public class FlowableWorkTest {
                 .activate();
 
 
-        Re.play((WorkEvent e) -> {
+        Re.flow((WorkEvent e) -> {
 
             e.put("result", "skkim");
 
