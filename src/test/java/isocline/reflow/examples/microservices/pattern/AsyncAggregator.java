@@ -1,15 +1,16 @@
 package isocline.reflow.examples.microservices.pattern;
 
 import isocline.reflow.*;
-import isocline.reflow.log.XLogger;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertEquals;
 
 public class AsyncAggregator implements FlowableWork {
 
 
-    private XLogger logger = XLogger.getLogger(AsyncAggregator.class);
+    private Logger logger = LoggerFactory.getLogger(AsyncAggregator.class);
 
     public void init() {
         logger.debug("init");

@@ -19,7 +19,9 @@ import isocline.reflow.event.EventRepository;
 import isocline.reflow.event.SimultaneousEventSet;
 import isocline.reflow.event.WorkEventFactory;
 import isocline.reflow.flow.func.WorkEventConsumer;
-import isocline.reflow.log.XLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 import java.text.ParseException;
 import java.util.*;
@@ -35,7 +37,7 @@ import java.util.function.Consumer;
  */
 public class PlanImpl implements Plan, Activity {
 
-    protected static XLogger logger = XLogger.getLogger(Plan.class);
+    protected static Logger logger = LoggerFactory.getLogger(Plan.class);
 
 
     private static final long UNDEFINED_INTERVAL = -1;
@@ -466,7 +468,23 @@ public class PlanImpl implements Plan, Activity {
         return this.interval(intervalTime);
     }
 
+    private boolean isBasedOnStart = false;
 
+    public boolean isBasedOnStart() {
+        return this.isBasedOnStart;
+    }
+
+    @Override
+    public Plan interval(boolean isBasedOnStart, long intervalTime) {
+        this.isBasedOnStart = isBasedOnStart;
+        return interval(intervalTime);
+    }
+
+    @Override
+    public Plan interval(boolean isBasedOnStart, long intervalTime, long initialDelay) {
+        this.isBasedOnStart = isBasedOnStart;
+        return interval(isBasedOnStart, intervalTime, initialDelay);
+    }
 
     /**
      * Adjust interval time to repeat
@@ -1028,6 +1046,38 @@ public class PlanImpl implements Plan, Activity {
 
     }
 
+    private int count=0;
+
+    private long startTime = 0;
+
+    private long endTime = 0;
+
+    private LinkedList<Long>  list = new LinkedList<>();
+
+    private double tps=0;
+
+
+    private double limitTps = 0;
+
+    @Override
+    public Plan limitTps(double tps) {
+        if(tps>0) {
+            limitTps = tps;
+        }
+        return this;
+    }
+
+    boolean isTpsOver() {
+        if(limitTps >0 && tps>=limitTps) {
+            return true;
+        }
+
+        return false;
+    }
+
+    double getTps() {
+        return tps;
+    }
 
     /**
      *
@@ -1037,6 +1087,52 @@ public class PlanImpl implements Plan, Activity {
      * @return
      */
     ExecuteContext createExecuteContext(boolean isExecuteImmediately, WorkEvent workEvent) {
+
+        if(!workEvent.isLocalEvent()) {
+
+
+            long t1 = System.currentTimeMillis();
+            if(t1-endTime>1000) {
+                list.clear();
+                list.addLast(t1);
+                startTime = t1;
+                endTime = t1;
+
+            }else {
+                int listSize = list.size();
+
+                for(int i=0; i<listSize;i++) {
+
+                    if(t1-startTime<=1000) {
+                        break;
+                    }else {
+                        startTime = list.remove(0);
+                    }
+                }
+                listSize = list.size();
+                if(listSize>100) {
+                    listSize--;
+                    list.remove(0);
+                }
+                list.addLast(t1);
+                endTime = t1;
+
+
+                if(listSize>1) {
+                    tps = Math.ceil(listSize*1000 / ( (endTime - startTime) ));
+                }else {
+                    tps = 1;
+                }
+
+
+
+            }
+
+            count++;
+            System.err.println("11>> "+count + " "+workEvent.getFireEventName() +  "  "+ workEvent.isLocalEvent() + " "+tps + " "+list.size());
+
+        }
+
 
 
         return new ExecuteContext(this, isExecuteImmediately, workEvent);

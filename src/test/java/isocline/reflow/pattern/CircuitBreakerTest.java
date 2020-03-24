@@ -1,14 +1,15 @@
 package isocline.reflow.pattern;
 
 import isocline.reflow.*;
-import isocline.reflow.log.XLogger;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CircuitBreakerTest extends TestBase {
 
     private static int CNT = 0;
 
-    private XLogger logger = XLogger.getLogger(CircuitBreakerTest.class);
+    private Logger logger = LoggerFactory.getLogger(CircuitBreakerTest.class);
 
     public void init() {
         logger.debug("init");
@@ -17,14 +18,15 @@ public class CircuitBreakerTest extends TestBase {
     public void callService1(WorkEvent e) {
         CNT++;
 
-        logger.debug("Service1 - start " + CNT);
+        int seq = CNT;
+        logger.debug("Service1 - start " + seq);
         TestUtil.waiting(100);
-        logger.debug("Service1 - end " + CNT);
+        logger.debug("Service1 - end " + seq);
 
         e.origin().put("result:service1", "A");
 
-        if (CNT > 2 && CNT < 7) {
-            logger.debug("Service1 - wait " + CNT);
+        if (seq > 1 && seq < 6) {
+            logger.debug("Service1 - wait " + seq);
             TestUtil.waiting(3000);
 
             throw new RuntimeException("connect fail");
@@ -58,7 +60,7 @@ public class CircuitBreakerTest extends TestBase {
             conf
                     .id("test")
                     .maxFailCount(3)
-                    .timeout(500);
+                    .timeout(100);
 
 
         }).apply(f -> {
@@ -78,10 +80,12 @@ public class CircuitBreakerTest extends TestBase {
             CircuitBreakerTest test = new CircuitBreakerTest();
             try {
                 test.startTest();
+                TestUtil.waiting(200);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
+        TestUtil.waiting(10000);
     }
 }

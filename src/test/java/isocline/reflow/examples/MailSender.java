@@ -1,7 +1,8 @@
 package isocline.reflow.examples;
 
 import isocline.reflow.*;
-import isocline.reflow.log.XLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -9,7 +10,7 @@ import isocline.reflow.log.XLogger;
  */
 public class MailSender implements Work {
 
-    private static XLogger logger = XLogger.getLogger(MailSender.class);
+    private static Logger logger = LoggerFactory.getLogger(MailSender.class);
 
     long timeUnit = Time.SECOND;
 

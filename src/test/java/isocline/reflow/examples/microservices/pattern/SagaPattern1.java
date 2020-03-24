@@ -2,8 +2,9 @@ package isocline.reflow.examples.microservices.pattern;
 
 import isocline.reflow.FlowProcessor;
 import isocline.reflow.WorkEvent;
-import isocline.reflow.log.XLogger;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -16,7 +17,7 @@ public class SagaPattern1 {
 
     private static int CNT = 0;
 
-    private XLogger logger = XLogger.getLogger(SagaPattern1.class);
+    private Logger logger = LoggerFactory.getLogger(SagaPattern1.class);
 
     public void init() {
         logger.debug("init");

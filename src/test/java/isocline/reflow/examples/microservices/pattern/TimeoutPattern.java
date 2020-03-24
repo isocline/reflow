@@ -3,14 +3,15 @@ package isocline.reflow.examples.microservices.pattern;
 import isocline.reflow.Re;
 import isocline.reflow.TestUtil;
 import isocline.reflow.WorkEvent;
-import isocline.reflow.log.XLogger;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TimeoutPattern {
 
     private static int CNT = 0;
 
-    private XLogger logger = XLogger.getLogger(TimeoutPattern.class);
+    private Logger logger = LoggerFactory.getLogger(TimeoutPattern.class);
 
     public void init() {
         logger.debug("init");

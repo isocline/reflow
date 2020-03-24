@@ -2,8 +2,10 @@ package isocline.reflow.examples.microservices.pattern;
 
 import isocline.reflow.*;
 import isocline.reflow.check.CircuitBreaker;
-import isocline.reflow.log.XLogger;
+
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertEquals;
 
@@ -11,7 +13,7 @@ public class CircuitBreaker1 {
 
     private static int CNT = 0;
 
-    private XLogger logger = XLogger.getLogger(CircuitBreaker1.class);
+    private Logger logger = LoggerFactory.getLogger(CircuitBreaker1.class);
 
     public void init() {
         logger.debug("init");
@@ -39,8 +41,6 @@ public class CircuitBreaker1 {
     public void finish(WorkEvent e) {
         logger.debug("inactive start " + Thread.currentThread().getId());
 
-        logger.debug(e.origin());
-        logger.debug(e.origin().get("result:service1"));
 
         String result = e.origin().get("result:service1").toString()
                 + e.origin().get("result:service2")

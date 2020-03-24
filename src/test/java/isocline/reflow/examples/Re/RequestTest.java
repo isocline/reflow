@@ -1,8 +1,9 @@
 package isocline.reflow.examples.Re;
 
 import isocline.reflow.*;
-import isocline.reflow.log.XLogger;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,7 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class RequestTest {
 
-    private XLogger logger = XLogger.getLogger(RequestTest.class);
+    private Logger logger = LoggerFactory.getLogger(RequestTest.class);
 
 
     private long totalProcessTime = 200;
@@ -19,21 +20,21 @@ public class RequestTest {
 
 
     public void testLoop(WorkEvent e) {
-        //logger.debug("test2");
+        logger.debug("testLoop");
         TestUtil.waiting(totalProcessTime / methodCallCount);
 
         //TestUtil.waiting(500);
         e.origin().put("price", Math.random());
 
-        logger.debug("1");
+
 
 
         if( e.origin().dataChannel() != null) {
-            logger.debug("2");
+
 
             Map map = (Map) e.origin().dataChannel().result();
            if(map!=null) {
-               logger.debug("3");
+
 
                map.put("price", Math.random());
            }
@@ -119,13 +120,20 @@ public class RequestTest {
 
     @Test
     public void testRequest3() throws Exception {
+        System.err.println("zz");
+
+        logger.info("cc");
+        logger.debug("33");
 
         FlowableWork flowableWork = f -> {
 
             int seq = 0;
+            /*
             while (methodCallCount > seq++) {
                 f.next(this::testLoop);
             }
+            */
+            f.next(this::testLoop);
 
             f.end();
         };
@@ -133,6 +141,7 @@ public class RequestTest {
         Re.flow(flowableWork)
                 .on("lxq://")
                 .daemonMode()
+                .limitTps(15)
                 .activate();
 
         TestUtil.waiting(1000);
@@ -147,13 +156,26 @@ public class RequestTest {
         System.out.println( result);
 
 
+        for(int i=0;i<50;i++) {
+            Re.quest("lxq://local/biz/chk", dataChannel , e->{
+                logger.debug(">> "+e.getEventName());
+                logger.debug(">> "+e.getThrowable());
+                logger.debug(">> "+e.dataChannel().result());
+            });
+            TestUtil.waiting(100 - i*2);
+        }
 
 
-        Re.quest("lxq://local/biz/chk", dataChannel , e->{
-            logger.debug(">> "+e.getEventName());
-            logger.debug(">> "+e.getThrowable());
-            logger.debug(">> "+e.dataChannel().result());
-        }).block();
+        TestUtil.waiting(500);
+
+        for(int i=0;i<50;i++) {
+            Re.quest("lxq://local/biz/chk", dataChannel , e->{
+                logger.debug(">> "+e.getEventName());
+                logger.debug(">> "+e.getThrowable());
+                logger.debug(">> "+e.dataChannel().result());
+            });
+            TestUtil.waiting(100 - i*2);
+        }
 
         logger.debug(">> >> "+result);
 
@@ -249,6 +271,7 @@ public class RequestTest {
 
 
         for(int i=0; i< 0;i++) {
+
 
             result = new HashMap<>();
 

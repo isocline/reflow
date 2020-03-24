@@ -1,8 +1,9 @@
 package isocline.reflow.examples.Re;
 
 import isocline.reflow.*;
-import isocline.reflow.log.XLogger;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -12,7 +13,7 @@ import java.util.stream.Stream;
 
 public class ReflowTest {
 
-    private XLogger logger = XLogger.getLogger(ReceiveTest.class);
+    private Logger logger = LoggerFactory.getLogger(ReceiveTest.class);
 
     private void test1() {
         logger.debug("test 1");

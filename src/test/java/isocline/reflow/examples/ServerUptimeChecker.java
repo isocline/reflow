@@ -1,7 +1,8 @@
 package isocline.reflow.examples;
 
 import isocline.reflow.*;
-import isocline.reflow.log.XLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,7 +21,7 @@ import java.net.URL;
  */
 public class ServerUptimeChecker  implements Work {
 
-    private static XLogger logger = XLogger.getLogger(ServerUptimeChecker.class);
+    private static Logger logger = LoggerFactory.getLogger(ServerUptimeChecker.class);
 
 
     private URL url;

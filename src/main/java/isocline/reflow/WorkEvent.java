@@ -104,6 +104,9 @@ public interface WorkEvent extends ResultEvent {
     WorkEvent createChild(String eventName);
 
 
+    WorkEvent createChild(String eventName, boolean isLocalEvent);
+
+
     /**
      * Returns the earliest event among the events associated with the current event.
      *
@@ -248,6 +251,12 @@ public interface WorkEvent extends ResultEvent {
 
 
     Activity propagate(String eventName);
+
+
+    boolean isLocalEvent();
+
+
+
 
 
 

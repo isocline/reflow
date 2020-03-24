@@ -1,11 +1,12 @@
 package isocline.reflow.flow;
 
-import isocline.reflow.FlowableWork;
-import isocline.reflow.WorkFlow;
 import isocline.reflow.FlowProcessor;
 import isocline.reflow.FlowProcessorFactory;
-import isocline.reflow.log.XLogger;
+import isocline.reflow.FlowableWork;
+import isocline.reflow.WorkFlow;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertEquals;
 
@@ -15,7 +16,7 @@ public class ComplexWorkFlowTest implements FlowableWork {
     private boolean chk = false;
 
 
-    private static XLogger logger = XLogger.getLogger(ComplexWorkFlowTest.class);
+    private static Logger logger = LoggerFactory.getLogger(ComplexWorkFlowTest.class);
 
 
     public void checkMemory() {

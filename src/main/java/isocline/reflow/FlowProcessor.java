@@ -19,7 +19,8 @@ import isocline.reflow.event.WorkEventFactory;
 import isocline.reflow.event.WorkEventImpl;
 import isocline.reflow.flow.WorkInfo;
 import isocline.reflow.flow.func.WorkEventConsumer;
-import isocline.reflow.log.XLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -40,7 +41,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class FlowProcessor extends ThreadGroup {
 
-    private static final XLogger logger = XLogger.getLogger(FlowProcessor.class);
+    private static final Logger logger = LoggerFactory.getLogger(FlowProcessor.class);
 
 
     private final String name;
@@ -731,6 +732,8 @@ public class FlowProcessor extends ThreadGroup {
         private final static short ENTER_EXEC_QUEUE2 = 13;
 
         private final static short ENTER_EXEC_JUST = 20;
+        private final static short ENTER_EXEC_ALREADY = 30;
+
 
 
         private final FlowProcessor flowProcessor;
@@ -755,7 +758,7 @@ public class FlowProcessor extends ThreadGroup {
         private static final AtomicInteger runningCounter = new AtomicInteger(0);
 
         public ThreadWorker(FlowProcessor parent, int threadPriority) {
-            super(parent, "Re.flow " + parent.currentThreadWorkerCount);
+            super(parent, "Re:flow #" + parent.currentThreadWorkerCount);
             this.flowProcessor = parent;
             this.setPriority(threadPriority);
 
@@ -912,46 +915,68 @@ public class FlowProcessor extends ThreadGroup {
                         //logger.error("** "+remainTime + " "+plan.getPreemptiveMilliTime());
                         if (remainTime < 1 || ctx.isEnableExecuteImmediately() || remainTime < plan.getPreemptiveMilliTime()) {
 
-                            stoplessCount++;
-
                             workEvent = plan.getOriginWorkEvent(ctx.getWorkEvent());
 
+                            if(plan.isTpsOver()) {
+                                stateMode = TERMINATE_BY_FLOW;
+                                workEvent.origin().setThrowable(new RuntimeException("TPS is over"));
+                                workEvent.complete();
+                            }
+                            else {
 
-                            //logger.error("event ==="+this.flowProcessor.workQueue.size());
+                                stoplessCount++;
 
-                            plan.adjustWaiting();
 
-                            long nextIntervalTime;
 
-                            try {
-                                runningCounter.addAndGet(1);
 
-                                int callCount = workEvent.origin().getCounter("plan").get();
-                                ((WorkEventImpl)workEvent).setEmitCount(callCount);
+                                //logger.error("event ==="+this.flowProcessor.workQueue.size());
 
-                                nextIntervalTime = workObject.execute(workEvent);
+                                plan.adjustWaiting();
 
-                                int loopCount = 0;
-                                while (nextIntervalTime == Work.LOOP && loopCount < 1000) {
+                                long nextIntervalTime;
+
+                                boolean isAlreadyEnqueue = false;
+
+                                try {
+                                    runningCounter.addAndGet(1);
+
+                                    int callCount = workEvent.origin().getCounter("plan").get();
+                                    ((WorkEventImpl) workEvent).setEmitCount(callCount);
+
+                                    if (plan.isBasedOnStart()) {
+                                        WorkEvent origin = workEvent.origin();
+                                        origin.reset();
+                                        WorkEvent newEvent = WorkEventFactory.createWithOrigin(null, origin);
+
+                                        this.flowProcessor.addWorkSchedule(plan, newEvent, plan.getIntervalTime());
+                                        isAlreadyEnqueue = true;
+                                    }
+
                                     nextIntervalTime = workObject.execute(workEvent);
-                                    loopCount++;
+
+                                    int loopCount = 0;
+                                    while (nextIntervalTime == Work.LOOP && loopCount < 1000) {
+                                        nextIntervalTime = workObject.execute(workEvent);
+                                        loopCount++;
+                                    }
+                                } finally {
+                                    runningCounter.addAndGet(-1);
                                 }
-                            } finally {
-                                runningCounter.addAndGet(-1);
+
+                                nextIntervalTime = checkNextIntervalTime(nextIntervalTime, plan);
+
+                                if (isAlreadyEnqueue) {
+                                    stateMode = ENTER_EXEC_ALREADY;
+                                } else if (nextIntervalTime == Work.TERMINATE) {
+                                    stateMode = TERMINATE_BY_USER;
+
+                                } else if (nextIntervalTime > this.flowProcessor.configuration.getThresholdWaitTimeToReady()) {
+                                    stateMode = ENTER_MONITOR_QUEUE;
+
+                                } else if (nextIntervalTime > 0) {
+                                    stateMode = ENTER_EXEC_QUEUE;
+                                }
                             }
-
-                            nextIntervalTime = checkNextIntervalTime(nextIntervalTime, plan);
-
-                            if (nextIntervalTime == Work.TERMINATE) {
-                                stateMode = TERMINATE_BY_USER;
-
-                            } else if (nextIntervalTime > this.flowProcessor.configuration.getThresholdWaitTimeToReady()) {
-                                stateMode = ENTER_MONITOR_QUEUE;
-
-                            } else if (nextIntervalTime > 0) {
-                                stateMode = ENTER_EXEC_QUEUE;
-                            }
-
 
                         } else if(remainTime == Long.MAX_VALUE) {
 

@@ -1,8 +1,9 @@
 package isocline.reflow.examples;
 
 import isocline.reflow.*;
-import isocline.reflow.log.XLogger;
 import isocline.reflow.module.WorkEventGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -10,7 +11,7 @@ import isocline.reflow.module.WorkEventGenerator;
  */
 public class EventReceiver implements Work {
 
-    private static XLogger logger = XLogger.getLogger(EventReceiver.class);
+    private static Logger logger = LoggerFactory.getLogger(EventReceiver.class);
 
 
     private int failCount = 0;

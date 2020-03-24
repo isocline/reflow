@@ -4,13 +4,14 @@ import isocline.reflow.FlowProcessor;
 import isocline.reflow.Re;
 import isocline.reflow.TestUtil;
 import isocline.reflow.WorkEvent;
-import isocline.reflow.log.XLogger;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FnExecFeatureFunctionTest {
 
-    private XLogger logger = XLogger.getLogger(FnExecFeatureFunction.class);
+    private Logger logger = LoggerFactory.getLogger(FnExecFeatureFunction.class);
 
 
     private void slowMethod() {

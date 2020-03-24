@@ -2,12 +2,13 @@ package isocline.reflow.examples.crontab;
 
 import isocline.reflow.*;
 import isocline.reflow.descriptor.CronDescriptor;
-import isocline.reflow.log.XLogger;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CrontSchedule implements Work {
 
-    private static XLogger logger = XLogger.getLogger(CrontSchedule.class);
+    private static Logger logger = LoggerFactory.getLogger(CrontSchedule.class);
 
     private int count = 0;
 

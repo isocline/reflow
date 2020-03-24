@@ -1,14 +1,15 @@
 package isocline.reflow.examples.flow;
 
 import isocline.reflow.*;
-import isocline.reflow.log.XLogger;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class ComplexWorkFlow implements FlowableWork {
 
 
-    private static XLogger logger = XLogger.getLogger(ComplexWorkFlow.class);
+    private static Logger logger = LoggerFactory.getLogger(ComplexWorkFlow.class);
 
     public void order() {
         logger.debug("** invoke - order");

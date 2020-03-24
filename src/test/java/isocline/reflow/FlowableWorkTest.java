@@ -1,9 +1,10 @@
 package isocline.reflow;
 
 import isocline.reflow.event.WorkEventFactory;
-import isocline.reflow.log.XLogger;
 import isocline.reflow.module.WorkEventGenerator;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -12,7 +13,7 @@ import static org.junit.Assert.fail;
 
 public class FlowableWorkTest {
 
-    private XLogger logger = XLogger.getLogger(FlowableWorkTest.class);
+    private Logger logger = LoggerFactory.getLogger(FlowableWorkTest.class);
 
     private int count4case0_result = 0;
     private int count4case0 = 0;
@@ -183,7 +184,7 @@ public class FlowableWorkTest {
         })
                 .daemonMode()
                 .on("calc")
-                .activate(logger::debug);
+                .activate();
 
         WorkEventGenerator generator = new WorkEventGenerator("calc", 400);
 
@@ -233,7 +234,7 @@ public class FlowableWorkTest {
         Activity plan = Re.flow(flow)
                 .interval(2000)
                 .finishTimeFromNow(Time.SECOND * 7)
-                .activate(logger::error);
+                .activate();
 
         logger.debug("execute flow async");
 

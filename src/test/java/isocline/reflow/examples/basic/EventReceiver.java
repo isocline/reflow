@@ -1,10 +1,11 @@
 package isocline.reflow.examples.basic;
 
 import isocline.reflow.*;
-import isocline.reflow.log.XLogger;
 import isocline.reflow.module.WorkEventGenerator;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -12,7 +13,7 @@ import org.junit.Test;
  */
 public class EventReceiver extends TestBase implements Work {
 
-    private static XLogger logger = XLogger.getLogger(EventReceiver.class);
+    private static Logger logger = LoggerFactory.getLogger(EventReceiver.class);
 
 
     private int receiveCount = 0;

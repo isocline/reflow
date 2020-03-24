@@ -1,8 +1,8 @@
 package isocline.reflow.examples.ext;
 
 import isocline.reflow.*;
-import isocline.reflow.log.XLogger;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This program is an indicator program which checks the water level periodically.
@@ -11,7 +11,7 @@ import isocline.reflow.log.XLogger;
  */
 public class MultiPlexer implements Work {
 
-    private static XLogger logger = XLogger.getLogger(MultiPlexer.class);
+    private static Logger logger = LoggerFactory.getLogger(MultiPlexer.class);
 
     private int seq;
 

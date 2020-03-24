@@ -47,9 +47,9 @@ public class WorkEventImpl implements WorkEvent {
 
     private String fireEventName;
 
-
-
     private boolean isCallBacking = false;
+
+    private boolean isLocalEvent = false;
 
 
 
@@ -209,13 +209,18 @@ public class WorkEventImpl implements WorkEvent {
     }
 
 
+    @Override
+    public WorkEvent createChild(String eventName) {
+        return createChild(eventName, false);
+    }
+
     /**
      * Creates a new {@link WorkEvent} that has parent property information.
      *
      * @param eventName the name of the event to createOrigin; may not be empty
      * @return the newly created WorkEvent
      */
-    public WorkEvent createChild(String eventName) {
+    public WorkEvent createChild(String eventName, boolean isLocalEvent) {
 
         if (eventName == null || eventName.trim().length() == 0) {
             throw new IllegalArgumentException("name is empty");
@@ -227,7 +232,7 @@ public class WorkEventImpl implements WorkEvent {
         newEvent.activity = this.activity;
         newEvent.dataChannel = this.dataChannel;
 
-
+        newEvent.isLocalEvent = isLocalEvent;
 
         return newEvent;
 
@@ -508,6 +513,10 @@ public class WorkEventImpl implements WorkEvent {
 
         return this.getActivity().emit(this.createChild(eventName));
 
+    }
 
+    @Override
+    public boolean isLocalEvent() {
+        return this.isLocalEvent;
     }
 }

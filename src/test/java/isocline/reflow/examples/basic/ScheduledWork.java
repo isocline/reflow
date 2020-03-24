@@ -2,12 +2,13 @@ package isocline.reflow.examples.basic;
 
 import isocline.reflow.*;
 import isocline.reflow.descriptor.CronDescriptor;
-import isocline.reflow.log.XLogger;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ScheduledWork extends TestBase implements Work {
 
-    private static XLogger logger = XLogger.getLogger(ScheduledWork.class);
+    private static Logger logger = LoggerFactory.getLogger(ScheduledWork.class);
 
     private int seq = 0;
 

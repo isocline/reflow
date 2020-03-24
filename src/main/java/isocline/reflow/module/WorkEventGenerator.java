@@ -17,7 +17,8 @@ package isocline.reflow.module;
 
 import isocline.reflow.Work;
 import isocline.reflow.WorkEvent;
-import isocline.reflow.log.XLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -26,7 +27,7 @@ import isocline.reflow.log.XLogger;
 public class WorkEventGenerator implements Work {
 
 
-    private static final XLogger logger = XLogger.getLogger(WorkEventGenerator.class);
+    private static final Logger logger = LoggerFactory.getLogger(WorkEventGenerator.class);
 
     private long intervalTime = Work.WAIT;
 

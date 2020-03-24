@@ -1,8 +1,9 @@
 package isocline.reflow.flow;
 
 import isocline.reflow.*;
-import isocline.reflow.log.XLogger;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertEquals;
 
@@ -14,7 +15,7 @@ public class ErrorWorkFlowTest implements FlowableWork {
     private boolean chk2 = false;
 
 
-    private static XLogger logger = XLogger.getLogger(ErrorWorkFlowTest.class);
+    private static Logger logger = LoggerFactory.getLogger(ErrorWorkFlowTest.class);
 
 
     public void checkMemory() {

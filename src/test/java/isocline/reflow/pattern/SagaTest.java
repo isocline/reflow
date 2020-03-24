@@ -1,15 +1,19 @@
 package isocline.reflow.pattern;
 
-import isocline.reflow.*;
-import isocline.reflow.log.XLogger;
+import isocline.reflow.Re;
+import isocline.reflow.TestBase;
+import isocline.reflow.WorkEvent;
+import isocline.reflow.WorkFlow;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.fail;
 
 public class SagaTest extends TestBase {
 
 
-    private XLogger logger = XLogger.getLogger(SagaTest.class);
+    private Logger logger = LoggerFactory.getLogger(SagaTest.class);
 
     public void init() {
         logger.debug("init");

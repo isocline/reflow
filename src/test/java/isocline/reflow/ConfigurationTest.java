@@ -1,16 +1,18 @@
 package isocline.reflow;
 
-import isocline.reflow.log.XLogger;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertEquals;
 
 
 public class ConfigurationTest {
 
-    private static XLogger logger = XLogger.getLogger(ConfigurationTest.class);
+    private static Logger logger = LoggerFactory.getLogger(ConfigurationTest.class);
 
 
 

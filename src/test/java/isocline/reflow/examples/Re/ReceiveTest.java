@@ -2,10 +2,11 @@ package isocline.reflow.examples.Re;
 
 import isocline.reflow.*;
 import isocline.reflow.event.WorkEventFactory;
-import isocline.reflow.log.XLogger;
 import isocline.reflow.module.PubSubBroker;
 import isocline.reflow.module.WorkEventGenerator;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -16,7 +17,7 @@ import java.util.stream.Stream;
 public class ReceiveTest {
 
 
-    private XLogger logger = XLogger.getLogger(ReceiveTest.class);
+    private Logger logger = LoggerFactory.getLogger(ReceiveTest.class);
 
     private Map<String, WorkEvent> eventMap = new HashMap<>();
 
