@@ -67,7 +67,7 @@ public class TestServiceWrapper {
     public void chk(WorkEvent event) {
         failCount++;
         lastFailDatetime = System.currentTimeMillis();
-        System.err.println("error > "+event.getFireEventName());
+        System.err.println("EEEEERRRRR > "+event.getFireEventName()+ " "+failCount);
     }
 
     public void open(WorkEvent event) {

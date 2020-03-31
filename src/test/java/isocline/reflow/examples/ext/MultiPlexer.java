@@ -30,7 +30,8 @@ public class MultiPlexer implements Work {
     public long execute(WorkEvent event) throws InterruptedException {
         //System.out.println("== "+System.currentTimeMillis());
 
-        logger.debug(id+" "+seq +" send ");
+        logger.debug("ID:{} SEQ:{}", id,seq);
+
 
 
 
@@ -73,7 +74,7 @@ public class MultiPlexer implements Work {
 
 
 
-        for(int i=0;i< 10;i++ ) {
+        for(int i=0;i< 4;i++ ) {
             Plan schedule = processor.task(new MultiPlexer("A",i)).startTime(startTime+i*10)
                     .strictMode();
             schedule.activate();

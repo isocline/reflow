@@ -64,7 +64,7 @@ public class SagaPattern1 {
 
 
                     f.onError("s3").runAsync(this::compensateSvc3,this::compensateSvc2,this::compensateSvc1).end();
-                    f.onError("s2").runAsync(this::compensateSvc2,this::compensateSvc1).end();
+                    f.onError("s2").next(this::compensateSvc2).next(this::compensateSvc1).end();
                     f.onError("s1").next(this::compensateSvc1).end();
 
 

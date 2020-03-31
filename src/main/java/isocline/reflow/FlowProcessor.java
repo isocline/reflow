@@ -931,7 +931,7 @@ public class FlowProcessor extends ThreadGroup {
 
                                 //logger.error("event ==="+this.flowProcessor.workQueue.size());
 
-                                plan.adjustWaiting();
+
 
                                 long nextIntervalTime;
 
@@ -951,6 +951,8 @@ public class FlowProcessor extends ThreadGroup {
                                         this.flowProcessor.addWorkSchedule(plan, newEvent, plan.getIntervalTime());
                                         isAlreadyEnqueue = true;
                                     }
+
+                                    plan.adjustWaiting();
 
                                     nextIntervalTime = workObject.execute(workEvent);
 

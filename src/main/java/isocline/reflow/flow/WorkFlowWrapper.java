@@ -28,6 +28,11 @@ public class WorkFlowWrapper<T> extends WorkFlow<Object> {
     private final String cursor;
 
 
+    protected WorkFlowWrapper() {
+        this.workFlowInstance = null;
+        this.cursor = null;
+    }
+
     public WorkFlowWrapper(WorkFlow workFlow) {
         super();
 

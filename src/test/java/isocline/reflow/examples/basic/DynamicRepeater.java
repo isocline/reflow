@@ -18,7 +18,7 @@ public class DynamicRepeater extends TestBase implements Work {
 
         long nexttime = 500 + (long) (Math.random() * 1000);
 
-        logger.debug("activate:" + (seq++) + " nexttime:" + nexttime);
+        logger.debug("activate:{} nexttime:{}",(seq++),nexttime);
 
         if (seq > 3) return TERMINATE;
 

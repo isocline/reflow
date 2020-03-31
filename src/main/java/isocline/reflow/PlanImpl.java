@@ -1118,8 +1118,9 @@ public class PlanImpl implements Plan, Activity {
                 endTime = t1;
 
 
-                if(listSize>1) {
-                    tps = Math.ceil(listSize*1000 / ( (endTime - startTime) ));
+                long timeGap = endTime - startTime;
+                if(listSize>1 && timeGap>0) {
+                    tps = Math.ceil(listSize*1000 / ( timeGap ));
                 }else {
                     tps = 1;
                 }
@@ -1129,7 +1130,6 @@ public class PlanImpl implements Plan, Activity {
             }
 
             count++;
-            System.err.println("11>> "+count + " "+workEvent.getFireEventName() +  "  "+ workEvent.isLocalEvent() + " "+tps + " "+list.size());
 
         }
 
@@ -1138,6 +1138,11 @@ public class PlanImpl implements Plan, Activity {
         return new ExecuteContext(this, isExecuteImmediately, workEvent);
     }
 
+
+    @Override
+    public WorkEvent getWorkEvent() {
+        return this.originEvent;
+    }
 
     /**
      *

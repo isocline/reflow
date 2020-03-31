@@ -18,9 +18,7 @@ package isocline.reflow;
 import isocline.reflow.event.EventRepository;
 import isocline.reflow.event.SimultaneousEventSet;
 import isocline.reflow.event.WorkEventKey;
-import isocline.reflow.flow.FunctionExecutor;
-import isocline.reflow.flow.FunctionExecutorList;
-import isocline.reflow.flow.WorkFlowWrapper;
+import isocline.reflow.flow.*;
 import isocline.reflow.flow.func.*;
 
 import java.util.ArrayList;
@@ -383,6 +381,10 @@ public class WorkFlow<T> {
         return (WorkFlow<R>) waitAll();
     }
 
+    protected boolean beforeProcessRunAsync(FunctionExecutor executor) {
+        return true;
+    }
+
 
     /**
      * @param execObject
@@ -390,11 +392,18 @@ public class WorkFlow<T> {
      */
     private WorkFlow processRunAsync(Object execObject, String eventName) {
 
+
+
         final FunctionExecutor asyncFunc = new FunctionExecutor(execObject);
         this.lastFuncExecutor = asyncFunc;
         if (eventName != null) {
             this.lastFuncExecutor.setFireEventName(eventName);
         }
+
+        if(this.customWorkFlow!=null && !this.customWorkFlow.beforeProcessRunAsync(asyncFunc)) {
+            return this;
+        }
+
 
         if (this.regRunAsyncId.length() > 0) {
             this.regRunAsyncId.append("&");
@@ -597,6 +606,10 @@ public class WorkFlow<T> {
     }
 
 
+    protected boolean beforeProcessNext(FunctionExecutor functionExecutor) {
+        return true;
+    }
+
         /**
          *
          * @param functionalInterface
@@ -606,11 +619,17 @@ public class WorkFlow<T> {
     WorkFlow<T> processNext(Object functionalInterface, FuntionalInteraceContext ctx) {
 
 
+
+
         if (!ctx.allowNullFunction && functionalInterface == null) {
             throw new IllegalArgumentException("function interface is null");
         }
 
         FunctionExecutor newFuncExecutor = new FunctionExecutor(functionalInterface);
+
+        if(this.customWorkFlow!=null && !this.customWorkFlow.beforeProcessNext(newFuncExecutor)) {
+            return this;
+        }
 
         if (ctx.featureFunction != null) {
             ctx.featureFunction.apply(newFuncExecutor);
@@ -811,6 +830,16 @@ public class WorkFlow<T> {
             return this;
         }
 
+
+    }
+
+    private CustomWorkFlow customWorkFlow = null;
+
+    public CustomWorkFlow applyPattern(CustomWorkFlowBuilder builder) {
+
+        customWorkFlow = builder.build(this);
+
+        return customWorkFlow;
 
     }
 

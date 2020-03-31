@@ -126,4 +126,7 @@ public interface Activity {
      */
     long getIntervalTime();
 
+
+    WorkEvent getWorkEvent();
+
 }

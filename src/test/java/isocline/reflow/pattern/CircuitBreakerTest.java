@@ -69,6 +69,10 @@ public class CircuitBreakerTest extends TestBase {
 
         Re.flow(flow).activate();
 
+        WorkFlow f = WorkFlow.create();
+
+
+
 
     }
 

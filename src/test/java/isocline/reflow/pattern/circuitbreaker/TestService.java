@@ -23,6 +23,7 @@ public class TestService {
         logger.debug("start "+sequence);
 
         if(sequence >1 && sequence <8) {
+            logger.error("ERRRRR "+sequence);
             throw new RuntimeException("zz");
         }
 

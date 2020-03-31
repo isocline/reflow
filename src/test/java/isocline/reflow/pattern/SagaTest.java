@@ -57,7 +57,19 @@ public class SagaTest extends TestBase {
 
         WorkFlow flow = WorkFlow.create();
 
+        /*
+        CircuitBreaker.init(flow)
+
         flow.next(this::init);
+
+        flow.applyPattern(Retry)
+                .next(worwr).end();
+
+
+        Saga.init(conf-> {
+            conf.setPrintError(false);
+        }).apply(flow)
+        */
 
         saga.apply(flow, f2 -> {
             f2.transaction(this::callSvc1, this::compensateSvc1);

@@ -1,6 +1,7 @@
 package isocline.reflow.examples.flow;
 
 import isocline.reflow.*;
+import org.junit.After;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,12 +65,8 @@ public class ComplexWorkFlow implements FlowableWork {
     @Test
     public void test() throws InterruptedException {
 
-        Activity schedule = start();
-
-
-
-        FlowProcessorFactory.getProcessor().awaitShutdown();
-
+        Activity activity = start();
+        logger.debug("start complete");
 
     }
 
@@ -82,5 +79,10 @@ public class ComplexWorkFlow implements FlowableWork {
         logger.info("END");
     }
 
+
+    @After
+    public void compeleteTest() {
+        //FlowProcessorFactory.getProcessor().awaitShutdown();
+    }
 
 }
