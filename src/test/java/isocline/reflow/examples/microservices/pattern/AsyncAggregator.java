@@ -67,17 +67,17 @@ public class AsyncAggregator implements FlowableWork {
 
     @Override
     public void defineWorkFlow(WorkFlow flow) {
-        WorkFlow s1 = flow.next(this::init).fireEvent("timeout", 3000);
+        WorkFlow s1 = flow.run(this::init).fireEvent("timeout", 3000);
 
-        WorkFlow p1 = flow.wait(s1).next(this::callService1);
-        WorkFlow p2 = flow.wait(s1).next(this::callService2);
-        WorkFlow p3 = flow.wait(s1).next(this::callService3);
+        WorkFlow p1 = flow.wait(s1).accept(this::callService1);
+        WorkFlow p2 = flow.wait(s1).accept(this::callService2);
+        WorkFlow p3 = flow.wait(s1).accept(this::callService3);
 
-        flow.waitAll(p1, p2, p3).next(this::finish).end();
+        flow.waitAll(p1, p2, p3).accept(this::finish).end();
 
 
-        flow.onError("*").next(this::onError).end();
-        flow.wait("timeout").next(this::onTimeout).end();
+        flow.onError("*").accept(this::onError).end();
+        flow.wait("timeout").accept(this::onTimeout).end();
 
     }
 
@@ -95,17 +95,17 @@ public class AsyncAggregator implements FlowableWork {
     @Test
     public void startTest2() {
         Re.flow(flow -> {
-            WorkFlow s1 = flow.next(this::init).fireEvent("timeout", 3000);
+            WorkFlow s1 = flow.run(this::init).fireEvent("timeout", 3000);
 
-            WorkFlow p1 = flow.wait(s1).next(this::callService1);
-            WorkFlow p2 = flow.wait(s1).next(this::callService2);
-            WorkFlow p3 = flow.wait(s1).next(this::callService3);
+            WorkFlow p1 = flow.wait(s1).accept(this::callService1);
+            WorkFlow p2 = flow.wait(s1).accept(this::callService2);
+            WorkFlow p3 = flow.wait(s1).accept(this::callService3);
 
-            flow.waitAll(p1, p2, p3).next(this::finish).end();
+            flow.waitAll(p1, p2, p3).accept(this::finish).end();
 
 
-            flow.onError("*").next(this::onError).end();
-            flow.wait("timeout").next(this::onTimeout).end();
+            flow.onError("*").accept(this::onError).end();
+            flow.wait("timeout").accept(this::onTimeout).end();
 
         }).activate().block();
     }

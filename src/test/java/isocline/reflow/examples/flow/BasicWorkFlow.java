@@ -58,7 +58,7 @@ public class BasicWorkFlow implements FlowableWork {
 
     public void defineWorkFlow(WorkFlow flow) {
 
-        flow.runAsync(this::order).next(this::sendMail).next(this::sendSMS).next(this::report).end();
+        flow.runAsync(this::order).run(this::sendMail).run(this::sendSMS).run(this::report).end();
 
 
     }

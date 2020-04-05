@@ -239,7 +239,7 @@ public class Configuration {
     /**
      *
      * Returns the remaining waiting time setting value to enter the ready state.
-     * If the remaining time until the next execution remains below this set time,
+     * If the remaining time until the apply execution remains below this set time,
      * it enters the execution wait queue and enters the job wait state.
      *
      *
@@ -252,7 +252,7 @@ public class Configuration {
 
     /**
      * If the remaining waiting time to enter the ready state and the time remaining
-     * until the next execution remain below this set time,
+     * until the apply execution remain below this set time,
      * the system enters the waiting queue and enters the waiting state.
      *
      * @param thresholdWaitTimeToReady threshold wait time to ready

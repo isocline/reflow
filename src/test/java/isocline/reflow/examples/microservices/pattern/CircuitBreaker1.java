@@ -98,15 +98,15 @@ public class CircuitBreaker1 {
 
                             String cursor = flow.fireEvent("error::timeout", 3000)
                                     .when(circuitBreaker::check)
-                                    .next(this::callService1).cursor();
+                                    .accept(this::callService1).cursor();
 
                             flow.end();
 
 
-                            flow.onError(cursor).next(circuitBreaker::error).end();
+                            flow.onError(cursor).accept(circuitBreaker::error).end();
 
 
-                            //flow.onError("*").next(this::onError2).inactive();
+                            //flow.onError("*").apply(this::onError2).inactive();
 
 
                             flow.wait("proto").end();

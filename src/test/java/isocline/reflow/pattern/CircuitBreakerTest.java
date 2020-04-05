@@ -64,7 +64,7 @@ public class CircuitBreakerTest extends TestBase {
 
 
         }).apply(f -> {
-            f.next(this::callService1);
+            f.accept(this::callService1);
         });
 
         Re.flow(flow).activate();

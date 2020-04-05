@@ -59,7 +59,7 @@ public class Saga {
 
             WorkEventConsumer t = basket.getTransaction();
 
-            workFlow.next(t, basket.getEventName());
+            workFlow.accept(t, basket.getEventName());
         }
 
         workFlow.end();
@@ -74,13 +74,13 @@ public class Saga {
             WorkFlow f = workFlow.onError(eventName);
 
             for (int i = j; i >= 0; i--) {
-                f = f.next(list.get(i).getCompensation());
+                f = f.accept(list.get(i).getCompensation());
             }
             f.end();
         }
 
         if(printError) {
-            workFlow.onError("*").next(Saga::error);
+            workFlow.onError("*").accept(Saga::error);
         }
 
 

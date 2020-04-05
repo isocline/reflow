@@ -52,13 +52,13 @@ public class ComplexWorkFlowTest implements FlowableWork {
 
 
 
-        WorkFlow p1 = flow.runAsync(this::checkMemory).next(this::checkStorage);
+        WorkFlow p1 = flow.runAsync(this::checkMemory).run(this::checkStorage);
 
-        WorkFlow t1 = flow.wait(start).next(this::sendSignal);
+        WorkFlow t1 = flow.wait(start).run(this::sendSignal);
 
-        WorkFlow t2 = flow.wait(start).next(this::sendStatusMsg).next(this::sendReportMsg);
+        WorkFlow t2 = flow.wait(start).run(this::sendStatusMsg).run(this::sendReportMsg);
 
-        flow.waitAll(t1, t2).next(this::report).end();
+        flow.waitAll(t1, t2).run(this::report).end();
     }
 
 

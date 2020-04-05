@@ -92,13 +92,13 @@ public class OrderProcess2 implements FlowableWork {
                 .runAsync(this::writeLog)
 
 
-                .next(this::record)
+                .run(this::record)
 
                 .runAsync(this::checkStock, "checkStock")
                 .runAsync(this::checkSupplier, "checkSup")
 
 
-                .wait("checkStock&checkSup").next(this::makeMessage).next(this::test).end();
+                .wait("checkStock&checkSup").run(this::makeMessage).run(this::test).end();
 
 
     }

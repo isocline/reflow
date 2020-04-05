@@ -799,7 +799,7 @@ public class PlanImpl implements Plan, Activity {
                     this.workFlow = WorkFlow.create();
 
                     WorkFlow wf = this.workFlow
-                            .next(fw::initialize);
+                            .accept(fw::initialize);
 
 
                     fw.defineWorkFlow(wf);
@@ -1215,6 +1215,37 @@ public class PlanImpl implements Plan, Activity {
 
         WorkEvent getWorkEvent() {
             return this.workEvent;
+        }
+
+
+        WorkEvent getInitialWorkEvent(PlanImpl planImpl) {
+
+            WorkEvent event;
+            WorkEvent originEvent = planImpl.originEvent;
+
+            if (this.workEvent == null) {
+                if (originEvent == null) {
+                    originEvent = WorkEventFactory.createOrigin();
+                    originEvent.setActivity(planImpl);
+                }
+
+                event = WorkEventFactory.createWithOrigin(null, originEvent);
+                event.setActivity(originEvent.getActivity());
+
+            } else {
+                if (originEvent == null) {
+                    originEvent = this.workEvent;
+                }
+
+                event = this.workEvent;
+                event.setActivity(planImpl);
+            }
+
+            planImpl.originEvent = originEvent;
+
+            return event;
+
+
         }
 
 

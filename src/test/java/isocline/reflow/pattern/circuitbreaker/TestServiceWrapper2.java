@@ -23,7 +23,7 @@ public class TestServiceWrapper2 {
                 $2.setMaxFailCount(3);
             }));
 
-            flow.next(svc::executeUnstalbe);
+            flow.run(svc::executeUnstalbe);
 
             $.closePattern();
 

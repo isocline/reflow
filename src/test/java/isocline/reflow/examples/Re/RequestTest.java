@@ -52,7 +52,7 @@ public class RequestTest {
 
             int seq = 0;
             while (methodCallCount > seq++) {
-                f.next(this::testLoop);
+                f.accept(this::testLoop);
             }
 
             f.end();
@@ -100,7 +100,7 @@ public class RequestTest {
 
             int seq = 0;
             while (methodCallCount > seq++) {
-                f.next(this::testLoop);
+                f.accept(this::testLoop);
             }
 
             f.end();
@@ -130,10 +130,10 @@ public class RequestTest {
             int seq = 0;
             /*
             while (methodCallCount > seq++) {
-                f.next(this::testLoop);
+                f.apply(this::testLoop);
             }
             */
-            f.next(this::testLoop);
+            f.accept(this::testLoop);
 
             f.end();
         };
@@ -239,13 +239,13 @@ public class RequestTest {
 
         FlowableWork flowableWork = f -> {
 
-            f.next(this::test1);
+            f.run(this::test1);
 
 
 
-            f.flag("push").next(this::push).fireEvent("push",2000);
+            f.flag("push").accept(this::push).fireEvent("push",2000);
 
-            f.wait("end").next(this::zzzz).end();
+            f.wait("end").run(this::zzzz).end();
 
         };
 

@@ -42,7 +42,7 @@ public class MultiAsync2 {
                 flow -> {
                     flow.runAsync(this::asyncMulti, 5)
                             .waitAll()
-                            .next(this::sum);
+                            .accept(this::sum);
                 }
 
         ).initialDelay(2000).run();

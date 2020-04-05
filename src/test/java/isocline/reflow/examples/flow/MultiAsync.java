@@ -38,7 +38,7 @@ public class MultiAsync implements FlowableWork {
     public void defineWorkFlow(WorkFlow flow) {
         flow.runAsync(this::asyncMulti,5)
                 .waitAll()
-                .next(this::sum);
+                .accept(this::sum);
     }
 
 

@@ -466,6 +466,17 @@ public class WorkEventImpl implements WorkEvent {
         }
     }
 
+
+    public synchronized void block(long timeout) {
+        try {
+            if (!this.isComplete) {
+                wait(timeout);
+            }
+        } catch (InterruptedException ignored) {
+
+        }
+    }
+
     @Override
     public String toString() {
         String fireInfo="";
@@ -519,4 +530,11 @@ public class WorkEventImpl implements WorkEvent {
     public boolean isLocalEvent() {
         return this.isLocalEvent;
     }
+
+
+
+
+
+
+
 }

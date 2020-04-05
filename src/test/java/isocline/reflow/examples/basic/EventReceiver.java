@@ -46,7 +46,7 @@ public class EventReceiver extends TestBase implements Work {
 
         processor.task(gen).strictMode()
                 .interval(1 * Time.SECOND)
-                .startTime(Time.nextSecond()) //start next exact second
+                .startTime(Time.nextSecond()) //start apply exact second
                 .finishTimeFromNow(5 * Time.SECOND) // finish after 30 secs but this event process fire event only one.
                 .activate().block();
 

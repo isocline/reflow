@@ -60,10 +60,10 @@ public class SagaTest extends TestBase {
         /*
         CircuitBreaker.init(flow)
 
-        flow.next(this::init);
+        flow.apply(this::init);
 
         flow.applyPattern(Retry)
-                .next(worwr).end();
+                .apply(worwr).end();
 
 
         Saga.init(conf-> {

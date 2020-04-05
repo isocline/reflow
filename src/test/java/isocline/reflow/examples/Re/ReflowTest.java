@@ -69,7 +69,7 @@ public class ReflowTest {
     public void testFlow() {
 
         WorkFlow flow = WorkFlow.create();
-        flow.next(this::test1).next(this::test2);
+        flow.run(this::test1).run(this::test2);
         flow.end();
 
         Re.flow(flow).activate();
@@ -82,7 +82,7 @@ public class ReflowTest {
 
         WorkFlow flow = WorkFlow.create();
         flow.runAsync(this::logging);
-        flow.runAsync(this::checkConnection).next(this::receive);
+        flow.runAsync(this::checkConnection).accept(this::receive);
         flow.runAsync(this::logging);
         flow.end();
 

@@ -71,17 +71,17 @@ public class AsyncAggregator2 implements FlowableWork {
 
     @Override
     public void defineWorkFlow(WorkFlow flow) {
-        WorkFlow s1 = flow.next(this::init);
+        WorkFlow s1 = flow.run(this::init);
 
         flow.wait(flow).runAsync(this::callService1, "p1")
                 .runAsync(this::callService2, "p2")
                 .runAsync(this::callService3, "p3");
 
-        flow.waitAll("p1", "p2", "p3").next(this::finish).end();
+        flow.waitAll("p1", "p2", "p3").accept(this::finish).end();
 
 
-        flow.onError("*").next(this::onError);
-        flow.wait("timeout").next(this::onTimeout).end();
+        flow.onError("*").accept(this::onError);
+        flow.wait("timeout").accept(this::onTimeout).end();
 
     }
 

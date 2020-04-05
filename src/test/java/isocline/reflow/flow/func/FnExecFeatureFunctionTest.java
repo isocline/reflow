@@ -50,9 +50,9 @@ public class FnExecFeatureFunctionTest {
     public void testTimeout() throws Exception {
 
         Re.flow(flow -> {
-                    flow.next(this::delaySerice, e -> e.timeout(1000, "tt"));
+                    flow.run(this::delaySerice, e -> e.timeout(1000, "tt"));
 
-                    flow.wait("tt").next((WorkEvent e) -> {
+                    flow.wait("tt").accept((WorkEvent e) -> {
                         e.getThrowable().printStackTrace();
                     }).end();
                 }
@@ -67,9 +67,9 @@ public class FnExecFeatureFunctionTest {
 
         FlowProcessor.core()
                 .reflow(f -> f
-                        .next(this::delaySerice, p ->
+                        .run(this::delaySerice, p ->
                                 p.before("b1", "b2").success("s1", "s2").fail("f1").end("e1").timeout(3000))
-                        .wait("b1", "b2", "s1", "s2", "f1", "e1").next(this::catchEvent)
+                        .wait("b1", "b2", "s1", "s2", "f1", "e1").accept(this::catchEvent)
                         .wait("x").end())
 
                 .activate();
@@ -83,9 +83,9 @@ public class FnExecFeatureFunctionTest {
 
         for (int i = 0; i < 80; i++) {
             Re.flow(flow -> {
-                        flow.next(this::delaySerice, ft -> ft.timeout(1000, "tt").circuitBreak("uniqId", 3, 1000));
+                        flow.run(this::delaySerice, ft -> ft.timeout(1000, "tt").circuitBreak("uniqId", 3, 1000));
 
-                        flow.onError("*").next((WorkEvent e) -> {
+                        flow.onError("*").accept((WorkEvent e) -> {
                             e.getThrowable().printStackTrace();
                         }).end();
                     }

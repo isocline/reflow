@@ -48,16 +48,16 @@ public interface FlowableWork<T> extends Work {
      *
      *  public void defineWorkFlow(WorkFlow flow) {
      *    // step1 : activate this.checkMemory() then activate this.checkStorage()
-     *    WorkFlow p1 = flow.next(this::checkMemory).next(this::checkStorage);
+     *    WorkFlow p1 = flow.apply(this::checkMemory).apply(this::checkStorage);
      *
      *    // Until wait inactive of step1, then this.sendSignal()
-     *    WorkFlow t1 = flow.wait(p1).next(this::sendSignal);
+     *    WorkFlow t1 = flow.wait(p1).apply(this::sendSignal);
      *
      *    // Until wait inactive of step1, then this.sendStatusMsg() and this.sendReportMsg()
-     *    WorkFlow t2 = flow.wait(p1).next(this::sendStatusMsg).next(this::sendReportMsg);
+     *    WorkFlow t2 = flow.wait(p1).apply(this::sendStatusMsg).apply(this::sendReportMsg);
      *
      *    // Wait until both step1 and step2 are finished, then activate this.report()
-     *    flow.waitAll(t1, t2).next(this::report).inactive();
+     *    flow.waitAll(t1, t2).apply(this::report).inactive();
      *  }
      * </pre>
      * </blockquote>

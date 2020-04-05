@@ -44,7 +44,7 @@ public class Timeout implements WorkFlowPattern {
 
     public void endFlow(WorkFlow flow) {
 
-        flow.onError(this.timeoutEventName).next(this::timeout).end();
+        flow.onError(this.timeoutEventName).accept(this::timeout).end();
     }
 
 

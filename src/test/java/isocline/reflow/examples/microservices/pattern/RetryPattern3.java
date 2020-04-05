@@ -82,13 +82,13 @@ public class RetryPattern3 {
                 if (e.count() == 4) return false;
                 return true;
             })
-                    .next(this::callService1, WorkFlow.FINISH)
+                    .accept(this::callService1, WorkFlow.FINISH)
                     .fireEventOnError(WorkFlow.START, 2000);
 
 
-            flow.onError("*").next(this::onError);
+            flow.onError("*").accept(this::onError);
 
-            flow.onError(RuntimeException.class).next(this::onError2);
+            flow.onError(RuntimeException.class).accept(this::onError2);
 
 
         }).run();

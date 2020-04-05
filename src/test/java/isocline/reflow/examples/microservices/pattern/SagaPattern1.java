@@ -57,15 +57,15 @@ public class SagaPattern1 {
         FlowProcessor.core()
                 .reflow(f -> {
                     f
-                            .next(this::callSvc1, "s1")
-                            .next(this::callSvc2, "s2")
-                            .next(this::callSvc3, "s3")
+                            .accept(this::callSvc1, "s1")
+                            .accept(this::callSvc2, "s2")
+                            .accept(this::callSvc3, "s3")
                             .end();
 
 
                     f.onError("s3").runAsync(this::compensateSvc3,this::compensateSvc2,this::compensateSvc1).end();
-                    f.onError("s2").next(this::compensateSvc2).next(this::compensateSvc1).end();
-                    f.onError("s1").next(this::compensateSvc1).end();
+                    f.onError("s2").accept(this::compensateSvc2).accept(this::compensateSvc1).end();
+                    f.onError("s1").accept(this::compensateSvc1).end();
 
 
                 }).activate().block();

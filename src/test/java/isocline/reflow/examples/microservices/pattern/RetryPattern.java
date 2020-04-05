@@ -81,13 +81,13 @@ public class RetryPattern {
 
             flow.wait("check")
                     .when(Count.max(3))
-                    .next(this::callService1, "success")
+                    .accept(this::callService1, "success")
                     .fireEventOnError("check", 2000);
 
 
-            flow.onError("*").next(this::onError);
+            flow.onError("*").accept(this::onError);
 
-            flow.onError(RuntimeException.class).next(this::onError2);
+            flow.onError(RuntimeException.class).accept(this::onError2);
 
             flow.wait("success").end();
 

@@ -54,10 +54,10 @@ public class ComplexWorkFlow implements FlowableWork {
 
     public void defineWorkFlow(WorkFlow flow) {
 
-        flow.runAsync(this::order).next(this::sendMail, "h1");
-        flow.runAsync(this::sendSMS).next(this::report, "h2");
+        flow.runAsync(this::order).run(this::sendMail, "h1");
+        flow.runAsync(this::sendSMS).run(this::report, "h2");
 
-        flow.waitAll("h1","h2").next(this::report2).end();
+        flow.waitAll("h1","h2").accept(this::report2).end();
 
     }
 

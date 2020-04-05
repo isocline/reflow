@@ -86,13 +86,13 @@ public class FlowableWorkTest {
                 .reflow(f -> {
                     f
 
-                            .next(this::case0)
+                            .accept(this::case0)
                             .delay(100)
                             .fireEvent("s1", 0)
                             .wait("s1")
-                            .next(this::case1)
+                            .accept(this::case1)
                             .delay(200)
-                            .next(this::case2)
+                            .run(this::case2)
 
                             .branch((WorkEvent event) -> {
                                 if (event.count() > 5) {
@@ -123,13 +123,13 @@ public class FlowableWorkTest {
 
         Re.flow(f -> {
             f
-                    .next(this::case0)
+                    .accept(this::case0)
                     .delay(200)
 
                     .flag("s1")
-                    .next(this::case1)
+                    .accept(this::case1)
                     .delay(100)
-                    .next(this::case2)
+                    .run(this::case2)
 
                     .branch((WorkEvent event) -> {
                         if (event.count() > 5) {
@@ -158,7 +158,7 @@ public class FlowableWorkTest {
                     .extractAsync(e -> getExhangeRate(2000, 4, 2))
                     .extractAsync(e -> getExhangeRate(5000 * Math.random(), 3, 4))
                     .waitAll()
-                    .next((WorkEvent e) -> e.getDoubleStream().sum());
+                    .apply((WorkEvent e) -> e.getDoubleStream().sum());
         })
                 .activate(this::check).block();
 
@@ -175,8 +175,8 @@ public class FlowableWorkTest {
                     .extractAsync(e -> getExhangeRate(2000, 4, 2))
                     .extractAsync(e -> getExhangeRate(5000, 3, 4))
                     .waitAll()
-                    .next((WorkEvent e) -> e.getDoubleStream().sum())
-                    .next((WorkEvent e) -> {
+                    .apply((WorkEvent e) -> e.getDoubleStream().sum())
+                    .accept((WorkEvent e) -> {
                         count.addAndGet(1);
                         double result = (double) e.getResult();
                         logger.info("RESULT = " + result);
@@ -223,8 +223,8 @@ public class FlowableWorkTest {
                     .extractAsync(e -> getExhangeRate(2000 * Math.random(), 4, 2))
                     .extractAsync(e -> getExhangeRate(5000 * Math.random(), 3, 4))
                     .waitAll()
-                    .next((WorkEvent e) -> e.getDoubleStream().sum())
-                    .next((WorkEvent e) -> {
+                    .apply((WorkEvent e) -> e.getDoubleStream().sum())
+                    .accept((WorkEvent e) -> {
                         count.addAndGet(1);
                         logger.info("RESULT = " + e.getResult());
                     }).end();
@@ -259,9 +259,9 @@ public class FlowableWorkTest {
         reset();
 
         Re.flow((WorkFlow f) -> {
-            f.next(this::case0);
-            f.wait("case1").next(this::case1);
-            f.wait("case2").next(this::case2);
+            f.accept(this::case0);
+            f.wait("case1").accept(this::case1);
+            f.wait("case2").run(this::case2);
         })
                 .on("ev")
                 .daemonMode()

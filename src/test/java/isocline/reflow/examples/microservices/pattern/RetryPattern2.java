@@ -82,7 +82,7 @@ public class RetryPattern2 {
 
                     flow
 
-                            .next(this::callService1)
+                            .accept(this::callService1)
                             .retryOnError(3, 2000);
 
 

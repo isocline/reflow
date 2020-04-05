@@ -136,10 +136,10 @@ public class PubSubBroker implements FlowableWork {
 
     @Override
     public void defineWorkFlow(WorkFlow f) {
-        f.next(this::receiveInit).runAsync(this::receive, this.getParallelSize()).end();
+        f.accept(this::receiveInit).runAsync(this::receive, this.getParallelSize()).end();
 
-        f.wait("regist").next(this::regist).end();
-        f.wait("unregist").next(this::unregist).end();
+        f.wait("regist").accept(this::regist).end();
+        f.wait("unregist").accept(this::unregist).end();
 
     }
 }

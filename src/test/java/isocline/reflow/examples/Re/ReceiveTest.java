@@ -132,10 +132,10 @@ public class ReceiveTest {
     public void testBasic() {
 
         Re.flow(f -> {
-            f.next(this::receiveInit).runAsync(this::receive, this.getPararrelSize()).end();
-            //f.next(this::receive).end();
+            f.accept(this::receiveInit).runAsync(this::receive, this.getPararrelSize()).end();
+            //f.apply(this::receive).end();
 
-            f.wait("regist").next(this::regist).end();
+            f.wait("regist").accept(this::regist).end();
 
         }).on("rcv").daemonMode().activate();
 

@@ -103,9 +103,9 @@ public class Bulkhead implements WorkFlowPattern {
 
         String cursor = flow.cursor();
 
-        flow.onError(cursor).next(this::error);
+        flow.onError(cursor).accept(this::error);
 
-        flow.wait(cursor).next(this::ok);
+        flow.wait(cursor).accept(this::ok);
 
 
     }

@@ -88,10 +88,10 @@ public class TestServiceWrapper {
 
 
 
-            flow.wait("close").fireEvent("timeout",timeout).next(svc::executeUnstalbe).end();
-            flow.wait("error::*").next(wrapper::chk).end();
-            flow.wait("timeout").next(wrapper::chk).end();
-            flow.wait("open").next(wrapper::open).end();
+            flow.wait("close").fireEvent("timeout",timeout).run(svc::executeUnstalbe).end();
+            flow.wait("error::*").accept(wrapper::chk).end();
+            flow.wait("timeout").accept(wrapper::chk).end();
+            flow.wait("open").accept(wrapper::open).end();
         }).activate().block();
 
 

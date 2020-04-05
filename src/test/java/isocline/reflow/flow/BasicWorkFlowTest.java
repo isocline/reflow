@@ -47,13 +47,13 @@ public class BasicWorkFlowTest implements FlowableWork {
 
     public void defineWorkFlow(WorkFlow flow) {
 
-        WorkFlow p1 = flow.next(this::checkMemory).next(this::checkStorage);
+        WorkFlow p1 = flow.run(this::checkMemory).run(this::checkStorage);
 
-        WorkFlow t1 = flow.wait(p1).next(this::sendSignal);
+        WorkFlow t1 = flow.wait(p1).run(this::sendSignal);
 
-        WorkFlow t2 = flow.wait(p1).next(this::sendStatusMsg).next(this::sendReportMsg);
+        WorkFlow t2 = flow.wait(p1).run(this::sendStatusMsg).run(this::sendReportMsg);
 
-        flow.waitAll(t1, t2).next(this::report).end();
+        flow.waitAll(t1, t2).run(this::report).end();
     }
 
 

@@ -83,9 +83,9 @@ public class CircuitBreaker extends CustomWorkFlow implements CustomWorkFlowBuil
         workFlow.end();
 
 
-        workFlow.wait("error::*").next(instance::chk).end();
-        workFlow.wait("timeout").next(instance::chk).end();
-        workFlow.wait("open").next(instance::open).end();
+        workFlow.wait("error::*").accept(instance::chk).end();
+        workFlow.wait("timeout").accept(instance::chk).end();
+        workFlow.wait("open").accept(instance::open).end();
     }
 
     public int getMaxFailCount() {

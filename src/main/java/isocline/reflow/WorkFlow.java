@@ -64,7 +64,7 @@ public class WorkFlow<T> {
 
     public static WorkFlow create() {
         WorkFlowWrapper workFlowWrapper = new WorkFlowWrapper(new WorkFlow());
-        workFlowWrapper.next(WorkFlow::dummy);
+        workFlowWrapper.run(WorkFlow::dummy);
 
         return workFlowWrapper;
     }
@@ -204,7 +204,7 @@ public class WorkFlow<T> {
 
 
     public WorkFlow<T> onError(WorkEventConsumer consumer) {
-        return onError(this).next(consumer);
+        return onError(this).accept(consumer);
     }
 
     /**
@@ -501,12 +501,12 @@ public class WorkFlow<T> {
         return when(event -> event.count() <= maxCount);
     }
 
-    public WorkFlow next(ThrowableRunFunction execObject) {
+    public WorkFlow run(ThrowableRunFunction execObject) {
         return processNext(execObject);
     }
 
 
-    public WorkFlow next(ThrowableRunFunction execObject, String eventName) {
+    public WorkFlow run(ThrowableRunFunction execObject, String eventName) {
         return processNext(execObject, new FuntionalInteraceContext().with($->{
             $.fireEventName = eventName;
         }));
@@ -514,27 +514,27 @@ public class WorkFlow<T> {
 
 
     /*
-    public WorkFlow<T> next(Consumer<? super T> execObject) {
+    public WorkFlow<T> apply(Consumer<? super T> execObject) {
         return processNext(execObject, null, false);
     }
 
 
-    public WorkFlow<T> next(Consumer<? super T> execObject, String fireEventName) {
+    public WorkFlow<T> apply(Consumer<? super T> execObject, String fireEventName) {
         return processNext(execObject, fireEventName, true);
     }
 
-    public WorkFlow<T> next(Consumer<? super T> execObject, FnExecFeatureFunction fnExecFeatureFunction) {
+    public WorkFlow<T> apply(Consumer<? super T> execObject, FnExecFeatureFunction fnExecFeatureFunction) {
         return processNext(execObject, null, false, false, 0, -1, fnExecFeatureFunction);
     }
     */
 
 
-    public <R> WorkFlow<R> next(WorkEventFunction<? extends R> execObject) {
+    public <R> WorkFlow<R> apply(WorkEventFunction<? extends R> execObject) {
         return (WorkFlow<R>) processNext(execObject);
     }
 
 
-    public <R> WorkFlow<R> next(WorkEventFunction<? extends R> execObject, String fireEventName) {
+    public <R> WorkFlow<R> run(WorkEventFunction<? extends R> execObject, String fireEventName) {
         return (WorkFlow<R>) processNext(execObject, new FuntionalInteraceContext().with($->{
             $.fireEventName = fireEventName;
         }));
@@ -542,11 +542,11 @@ public class WorkFlow<T> {
     }
 
 
-    public WorkFlow<T> next(WorkEventConsumer execObject) {
+    public WorkFlow<T> accept(WorkEventConsumer execObject) {
         return processNext(execObject);
     }
 
-    public WorkFlow<T> next(WorkEventConsumer execObject, String eventName) {
+    public WorkFlow<T> accept(WorkEventConsumer execObject, String eventName) {
         return processNext(execObject, new FuntionalInteraceContext().with($->{
             $.fireEventName = eventName;
         }));
@@ -554,7 +554,7 @@ public class WorkFlow<T> {
     }
 
 
-    public WorkFlow<T> next(ThrowableRunFunction execObject, FnExecFeatureFunction fnExecFeatureFunction) {
+    public WorkFlow<T> run(ThrowableRunFunction execObject, FnExecFeatureFunction fnExecFeatureFunction) {
         return processNext(execObject, new FuntionalInteraceContext().with($->{
             $.featureFunction = fnExecFeatureFunction;
         }));
@@ -562,13 +562,13 @@ public class WorkFlow<T> {
     }
 
 
-    public WorkFlow<T> next(WorkEventConsumer execObject, FnExecFeatureFunction fnExecFeatureFunction) {
+    public WorkFlow<T> accept(WorkEventConsumer execObject, FnExecFeatureFunction fnExecFeatureFunction) {
         return processNext(execObject, new FuntionalInteraceContext().with($->{
             $.featureFunction = fnExecFeatureFunction;
         }));
     }
 
-    public <R> WorkFlow<R> next(WorkEventFunction<? extends R> execObject, FnExecFeatureFunction fnExecFeatureFunction) {
+    public <R> WorkFlow<R> apply(WorkEventFunction<? extends R> execObject, FnExecFeatureFunction fnExecFeatureFunction) {
         return (WorkFlow<R>) processNext(execObject, new FuntionalInteraceContext().with($->{
             $.featureFunction = fnExecFeatureFunction;
         }));

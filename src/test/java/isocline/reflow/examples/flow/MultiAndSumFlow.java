@@ -64,11 +64,11 @@ public class MultiAndSumFlow implements FlowableWork {
 
         flow.runAsync(this::async1,"h1").runAsync(this::async2,"h2");
 
-        flow.waitAll("h1","h2").next(this::sum1);
+        flow.waitAll("h1","h2").run(this::sum1);
 
         //flow.runAsync(this::async3,"h3").runAsync(this::async4,"h4");
 
-        //flow.waitAll("h3","h4").next(this::sum2).end();
+        //flow.waitAll("h3","h4").apply(this::sum2).end();
 
     }
 
@@ -81,6 +81,8 @@ public class MultiAndSumFlow implements FlowableWork {
         activity.block();
 
     }
+
+    private String zzz;
 
 
     public void test2(final String x, final String y) throws Exception {
@@ -97,8 +99,10 @@ public class MultiAndSumFlow implements FlowableWork {
             e.put("resultY",result);
         },"h4");
 
-        wf.waitAll("h3","h4").next(e->{
+        wf.waitAll("h3","h4").accept(e->{
             String result = sum2(e.get("resultX").toString(), e.get("resultY").toString() );
+
+            zzz=result;
 
             WorkHelper.Return(e,result);
 
@@ -108,6 +112,7 @@ public class MultiAndSumFlow implements FlowableWork {
 
         WorkEvent e= Re.flow(wf).activate(result->{
             System.err.println(result+"<<");
+
         }).block().getWorkEvent();
 
 

@@ -36,11 +36,25 @@ public class TimeoutPattern {
         Re.flow(flow -> {
 
 
-            flow.next(this::callService1 , conf->conf.timeout(500)).end();
+            flow.accept(this::callService1 , conf->conf.timeout(500)).end();
 
 
         }).activate().block();
     }
 
+
+    @Test
+    public void startTest2() {
+
+        Re.flow(flow -> {
+
+
+            flow.fireEvent("tt",500).accept(this::callService1).end();
+
+            flow.wait("tt").end();
+
+
+        }).activate().block();
+    }
 
 }

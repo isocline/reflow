@@ -75,11 +75,11 @@ public class OrderProcess implements FlowableWork {
         flow
                 .runAsync(this::writeLog)
                 .runAsync(this::record)
-                .next(this::checkStock, "checkStock")
-                .next(this::checkSupplier, "checkSup");
+                .run(this::checkStock, "checkStock")
+                .run(this::checkSupplier, "checkSup");
 
         flow
-                .wait("checkStock&checkSup").next(this::makeMessage).end();
+                .wait("checkStock&checkSup").run(this::makeMessage).end();
 
 
     }

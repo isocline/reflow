@@ -70,7 +70,6 @@ public interface WorkEvent extends ResultEvent {
     WorkEvent put(String key, Object value);
 
 
-
     /**
      * Delete the attribute value.
      *
@@ -124,9 +123,6 @@ public interface WorkEvent extends ResultEvent {
     WorkEvent setThrowable(Throwable e);
 
 
-
-
-
     WorkEvent setTimeoutThread(Thread thread);
 
 
@@ -152,6 +148,7 @@ public interface WorkEvent extends ResultEvent {
 
     /**
      * Returns name of fire event.
+     *
      * @return name of event
      */
     String getFireEventName();
@@ -192,6 +189,7 @@ public interface WorkEvent extends ResultEvent {
 
     /**
      * Returns long stream, if internal work process produces stream.
+     *
      * @return long stream
      */
     LongStream getLongStream();
@@ -234,11 +232,8 @@ public interface WorkEvent extends ResultEvent {
 
     /**
      * execute method if you want to ternminate internal work process.
-     *
      */
     void complete();
-
-
 
 
     WorkEvent dataChannel(DataChannel dataChannel);
@@ -254,10 +249,6 @@ public interface WorkEvent extends ResultEvent {
 
 
     boolean isLocalEvent();
-
-
-
-
 
 
 }
