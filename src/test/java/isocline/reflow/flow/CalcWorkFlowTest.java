@@ -41,6 +41,6 @@ public class CalcWorkFlowTest {
                     .onError(this::error).end();
 
 
-        }).activate(this::check).block();
+        }).activate(this::check).block(500);
     }
 }
