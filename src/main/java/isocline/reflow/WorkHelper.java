@@ -107,8 +107,7 @@ public class WorkHelper {
 
         if (eventName == null) return;
 
-        WorkEvent emitEvent;
-        emitEvent = event.createChild(eventName);
+        WorkEvent emitEvent = event.createChild(eventName, true);
         if (error == null) {
             //emitEvent = event.createChild(eventName);
         } else {

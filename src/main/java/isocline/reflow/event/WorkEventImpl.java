@@ -16,6 +16,7 @@
 package isocline.reflow.event;
 
 import isocline.reflow.Activity;
+import isocline.reflow.DataChannel;
 import isocline.reflow.WorkEvent;
 import isocline.reflow.flow.func.WorkEventConsumer;
 import isocline.reflow.flow.func.WorkEventPredicate;
@@ -46,9 +47,9 @@ public class WorkEventImpl implements WorkEvent {
 
     private String fireEventName;
 
-
-
     private boolean isCallBacking = false;
+
+    private boolean isLocalEvent = false;
 
 
 
@@ -67,8 +68,13 @@ public class WorkEventImpl implements WorkEvent {
 
     private Thread timeoutThread = null;
 
+    protected DataChannel dataChannel = null;
+
+    public String uuid = UUID.randomUUID().toString();
+
     WorkEventImpl() {
         this.originWorkEvent = this;
+        //System.err.println("NEW _ORIGIN_"+uuid);
     }
 
     /**
@@ -77,6 +83,8 @@ public class WorkEventImpl implements WorkEvent {
     WorkEventImpl(String eventName) {
         this.eventName = eventName;
         this.originWorkEvent = this;
+
+        //System.err.println("NEW _ORIGIN_"+uuid + " - "+eventName);
     }
 
     /**
@@ -86,6 +94,7 @@ public class WorkEventImpl implements WorkEvent {
     WorkEventImpl(String eventName, WorkEvent originWorkEvent) {
         this.eventName = eventName;
         this.originWorkEvent = originWorkEvent;
+
         /*
         try {
             throw new RuntimeException("xxx");
@@ -200,13 +209,18 @@ public class WorkEventImpl implements WorkEvent {
     }
 
 
+    @Override
+    public WorkEvent createChild(String eventName) {
+        return createChild(eventName, false);
+    }
+
     /**
      * Creates a new {@link WorkEvent} that has parent property information.
      *
      * @param eventName the name of the event to createOrigin; may not be empty
      * @return the newly created WorkEvent
      */
-    public WorkEvent createChild(String eventName) {
+    public WorkEvent createChild(String eventName, boolean isLocalEvent) {
 
         if (eventName == null || eventName.trim().length() == 0) {
             throw new IllegalArgumentException("name is empty");
@@ -216,8 +230,9 @@ public class WorkEventImpl implements WorkEvent {
         WorkEventImpl newEvent = new WorkEventImpl(eventName, this.originWorkEvent);
         newEvent.attributeMap = this.attributeMap;
         newEvent.activity = this.activity;
+        newEvent.dataChannel = this.dataChannel;
 
-
+        newEvent.isLocalEvent = isLocalEvent;
 
         return newEvent;
 
@@ -404,6 +419,22 @@ public class WorkEventImpl implements WorkEvent {
         }
     }
 
+    @Override
+    public boolean publish() {
+
+        if( this.originWorkEvent != this) {
+            return this.originWorkEvent.publish();
+        }
+
+
+        if(this.consumer!=null) {
+            consumer.accept(this);
+            return true;
+        }
+
+        return false;
+    }
+
     private boolean isComplete = false;
     @Override
     public synchronized void complete() {
@@ -412,7 +443,8 @@ public class WorkEventImpl implements WorkEvent {
             return;
         }
         isComplete = true;
-        if(this.consumer!=null) {
+        if(this.consumer!=null && tester==null) {
+
             consumer.accept(this);
         }
 
@@ -428,6 +460,17 @@ public class WorkEventImpl implements WorkEvent {
         try {
             if (!this.isComplete) {
                 wait();
+            }
+        } catch (InterruptedException ignored) {
+
+        }
+    }
+
+
+    public synchronized void block(long timeout) {
+        try {
+            if (!this.isComplete) {
+                wait(timeout);
             }
         } catch (InterruptedException ignored) {
 
@@ -459,4 +502,39 @@ public class WorkEventImpl implements WorkEvent {
                 "origin: " + this.originWorkEvent  +
                 '}';
     }
+
+    @Override
+    public WorkEvent dataChannel(DataChannel dataChannel) {
+        this.dataChannel = dataChannel;
+        return this;
+    }
+
+    @Override
+    public DataChannel dataChannel() {
+        return this.dataChannel;
+    }
+
+    @Override
+    public boolean isComplete() {
+        return this.isComplete;
+    }
+
+    @Override
+    public Activity propagate(String eventName) {
+
+        return this.getActivity().emit(this.createChild(eventName));
+
+    }
+
+    @Override
+    public boolean isLocalEvent() {
+        return this.isLocalEvent;
+    }
+
+
+
+
+
+
+
 }

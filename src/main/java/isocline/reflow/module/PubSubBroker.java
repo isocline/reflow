@@ -3,7 +3,8 @@ package isocline.reflow.module;
 import isocline.reflow.FlowableWork;
 import isocline.reflow.WorkEvent;
 import isocline.reflow.WorkFlow;
-import isocline.reflow.log.XLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Map;
@@ -14,7 +15,7 @@ import java.util.stream.Stream;
 public class PubSubBroker implements FlowableWork {
 
 
-    private final XLogger logger = XLogger.getLogger(PubSubBroker.class);
+    private final Logger logger = LoggerFactory.getLogger(PubSubBroker.class);
 
     private final Map<String, WorkEvent> eventMap = new ConcurrentHashMap<>();
 
@@ -135,10 +136,10 @@ public class PubSubBroker implements FlowableWork {
 
     @Override
     public void defineWorkFlow(WorkFlow f) {
-        f.next(this::receiveInit).runAsync(this::receive, this.getParallelSize()).end();
+        f.accept(this::receiveInit).runAsync(this::receive, this.getParallelSize()).end();
 
-        f.wait("regist").next(this::regist).end();
-        f.wait("unregist").next(this::unregist).end();
+        f.wait("regist").accept(this::regist).end();
+        f.wait("unregist").accept(this::unregist).end();
 
     }
 }

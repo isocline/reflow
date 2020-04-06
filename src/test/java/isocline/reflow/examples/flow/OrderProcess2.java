@@ -1,11 +1,12 @@
 package isocline.reflow.examples.flow;
 
 import isocline.reflow.*;
-import isocline.reflow.log.XLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OrderProcess2 implements FlowableWork {
 
-    private static XLogger logger = XLogger.getLogger(OrderProcess2.class);
+    private static Logger logger = LoggerFactory.getLogger(OrderProcess2.class);
 
 
     private String id;
@@ -91,13 +92,13 @@ public class OrderProcess2 implements FlowableWork {
                 .runAsync(this::writeLog)
 
 
-                .next(this::record)
+                .run(this::record)
 
                 .runAsync(this::checkStock, "checkStock")
                 .runAsync(this::checkSupplier, "checkSup")
 
 
-                .wait("checkStock&checkSup").next(this::makeMessage).next(this::test).end();
+                .wait("checkStock&checkSup").run(this::makeMessage).run(this::test).end();
 
 
     }

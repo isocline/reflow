@@ -19,7 +19,9 @@ import isocline.reflow.event.EventRepository;
 import isocline.reflow.event.SimultaneousEventSet;
 import isocline.reflow.event.WorkEventFactory;
 import isocline.reflow.flow.func.WorkEventConsumer;
-import isocline.reflow.log.XLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 import java.text.ParseException;
 import java.util.*;
@@ -35,7 +37,7 @@ import java.util.function.Consumer;
  */
 public class PlanImpl implements Plan, Activity {
 
-    protected static XLogger logger = XLogger.getLogger(Plan.class);
+    protected static Logger logger = LoggerFactory.getLogger(Plan.class);
 
 
     private static final long UNDEFINED_INTERVAL = -1;
@@ -117,7 +119,7 @@ public class PlanImpl implements Plan, Activity {
         Work work = (WorkEvent e) -> {
             runnable.accept(e);
 
-            return intervalTime;
+            return Work.WAIT;
         };
         this.flowProcessor = flowProcessor;
         this.work = work;
@@ -143,11 +145,7 @@ public class PlanImpl implements Plan, Activity {
     }
 
 
-    PlanImpl(FlowProcessor flowProcessor, FlowableWork work) {
-        this(flowProcessor, (Work) work);
 
-        this.isFlowableWork = true;
-    }
 
     PlanImpl(FlowProcessor flowProcessor, WorkFlow flow) {
         FlowableWork work = workFlow -> {
@@ -167,6 +165,10 @@ public class PlanImpl implements Plan, Activity {
     PlanImpl(FlowProcessor flowProcessor, Work work) {
         this.flowProcessor = flowProcessor;
         this.work = work;
+
+        if(work instanceof FlowableWork) {
+            this.isFlowableWork = true;
+        }
 
         this.uuid = UUID.randomUUID().toString();
     }
@@ -227,15 +229,7 @@ public class PlanImpl implements Plan, Activity {
         }
 
 
-        if (this.waitingTime == 0) {
-            if (this.isStrictMode) {
-                needWaiting = true;
-            }
-
-            return 0;
-        } else if (this.eventList.size() > 0) {
-            return 0;
-        } else if (this.nextExecuteTime > 0) {
+        if (this.nextExecuteTime > 0) {
 
             long t1 = this.nextExecuteTime - System.currentTimeMillis();
 
@@ -249,6 +243,15 @@ public class PlanImpl implements Plan, Activity {
 
             return t1;
 
+        }
+        else if (this.waitingTime == 0) {
+            if (this.isStrictMode) {
+                needWaiting = true;
+            }
+
+            return 0;
+        } else if (this.eventList.size() > 0) {
+            return 0;
         }
 
 
@@ -459,13 +462,29 @@ public class PlanImpl implements Plan, Activity {
 
 
     @Override
-    public Plan interval(long initialDelay, long intervalTime) {
+    public Plan interval(long intervalTime, long initialDelay) {
         this.initialDelay(initialDelay);
 
         return this.interval(intervalTime);
     }
 
+    private boolean isBasedOnStart = false;
 
+    public boolean isBasedOnStart() {
+        return this.isBasedOnStart;
+    }
+
+    @Override
+    public Plan interval(boolean isBasedOnStart, long intervalTime) {
+        this.isBasedOnStart = isBasedOnStart;
+        return interval(intervalTime);
+    }
+
+    @Override
+    public Plan interval(boolean isBasedOnStart, long intervalTime, long initialDelay) {
+        this.isBasedOnStart = isBasedOnStart;
+        return interval(isBasedOnStart, intervalTime, initialDelay);
+    }
 
     /**
      * Adjust interval time to repeat
@@ -635,7 +654,7 @@ public class PlanImpl implements Plan, Activity {
 
         //System.out.println(" [0] >> " + event.getEventName() + " : " + event.getFireEventName());
 
-        this.flowProcessor.addWorkSchedule(this, event);
+        this.flowProcessor.addWorkSchedule(this, event ,0);
 
         return this;
 
@@ -780,7 +799,7 @@ public class PlanImpl implements Plan, Activity {
                     this.workFlow = WorkFlow.create();
 
                     WorkFlow wf = this.workFlow
-                            .next(fw::initialize);
+                            .accept(fw::initialize);
 
 
                     fw.defineWorkFlow(wf);
@@ -961,20 +980,23 @@ public class PlanImpl implements Plan, Activity {
         return this.originEvent;
     }
 
+
+    /**
+     * If there is no user defined origin event,
+     * it is created by itself and stored in Plan instance for reuse.
+     *
+     * @param inputWorkEvent Early custom origin event
+     * @return
+     */
     WorkEvent getOriginWorkEvent(WorkEvent inputWorkEvent) {
 
         WorkEvent event;
 
         if (inputWorkEvent == null) {
-            //System.err.println("== 0 ===============");
-            if (originEvent == null) {
+             if (originEvent == null) {
                 originEvent = WorkEventFactory.createOrigin();
                 originEvent.setActivity(this);
-                //System.err.println("== 1");
-            } else {
-                //System.err.println("== 2 "+originEvent.getEventName());
             }
-            //event = originEvent;
 
             event = WorkEventFactory.createWithOrigin(null, originEvent);
             event.setActivity(originEvent.getActivity());
@@ -982,9 +1004,6 @@ public class PlanImpl implements Plan, Activity {
         } else {
             if (originEvent == null) {
                 originEvent = inputWorkEvent;
-                //System.err.println("== 3 "+inputWorkEvent.getEventName());
-            } else {
-                //System.err.println("== 4 "+inputWorkEvent.getEventName());
             }
 
             event = inputWorkEvent;
@@ -1014,7 +1033,7 @@ public class PlanImpl implements Plan, Activity {
             return eventName;
         }
 
-        WorkEvent originEvent = event.origin();
+        //WorkEvent originEvent = event.origin();
 
 
         if (simultaneousEventSet.isRaiseEventReady(event, eventName)) {
@@ -1027,21 +1046,114 @@ public class PlanImpl implements Plan, Activity {
 
     }
 
+    private int count=0;
 
-    ////////////////////////////
+    private long startTime = 0;
+
+    private long endTime = 0;
+
+    private LinkedList<Long>  list = new LinkedList<>();
+
+    private double tps=0;
 
 
-    ExecuteContext enterQueue(boolean isUserEvent, WorkEvent workEvent) {
+    private double limitTps = 0;
+
+    @Override
+    public Plan limitTps(double tps) {
+        if(tps>0) {
+            limitTps = tps;
+        }
+        return this;
+    }
+
+    boolean isTpsOver() {
+        if(limitTps >0 && tps>=limitTps) {
+            return true;
+        }
+
+        return false;
+    }
+
+    double getTps() {
+        return tps;
+    }
+
+    /**
+     *
+     *
+     * @param isExecuteImmediately
+     * @param workEvent
+     * @return
+     */
+    ExecuteContext createExecuteContext(boolean isExecuteImmediately, WorkEvent workEvent) {
+
+        if(!workEvent.isLocalEvent()) {
 
 
-        return new ExecuteContext(this, isUserEvent, workEvent);
+            long t1 = System.currentTimeMillis();
+            if(t1-endTime>1000) {
+                list.clear();
+                list.addLast(t1);
+                startTime = t1;
+                endTime = t1;
+
+            }else {
+                int listSize = list.size();
+
+                for(int i=0; i<listSize;i++) {
+
+                    if(t1-startTime<=1000) {
+                        break;
+                    }else {
+                        startTime = list.remove(0);
+                    }
+                }
+                listSize = list.size();
+                if(listSize>100) {
+                    listSize--;
+                    list.remove(0);
+                }
+                list.addLast(t1);
+                endTime = t1;
+
+
+                long timeGap = endTime - startTime;
+                if(listSize>1 && timeGap>0) {
+                    tps = Math.ceil(listSize*1000 / ( timeGap ));
+                }else {
+                    tps = 1;
+                }
+
+
+
+            }
+
+            count++;
+
+        }
+
+
+
+        return new ExecuteContext(this, isExecuteImmediately, workEvent);
     }
 
 
-    ExecuteContext enterQueue(boolean isUserEvent) {
+    @Override
+    public WorkEvent getWorkEvent() {
+        return this.originEvent;
+    }
+
+    /**
+     *
+     *
+     * @param isExecuteImmediately
+     * @return
+     */
+    ExecuteContext createExecuteContext(boolean isExecuteImmediately) {
 
 
-        return new ExecuteContext(this, isUserEvent, null);
+        return new ExecuteContext(this, isExecuteImmediately, null);
     }
 
 
@@ -1053,17 +1165,24 @@ public class PlanImpl implements Plan, Activity {
 
         private final PlanImpl plan;
 
-        private boolean isUserEvent = false;
-
         private final WorkEvent workEvent;
 
+        private boolean isExecuteImmediately = false;
 
-        ExecuteContext(PlanImpl plan, boolean isUserEvent, WorkEvent event) {
+        ExecuteContext(PlanImpl plan, WorkEvent event) {
 
             this.plan = plan;
-            this.isUserEvent = isUserEvent;
-
             this.workEvent = event;
+
+        }
+
+
+        ExecuteContext(PlanImpl plan, boolean isExecuteImmediately, WorkEvent event) {
+
+            this.plan = plan;
+            this.workEvent = event;
+
+            this.isExecuteImmediately = isExecuteImmediately;
 
             /*
             if(event!=null) {
@@ -1073,10 +1192,14 @@ public class PlanImpl implements Plan, Activity {
             */
         }
 
+        void setExecuteImmediately(boolean isExecuteImmediately) {
+            this.isExecuteImmediately = isExecuteImmediately;
+        }
 
-        boolean isExecuteImmediately() {
-            if (isUserEvent) {
-                this.isUserEvent = false;
+
+        boolean isEnableExecuteImmediately() {
+            if (isExecuteImmediately) {
+                this.isExecuteImmediately = false;
 
                 return true;
             }
@@ -1086,17 +1209,43 @@ public class PlanImpl implements Plan, Activity {
 
         PlanImpl getPlan() {
 
-            //if (this.contextId == this.plan.contextCheckId)
-            {
-                return plan;
-            }
-
-            //return null;
+            return plan;
 
         }
 
         WorkEvent getWorkEvent() {
             return this.workEvent;
+        }
+
+
+        WorkEvent getInitialWorkEvent(PlanImpl planImpl) {
+
+            WorkEvent event;
+            WorkEvent originEvent = planImpl.originEvent;
+
+            if (this.workEvent == null) {
+                if (originEvent == null) {
+                    originEvent = WorkEventFactory.createOrigin();
+                    originEvent.setActivity(planImpl);
+                }
+
+                event = WorkEventFactory.createWithOrigin(null, originEvent);
+                event.setActivity(originEvent.getActivity());
+
+            } else {
+                if (originEvent == null) {
+                    originEvent = this.workEvent;
+                }
+
+                event = this.workEvent;
+                event.setActivity(planImpl);
+            }
+
+            planImpl.originEvent = originEvent;
+
+            return event;
+
+
         }
 
 

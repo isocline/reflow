@@ -1,16 +1,15 @@
 package isocline.reflow.examples.basic;
 
-import isocline.reflow.Re;
-import isocline.reflow.TestBase;
-import isocline.reflow.Work;
-import isocline.reflow.WorkEvent;
-import isocline.reflow.log.XLogger;
+import isocline.reflow.*;
+import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class DynamicRepeater extends TestBase implements Work {
 
-    private static XLogger logger = XLogger.getLogger(DynamicRepeater.class);
+    private static Logger logger = LoggerFactory.getLogger(DynamicRepeater.class);
 
     private int seq = 0;
 
@@ -19,7 +18,7 @@ public class DynamicRepeater extends TestBase implements Work {
 
         long nexttime = 500 + (long) (Math.random() * 1000);
 
-        logger.debug("activate:" + (seq++) + " nexttime:" + nexttime);
+        logger.debug("activate:{} nexttime:{}",(seq++),nexttime);
 
         if (seq > 3) return TERMINATE;
 
@@ -30,8 +29,13 @@ public class DynamicRepeater extends TestBase implements Work {
     @Test
     public void case1() throws Exception {
 
+        DynamicRepeater worker = new DynamicRepeater();
 
-        Re.play(new DynamicRepeater()).activate();
+        //Re.flow(worker).activate().block();
+        FlowProcessor fp = FlowProcessorFactory.getProcessor();
+        fp.task(worker).activate().block();
+
+        Assert.assertEquals(worker.seq, 4);
 
        
     }

@@ -1,9 +1,11 @@
 package isocline.reflow;
 
-import isocline.reflow.log.XLogger;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 
@@ -12,7 +14,7 @@ import static org.junit.Assert.assertEquals;
 
 public class TimeTest {
 
-    private static XLogger logger = XLogger.getLogger(TimeTest.class);
+    private static Logger logger = LoggerFactory.getLogger(TimeTest.class);
 
 
     @Before
@@ -47,8 +49,8 @@ public class TimeTest {
         long p = Time.milliseconds(isoTime);
 
 
-        System.err.println(d);
-        System.err.println(p);
+        logger.debug("time {}" ,d);
+        logger.debug("time {}" ,p);
 
         assertEquals(true, p > 0);
 
@@ -62,7 +64,7 @@ public class TimeTest {
 
         long t = Time.nextSecond();
 
-        System.out.println(Time.toDateFormat(t));
+        logger.debug(Time.toDateFormat(t));
 
     }
 
@@ -72,13 +74,13 @@ public class TimeTest {
 
         String t1 = Time.toDateFormat(System.currentTimeMillis());
 
-        System.out.println(t1);
+        logger.debug(t1);
 
         long t = Time.nextMinutes();
 
         String t2 = Time.toDateFormat(t);
 
-        System.out.println(t2);
+        logger.debug(t2);
 
         String[] items1 = t1.split(":");
         String[] items2 = t2.split(":");

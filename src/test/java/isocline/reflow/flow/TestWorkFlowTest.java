@@ -1,11 +1,12 @@
 package isocline.reflow.flow;
 
+import isocline.reflow.FlowProcessor;
 import isocline.reflow.FlowProcessorFactory;
 import isocline.reflow.FlowableWork;
 import isocline.reflow.WorkFlow;
-import isocline.reflow.FlowProcessor;
-import isocline.reflow.log.XLogger;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertEquals;
 
@@ -15,7 +16,7 @@ public class TestWorkFlowTest implements FlowableWork {
     private boolean chk = false;
 
 
-    private static XLogger logger = XLogger.getLogger(TestWorkFlowTest.class);
+    private static Logger logger = LoggerFactory.getLogger(TestWorkFlowTest.class);
 
 
     public void checkMemory() {
@@ -47,13 +48,13 @@ public class TestWorkFlowTest implements FlowableWork {
 
     public void defineWorkFlow(WorkFlow flow) {
 
-        WorkFlow p1 = flow.next(this::checkMemory).next(this::checkStorage);
+        WorkFlow p1 = flow.run(this::checkMemory).run(this::checkStorage);
 
         flow.runAsync(this::sendSignal);
 
-        WorkFlow t2 = flow.wait(p1).next(this::sendStatusMsg).next(this::sendReportMsg);
+        WorkFlow t2 = flow.wait(p1).run(this::sendStatusMsg).run(this::sendReportMsg);
 
-        flow.waitAll( t2).next(this::report).end();
+        flow.waitAll( t2).run(this::report).end();
     }
 
 

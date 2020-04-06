@@ -60,7 +60,11 @@ public interface Plan {
 
     Plan interval(long intervalTime);
 
-    Plan interval(long initialDelay, long intervalTime);
+    Plan interval(long intervalTime, long initialDelay);
+
+    Plan interval(boolean isBasedOnStart, long intervalTime);
+
+    Plan interval(boolean isBasedOnStart, long intervalTime, long initialDelay);
 
     Plan startTime(String isoDateTime) throws java.text.ParseException;
 
@@ -132,6 +136,9 @@ public interface Plan {
 
 
     WorkFlow getWorkFlow();
+
+    Plan limitTps(double tps);
+
 }
 
 

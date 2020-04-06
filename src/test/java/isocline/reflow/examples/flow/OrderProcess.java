@@ -4,12 +4,13 @@ import isocline.reflow.FlowProcessorFactory;
 import isocline.reflow.FlowableWork;
 import isocline.reflow.TestUtil;
 import isocline.reflow.WorkFlow;
-import isocline.reflow.log.XLogger;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OrderProcess implements FlowableWork {
 
-    private static XLogger logger = XLogger.getLogger(OrderProcess.class);
+    private static Logger logger = LoggerFactory.getLogger(OrderProcess.class);
 
 
     private String id = "autoExpress";
@@ -74,11 +75,11 @@ public class OrderProcess implements FlowableWork {
         flow
                 .runAsync(this::writeLog)
                 .runAsync(this::record)
-                .next(this::checkStock, "checkStock")
-                .next(this::checkSupplier, "checkSup");
+                .run(this::checkStock, "checkStock")
+                .run(this::checkSupplier, "checkSup");
 
         flow
-                .wait("checkStock&checkSup").next(this::makeMessage).end();
+                .wait("checkStock&checkSup").run(this::makeMessage).end();
 
 
     }

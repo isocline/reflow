@@ -18,7 +18,7 @@ package isocline.reflow;
 
 /**
  * An interface implemented by an object that defines the underlying operation.
- * The corresponding operation is performed through the activate method play,
+ * The corresponding operation is performed through the activate method flow,
  * and the identical operation is performed by the FlowProcessor.
  *
  * @author Richard D. Kim

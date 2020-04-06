@@ -31,7 +31,7 @@ import java.util.stream.Stream;
  * @see Work
  * @see FlowableWork
  */
-public interface WorkEvent {
+public interface WorkEvent extends ResultEvent {
 
 
     /**
@@ -69,14 +69,6 @@ public interface WorkEvent {
      */
     WorkEvent put(String key, Object value);
 
-    /**
-     * Returns the object bound with the specified name in this session,
-     * or null if no object is bound under the name.
-     *
-     * @param key a string specifying the name of the object
-     * @return the object with the specified name
-     */
-    Object get(String key);
 
     /**
      * Delete the attribute value.
@@ -111,6 +103,9 @@ public interface WorkEvent {
     WorkEvent createChild(String eventName);
 
 
+    WorkEvent createChild(String eventName, boolean isLocalEvent);
+
+
     /**
      * Returns the earliest event among the events associated with the current event.
      *
@@ -126,14 +121,6 @@ public interface WorkEvent {
      * @return an instance of WorkEvent
      */
     WorkEvent setThrowable(Throwable e);
-
-
-    /**
-     * Returns error information. Null is returned in normal state.
-     *
-     * @return an instance of Throwable
-     */
-    Throwable getThrowable();
 
 
     WorkEvent setTimeoutThread(Thread thread);
@@ -161,6 +148,7 @@ public interface WorkEvent {
 
     /**
      * Returns name of fire event.
+     *
      * @return name of event
      */
     String getFireEventName();
@@ -201,6 +189,7 @@ public interface WorkEvent {
 
     /**
      * Returns long stream, if internal work process produces stream.
+     *
      * @return long stream
      */
     LongStream getLongStream();
@@ -243,14 +232,23 @@ public interface WorkEvent {
 
     /**
      * execute method if you want to ternminate internal work process.
-     *
      */
     void complete();
 
-    /**
-     * Blocking until internal work process complete.
-     *
-     */
-    void block();
+
+    WorkEvent dataChannel(DataChannel dataChannel);
+
+
+    boolean publish();
+
+
+    boolean isComplete();
+
+
+    Activity propagate(String eventName);
+
+
+    boolean isLocalEvent();
+
 
 }

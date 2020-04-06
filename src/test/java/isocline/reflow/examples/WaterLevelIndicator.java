@@ -1,7 +1,8 @@
 package isocline.reflow.examples;
 
 import isocline.reflow.*;
-import isocline.reflow.log.XLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.MalformedURLException;
 
@@ -14,7 +15,7 @@ import java.net.MalformedURLException;
  */
 public class WaterLevelIndicator implements Work {
 
-    private static XLogger logger = XLogger.getLogger(WaterLevelIndicator.class);
+    private static Logger logger = LoggerFactory.getLogger(WaterLevelIndicator.class);
 
 
     private int DANGER = 150;

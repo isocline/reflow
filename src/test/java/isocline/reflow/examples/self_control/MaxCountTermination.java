@@ -3,14 +3,16 @@ package isocline.reflow.examples.self_control;
 import isocline.reflow.*;
 import isocline.reflow.examples.TestConfiguration;
 
-import isocline.reflow.log.XLogger;
+
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertEquals;
 
 public class MaxCountTermination implements Work {
 
-    private static XLogger  logger = XLogger.getLogger(MaxCountTermination.class);
+    private static Logger logger = LoggerFactory.getLogger(MaxCountTermination.class);
 
     private int count = 0;
 

@@ -3,15 +3,17 @@ package isocline.reflow.examples.microservices.pattern;
 import isocline.reflow.TestUtil;
 import isocline.reflow.WorkEvent;
 import isocline.reflow.FlowProcessor;
-import isocline.reflow.log.XLogger;
+
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertEquals;
 
 public class RetryPattern2 {
 
 
-    private XLogger logger = XLogger.getLogger(RetryPattern2.class);
+    private Logger logger = LoggerFactory.getLogger(RetryPattern2.class);
 
     public void init() {
         logger.debug("init");
@@ -30,8 +32,8 @@ public class RetryPattern2 {
     public void finish(WorkEvent e) {
         logger.debug("inactive start " + Thread.currentThread().getId());
 
-        logger.debug(e.origin());
-        logger.debug(e.origin().get("result:service1"));
+        logger.debug(">"+e.origin());
+        logger.debug(">"+e.origin().get("result:service1"));
 
         String result = e.origin().get("result:service1").toString()
                 + e.origin().get("result:service2")
@@ -80,7 +82,7 @@ public class RetryPattern2 {
 
                     flow
 
-                            .next(this::callService1)
+                            .accept(this::callService1)
                             .retryOnError(3, 2000);
 
 

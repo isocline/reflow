@@ -1,14 +1,15 @@
 package isocline.reflow.examples.flow;
 
 import isocline.reflow.*;
-import isocline.reflow.log.XLogger;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class MultiAndSumFlow2 implements FlowableWork {
 
 
-    private static XLogger logger = XLogger.getLogger(MultiAndSumFlow2.class);
+    private static Logger logger = LoggerFactory.getLogger(MultiAndSumFlow2.class);
 
     public void async1() {
         logger.debug("** invoke - async1");
@@ -54,11 +55,11 @@ public class MultiAndSumFlow2 implements FlowableWork {
 
         flow.runAsync(this::async1).runAsync(this::async2);
 
-        flow.waitAll().next(this::sum1);
+        flow.waitAll().run(this::sum1);
 
         flow.runAsync(this::async3).runAsync(this::async4);
 
-        flow.waitAll().next(this::sum2).end();
+        flow.waitAll().run(this::sum2).end();
 
     }
 

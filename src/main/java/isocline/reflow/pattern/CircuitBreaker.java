@@ -34,10 +34,10 @@ public class CircuitBreaker implements WorkFlowPattern {
     public void endFlow(WorkFlow flow) {
         String cursor = flow.cursor();
 
-        flow.next(config::ok);
+        flow.accept(config::ok);
 
-        //play.onError(cursor, this.timeoutEventName).next(this::error).inactive();
-        flow.onError("*").next(config::error).end();
+        //flow.onError(cursor, this.timeoutEventName).apply(this::error).inactive();
+        flow.onError("*").accept(config::error).end();
     }
 
     private WorkFlow flow;

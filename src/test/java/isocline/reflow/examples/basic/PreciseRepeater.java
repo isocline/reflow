@@ -4,12 +4,13 @@ import isocline.reflow.Re;
 import isocline.reflow.TestBase;
 import isocline.reflow.Work;
 import isocline.reflow.WorkEvent;
-import isocline.reflow.log.XLogger;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PreciseRepeater extends TestBase implements Work {
 
-    private static XLogger logger = XLogger.getLogger(PreciseRepeater.class);
+    private static Logger logger = LoggerFactory.getLogger(PreciseRepeater.class);
 
     private int seq = 0;
 
@@ -34,7 +35,7 @@ public class PreciseRepeater extends TestBase implements Work {
     @Test
     public void case1()   {
 
-        Re.play(this)
+        Re.flow(this)
                 .strictMode()
                 .activate();
 

@@ -1,15 +1,16 @@
 package isocline.reflow.examples.microservices.pattern;
 
 import isocline.reflow.*;
-import isocline.reflow.log.XLogger;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertEquals;
 
 public class AsyncAggregator2 implements FlowableWork {
 
 
-    private XLogger logger = XLogger.getLogger(AsyncAggregator2.class);
+    private Logger logger = LoggerFactory.getLogger(AsyncAggregator2.class);
 
     public void init() {
         logger.debug("init");
@@ -41,8 +42,8 @@ public class AsyncAggregator2 implements FlowableWork {
     public void finish(WorkEvent e) {
         logger.debug("inactive start "+Thread.currentThread().getId());
 
-        logger.debug(e.origin());
-        logger.debug(e.origin().get("result:service1"));
+        logger.debug("> "+e.origin());
+        logger.debug("> "+e.origin().get("result:service1"));
 
         String result = e.origin().get("result:service1").toString()
                 + e.origin().get("result:service2")
@@ -70,17 +71,17 @@ public class AsyncAggregator2 implements FlowableWork {
 
     @Override
     public void defineWorkFlow(WorkFlow flow) {
-        WorkFlow s1 = flow.next(this::init);
+        WorkFlow s1 = flow.run(this::init);
 
         flow.wait(flow).runAsync(this::callService1, "p1")
                 .runAsync(this::callService2, "p2")
                 .runAsync(this::callService3, "p3");
 
-        flow.waitAll("p1", "p2", "p3").next(this::finish).end();
+        flow.waitAll("p1", "p2", "p3").accept(this::finish).end();
 
 
-        flow.onError("*").next(this::onError);
-        flow.wait("timeout").next(this::onTimeout).end();
+        flow.onError("*").accept(this::onError);
+        flow.wait("timeout").accept(this::onTimeout).end();
 
     }
 

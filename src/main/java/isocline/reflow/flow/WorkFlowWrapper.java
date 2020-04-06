@@ -28,6 +28,11 @@ public class WorkFlowWrapper<T> extends WorkFlow<Object> {
     private final String cursor;
 
 
+    protected WorkFlowWrapper() {
+        this.workFlowInstance = null;
+        this.cursor = null;
+    }
+
     public WorkFlowWrapper(WorkFlow workFlow) {
         super();
 
@@ -188,82 +193,82 @@ public class WorkFlowWrapper<T> extends WorkFlow<Object> {
     }
 
     @Override
-    public WorkFlow<T> next(ThrowableRunFunction execObject) {
-        this.workFlowInstance.next(execObject);
+    public WorkFlow<T> run(ThrowableRunFunction execObject) {
+        this.workFlowInstance.run(execObject);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
 
     @Override
-    public WorkFlow<T> next(ThrowableRunFunction execObject, String eventName) {
-        this.workFlowInstance.next(execObject, eventName);
+    public WorkFlow<T> run(ThrowableRunFunction execObject, String eventName) {
+        this.workFlowInstance.run(execObject, eventName);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
 /*
     @Override
-    public WorkFlow<T> next(Consumer<? super T> execObject) {
-        this.workFlowInstance.next(execObject);
+    public WorkFlow<T> apply(Consumer<? super T> execObject) {
+        this.workFlowInstance.apply(execObject);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
 
     @Override
-    public WorkFlow<T> next(Consumer<? super T> execObject, String eventName) {
-        this.workFlowInstance.next(execObject, eventName);
+    public WorkFlow<T> apply(Consumer<? super T> execObject, String eventName) {
+        this.workFlowInstance.apply(execObject, eventName);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
 
 
     @Override
-    public WorkFlow<T> next(Consumer<? super T> execObject, FnExecFeatureFunction fnExecFeatureFunction) {
-        this.workFlowInstance.next(execObject, fnExecFeatureFunction);
+    public WorkFlow<T> apply(Consumer<? super T> execObject, FnExecFeatureFunction fnExecFeatureFunction) {
+        this.workFlowInstance.apply(execObject, fnExecFeatureFunction);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 */
 
     @Override
-    public WorkFlow<Object> next(WorkEventConsumer execObject) {
-        this.workFlowInstance.next(execObject);
+    public WorkFlow<Object> accept(WorkEventConsumer execObject) {
+        this.workFlowInstance.accept(execObject);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
     @Override
-    public WorkFlow<Object> next(WorkEventConsumer execObject, String eventName) {
-        this.workFlowInstance.next(execObject, eventName);
+    public WorkFlow<Object> accept(WorkEventConsumer execObject, String eventName) {
+        this.workFlowInstance.accept(execObject, eventName);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
 
     @Override
-    public <R> WorkFlow<R> next(WorkEventFunction<? extends R> execObject) {
-        this.workFlowInstance.next(execObject);
+    public <R> WorkFlow<R> apply(WorkEventFunction<? extends R> execObject) {
+        this.workFlowInstance.apply(execObject);
         return (WorkFlow<R>) new WorkFlowWrapper(this.workFlowInstance);
     }
 
     @Override
-    public <R> WorkFlow<R> next(WorkEventFunction<? extends R> execObject, String eventName) {
-        this.workFlowInstance.next(execObject, eventName);
+    public <R> WorkFlow<R> run(WorkEventFunction<? extends R> execObject, String eventName) {
+        this.workFlowInstance.run(execObject, eventName);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
     @Override
-    public WorkFlow<Object> next(ThrowableRunFunction execObject, FnExecFeatureFunction fnExecFeatureFunction) {
-        this.workFlowInstance.next(execObject, fnExecFeatureFunction);
+    public WorkFlow<Object> run(ThrowableRunFunction execObject, FnExecFeatureFunction fnExecFeatureFunction) {
+        this.workFlowInstance.run(execObject, fnExecFeatureFunction);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
     @Override
-    public WorkFlow<Object> next(WorkEventConsumer execObject, FnExecFeatureFunction fnExecFeatureFunction) {
-        this.workFlowInstance.next(execObject, fnExecFeatureFunction);
+    public WorkFlow<Object> accept(WorkEventConsumer execObject, FnExecFeatureFunction fnExecFeatureFunction) {
+        this.workFlowInstance.accept(execObject, fnExecFeatureFunction);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 
 
     @Override
-    public <R> WorkFlow<R> next(WorkEventFunction<? extends R> execObject, FnExecFeatureFunction fnExecFeatureFunction) {
-        this.workFlowInstance.next(execObject, fnExecFeatureFunction);
+    public <R> WorkFlow<R> apply(WorkEventFunction<? extends R> execObject, FnExecFeatureFunction fnExecFeatureFunction) {
+        this.workFlowInstance.apply(execObject, fnExecFeatureFunction);
         return new WorkFlowWrapper(this.workFlowInstance);
     }
 

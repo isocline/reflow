@@ -1,9 +1,10 @@
 package isocline.reflow;
 
 import isocline.reflow.event.WorkEventFactory;
-import isocline.reflow.log.XLogger;
 import isocline.reflow.module.WorkEventGenerator;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -12,7 +13,7 @@ import static org.junit.Assert.fail;
 
 public class FlowableWorkTest {
 
-    private XLogger logger = XLogger.getLogger(FlowableWorkTest.class);
+    private Logger logger = LoggerFactory.getLogger(FlowableWorkTest.class);
 
     private int count4case0_result = 0;
     private int count4case0 = 0;
@@ -28,7 +29,7 @@ public class FlowableWorkTest {
      */
     public double getExhangeRate(double money, int formCountryCode, int toCountryCode) {
 
-        //logger.debug(money + " > play");
+        //logger.debug(money + " > flow");
 
         TestUtil.waiting(500 + (long) (100 * Math.random()));
 
@@ -85,13 +86,13 @@ public class FlowableWorkTest {
                 .reflow(f -> {
                     f
 
-                            .next(this::case0)
+                            .accept(this::case0)
                             .delay(100)
                             .fireEvent("s1", 0)
                             .wait("s1")
-                            .next(this::case1)
+                            .accept(this::case1)
                             .delay(200)
-                            .next(this::case2)
+                            .run(this::case2)
 
                             .branch((WorkEvent event) -> {
                                 if (event.count() > 5) {
@@ -122,13 +123,13 @@ public class FlowableWorkTest {
 
         Re.flow(f -> {
             f
-                    .next(this::case0)
+                    .accept(this::case0)
                     .delay(200)
 
                     .flag("s1")
-                    .next(this::case1)
+                    .accept(this::case1)
                     .delay(100)
-                    .next(this::case2)
+                    .run(this::case2)
 
                     .branch((WorkEvent event) -> {
                         if (event.count() > 5) {
@@ -157,7 +158,7 @@ public class FlowableWorkTest {
                     .extractAsync(e -> getExhangeRate(2000, 4, 2))
                     .extractAsync(e -> getExhangeRate(5000 * Math.random(), 3, 4))
                     .waitAll()
-                    .next((WorkEvent e) -> e.getDoubleStream().sum());
+                    .apply((WorkEvent e) -> e.getDoubleStream().sum());
         })
                 .activate(this::check).block();
 
@@ -174,8 +175,8 @@ public class FlowableWorkTest {
                     .extractAsync(e -> getExhangeRate(2000, 4, 2))
                     .extractAsync(e -> getExhangeRate(5000, 3, 4))
                     .waitAll()
-                    .next((WorkEvent e) -> e.getDoubleStream().sum())
-                    .next((WorkEvent e) -> {
+                    .apply((WorkEvent e) -> e.getDoubleStream().sum())
+                    .accept((WorkEvent e) -> {
                         count.addAndGet(1);
                         double result = (double) e.getResult();
                         logger.info("RESULT = " + result);
@@ -183,17 +184,17 @@ public class FlowableWorkTest {
         })
                 .daemonMode()
                 .on("calc")
-                .activate(logger::debug);
+                .activate();
 
         WorkEventGenerator generator = new WorkEventGenerator("calc", 400);
 
-        Re.play(generator)
+        Re.flow(generator)
                 .startTime(Time.nextSecond())
                 .finishTimeFromStart(3 * Time.SECOND)
                 .strictMode()
                 .activate();
 
-        logger.debug("play define completed");
+        logger.debug("flow define completed");
 
         long t1 = System.currentTimeMillis();
         Thread.sleep(2000);
@@ -222,8 +223,8 @@ public class FlowableWorkTest {
                     .extractAsync(e -> getExhangeRate(2000 * Math.random(), 4, 2))
                     .extractAsync(e -> getExhangeRate(5000 * Math.random(), 3, 4))
                     .waitAll()
-                    .next((WorkEvent e) -> e.getDoubleStream().sum())
-                    .next((WorkEvent e) -> {
+                    .apply((WorkEvent e) -> e.getDoubleStream().sum())
+                    .accept((WorkEvent e) -> {
                         count.addAndGet(1);
                         logger.info("RESULT = " + e.getResult());
                     }).end();
@@ -233,7 +234,7 @@ public class FlowableWorkTest {
         Activity plan = Re.flow(flow)
                 .interval(2000)
                 .finishTimeFromNow(Time.SECOND * 7)
-                .activate(logger::error);
+                .activate();
 
         logger.debug("execute flow async");
 
@@ -247,7 +248,7 @@ public class FlowableWorkTest {
 
 
     /***
-     * Test for event emiting frame external play process
+     * Test for event emiting frame external flow process
      *
      * @throws Exception
      */
@@ -258,16 +259,16 @@ public class FlowableWorkTest {
         reset();
 
         Re.flow((WorkFlow f) -> {
-            f.next(this::case0);
-            f.wait("case1").next(this::case1);
-            f.wait("case2").next(this::case2);
+            f.accept(this::case0);
+            f.wait("case1").accept(this::case1);
+            f.wait("case2").run(this::case2);
         })
                 .on("ev")
                 .daemonMode()
                 .activate();
 
 
-        Re.play((WorkEvent e) -> {
+        Re.flow((WorkEvent e) -> {
 
             e.put("result", "skkim");
 

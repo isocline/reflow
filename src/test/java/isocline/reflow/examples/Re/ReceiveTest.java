@@ -2,10 +2,11 @@ package isocline.reflow.examples.Re;
 
 import isocline.reflow.*;
 import isocline.reflow.event.WorkEventFactory;
-import isocline.reflow.log.XLogger;
 import isocline.reflow.module.PubSubBroker;
 import isocline.reflow.module.WorkEventGenerator;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -16,7 +17,7 @@ import java.util.stream.Stream;
 public class ReceiveTest {
 
 
-    private XLogger logger = XLogger.getLogger(ReceiveTest.class);
+    private Logger logger = LoggerFactory.getLogger(ReceiveTest.class);
 
     private Map<String, WorkEvent> eventMap = new HashMap<>();
 
@@ -131,17 +132,17 @@ public class ReceiveTest {
     public void testBasic() {
 
         Re.flow(f -> {
-            f.next(this::receiveInit).runAsync(this::receive, this.getPararrelSize()).end();
-            //f.next(this::receive).end();
+            f.accept(this::receiveInit).runAsync(this::receive, this.getPararrelSize()).end();
+            //f.apply(this::receive).end();
 
-            f.wait("regist").next(this::regist).end();
+            f.wait("regist").accept(this::regist).end();
 
         }).on("rcv").daemonMode().activate();
 
         WorkEventGenerator generator = new WorkEventGenerator();
         generator.setEventName("rcv");
 
-        Re.play(generator).interval(500, 200).strictMode().activate();
+        Re.flow(generator).interval(200 , 500).strictMode().activate();
 
 
         WorkEvent e = WorkEventFactory.createOrigin().subscribe(event -> {
@@ -182,8 +183,8 @@ public class ReceiveTest {
         WorkEventGenerator generator = new WorkEventGenerator();
         generator.setEventName("rcv");
 
-        //Re.play(generator).interval(500, 200).strictMode().activate();
-        Re.play(e -> {
+        //Re.flow(generator).interval(500, 200).strictMode().activate();
+        Re.flow(e -> {
 
 
             WorkEvent newEvent = e;
@@ -192,7 +193,7 @@ public class ReceiveTest {
             e.getActivity().getFlowProcessor().emit("rcv", newEvent);
             logger.debug("FIRE " + e.hashCode());
             return Work.WAIT;
-        }).interval(10, 500).activate();
+        }).interval(500, 10).activate();
 
 
         // subscribe
@@ -243,7 +244,8 @@ public class ReceiveTest {
         Re.flow(new PubSubBroker()).on("rcv").daemonMode().activate();
 
 
-        Re.play(e -> {
+
+        Re.flow(e -> {
 
 
             WorkEvent newEvent = e;
@@ -252,13 +254,14 @@ public class ReceiveTest {
             e.getActivity().getFlowProcessor().emit("rcv", newEvent);
             //logger.debug("FIRE " + e.hashCode());
             return Work.WAIT;
-        }).interval(10, 50).activate();
+        }).interval(100,1000).activate();
+
 
 
         // subscribe
 
         Re.ceive("rcv", "regist", e -> {
-            e.put("id", "jj");
+            e.put("id", "demo");
         })
                 .filter(event -> {
                     int val = (int) event.get("no");
@@ -269,18 +272,20 @@ public class ReceiveTest {
                     return false;
                 })
                 .subscribe(event -> {
-                    int val = (int) event.get("no");
-                    logger.debug("Re.ceive > " + val);
+                    //int val = (Integer) event.get("no");
+                    logger.debug("Re.ceive > " + event.get("no"));
                 });
 
         TestUtil.waiting(3000);
-        logger.debug("xxxx");
+
 
         Re.ceive("rcv", "unregist", e -> {
-            e.put("id", "jj");
+
+            e.put("id", "demo");
         });
 
-        TestUtil.waiting(2000);
+
+        TestUtil.waiting(500);
 
 
     }

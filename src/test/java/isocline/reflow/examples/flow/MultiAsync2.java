@@ -1,10 +1,11 @@
 package isocline.reflow.examples.flow;
 
+import isocline.reflow.FlowProcessor;
 import isocline.reflow.TestUtil;
 import isocline.reflow.WorkEvent;
-import isocline.reflow.FlowProcessor;
-import isocline.reflow.log.XLogger;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,7 +15,7 @@ import java.util.List;
 public class MultiAsync2 {
 
 
-    private static XLogger logger = XLogger.getLogger(MultiAsync2.class);
+    private static Logger logger = LoggerFactory.getLogger(MultiAsync2.class);
 
     private List<Long> list = Collections.synchronizedList(new ArrayList());
 
@@ -41,7 +42,7 @@ public class MultiAsync2 {
                 flow -> {
                     flow.runAsync(this::asyncMulti, 5)
                             .waitAll()
-                            .next(this::sum);
+                            .accept(this::sum);
                 }
 
         ).initialDelay(2000).run();

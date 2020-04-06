@@ -1,14 +1,16 @@
 package isocline.reflow.examples.flow;
 
 import isocline.reflow.*;
-import isocline.reflow.log.XLogger;
+import org.junit.After;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class ComplexWorkFlow implements FlowableWork {
 
 
-    private static XLogger logger = XLogger.getLogger(ComplexWorkFlow.class);
+    private static Logger logger = LoggerFactory.getLogger(ComplexWorkFlow.class);
 
     public void order() {
         logger.debug("** invoke - order");
@@ -52,10 +54,10 @@ public class ComplexWorkFlow implements FlowableWork {
 
     public void defineWorkFlow(WorkFlow flow) {
 
-        flow.runAsync(this::order).next(this::sendMail, "h1");
-        flow.runAsync(this::sendSMS).next(this::report, "h2");
+        flow.runAsync(this::order).run(this::sendMail, "h1");
+        flow.runAsync(this::sendSMS).run(this::report, "h2");
 
-        flow.waitAll("h1","h2").next(this::report2).end();
+        flow.waitAll("h1","h2").accept(this::report2).end();
 
     }
 
@@ -63,15 +65,24 @@ public class ComplexWorkFlow implements FlowableWork {
     @Test
     public void test() throws InterruptedException {
 
-        Activity schedule = start();
-
-        schedule.block();
-
-
-        FlowProcessorFactory.getProcessor().awaitShutdown();
-
+        Activity activity = start();
+        logger.debug("start complete");
 
     }
 
+    @Test
+    public void test2() throws Exception {
+        FlowProcessor processor = FlowProcessorFactory.getProcessor();
+
+        processor.reflow(this).activate().block();
+
+        logger.info("END");
+    }
+
+
+    @After
+    public void compeleteTest() {
+        //FlowProcessorFactory.getProcessor().awaitShutdown();
+    }
 
 }

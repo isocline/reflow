@@ -1,17 +1,17 @@
 package isocline.reflow.examples.Re;
 
-import isocline.reflow.FlowableWork;
-import isocline.reflow.Re;
-import isocline.reflow.TestUtil;
-import isocline.reflow.WorkEvent;
-import isocline.reflow.log.XLogger;
+import isocline.reflow.*;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class RequestTest {
 
-    private XLogger logger = XLogger.getLogger(RequestTest.class);
+    private Logger logger = LoggerFactory.getLogger(RequestTest.class);
 
 
     private long totalProcessTime = 200;
@@ -20,9 +20,25 @@ public class RequestTest {
 
 
     public void testLoop(WorkEvent e) {
-        //logger.debug("test2");
+        logger.debug("testLoop");
         TestUtil.waiting(totalProcessTime / methodCallCount);
+
+        //TestUtil.waiting(500);
         e.origin().put("price", Math.random());
+
+
+
+
+        if( e.origin().dataChannel() != null) {
+
+
+            Map map = (Map) e.origin().dataChannel().result();
+           if(map!=null) {
+
+
+               map.put("price", Math.random());
+           }
+        }
     }
 
 
@@ -36,7 +52,7 @@ public class RequestTest {
 
             int seq = 0;
             while (methodCallCount > seq++) {
-                f.next(this::testLoop);
+                f.accept(this::testLoop);
             }
 
             f.end();
@@ -75,6 +91,8 @@ public class RequestTest {
     }
 
 
+
+
     @Test
     public void testRequest2() throws Exception {
 
@@ -82,7 +100,7 @@ public class RequestTest {
 
             int seq = 0;
             while (methodCallCount > seq++) {
-                f.next(this::testLoop);
+                f.accept(this::testLoop);
             }
 
             f.end();
@@ -95,12 +113,84 @@ public class RequestTest {
 
         TestUtil.waiting(1000);
 
-        Re.quest("lxq://local/biz/chk", "proto").subscribe(e -> {
 
-            double z = (double) e.get("price");
-            logger.debug(z);
-        }).block();
 
+
+    }
+
+    @Test
+    public void testRequest3() throws Exception {
+        System.err.println("zz");
+
+        logger.info("cc");
+        logger.debug("33");
+
+        FlowableWork flowableWork = f -> {
+
+            int seq = 0;
+            /*
+            while (methodCallCount > seq++) {
+                f.apply(this::testLoop);
+            }
+            */
+            f.accept(this::testLoop);
+
+            f.end();
+        };
+
+        Re.flow(flowableWork)
+                .on("lxq://")
+                .daemonMode()
+                .limitTps(15)
+                .activate();
+
+        TestUtil.waiting(1000);
+
+        Map result = new HashMap<>();
+
+        DataChannel dataChannel = new DataChannel("test");
+        dataChannel.result(result);
+
+        //Re.quest("lxq://local/biz/chk", dataChannel).block();
+
+        System.out.println( result);
+
+
+        for(int i=0;i<50;i++) {
+            Re.quest("lxq://local/biz/chk", dataChannel , e->{
+                logger.debug(">> "+e.getEventName());
+                logger.debug(">> "+e.getThrowable());
+                logger.debug(">> "+e.dataChannel().result());
+            });
+            TestUtil.waiting(100 - i*2);
+        }
+
+
+        TestUtil.waiting(500);
+
+        for(int i=0;i<50;i++) {
+            Re.quest("lxq://local/biz/chk", dataChannel , e->{
+                logger.debug(">> "+e.getEventName());
+                logger.debug(">> "+e.getThrowable());
+                logger.debug(">> "+e.dataChannel().result());
+            });
+            TestUtil.waiting(100 - i*2);
+        }
+
+        logger.debug(">> >> "+result);
+
+
+
+
+
+
+
+
+
+    }
+
+    private void zzzz() {
+        System.err.println("ENDDDD");
 
     }
 
@@ -110,40 +200,91 @@ public class RequestTest {
 
     }
 
+
+
     private void push(WorkEvent e) {
 
-        logger.debug("zzz");
+        logger.debug("start push");
 
 
+        Integer cnt = (Integer) e.get("count");
+        if(cnt==null) {
+            cnt = 0;
+        }
+        cnt++;
+        e.put("count",cnt);
+
+        if(cnt>1) {
+            //e.getActivity().emit(WorkEventFactory.createOrigin("end"));
+            e.propagate("end");
+            System.err.println("END FIRE!!!!!!!~  "+cnt);
+            return;
+        }
+
+       //
+
+
+        Map map = (Map) e.origin().dataChannel().result();
+        map.put("x", Math.random());
+        map.put("s",cnt);
+
+        logger.debug(cnt+ " send "+map);
+        e.publish();
     }
+
+
 
     @Test
     public void testRequestPush() throws Exception {
 
         FlowableWork flowableWork = f -> {
 
-            f.next(this::test1);
+            f.run(this::test1);
 
-            f.flag("push").next(this::push).fireEvent("push",1000);
 
-            f.wait("end").end();
+
+            f.flag("push").accept(this::push).fireEvent("push",2000);
+
+            f.wait("end").run(this::zzzz).end();
 
         };
 
 
-        Re.play(flowableWork)
-                .on("lxq://local/biz/chk")
+
+
+        Re.flow(flowableWork)
+                .on("lxq://")
                 .daemonMode()
                 .activate();
 
-        TestUtil.waiting(1000);
 
-        Re.quest("lxq://local/biz/chk", "proto").subscribe(e -> {
+        Map result = new HashMap<>();
+
+        DataChannel dataChannel = new DataChannel("test");
+        dataChannel.result(result);
 
 
-        }).block();
+        Re.quest("lxq://local/biz/chk", dataChannel ,e -> {
+            //logger.debug(">>"+e.getEventName());
+            System.err.println("0>>"+e.origin().dataChannel().result());
+        });
 
 
+        for(int i=0; i< 0;i++) {
+
+
+            result = new HashMap<>();
+
+            dataChannel = new DataChannel("test");
+            dataChannel.result(result);
+
+            Re.quest("lxq://local/biz/chk", dataChannel, e -> {
+                //logger.debug(">>"+e.getEventName());
+                logger.debug("1>>" + e.origin().dataChannel().result() +" "+Thread.activeCount());
+            });
+        }
+
+        TestUtil.waiting(5000);
 
     }
 }

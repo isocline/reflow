@@ -1,16 +1,17 @@
 package isocline.reflow;
 
-import isocline.reflow.log.XLogger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertEquals;
 
 
 public class PlanTest {
 
-    private static XLogger logger = XLogger.getLogger(PlanTest.class);
+    private static Logger logger = LoggerFactory.getLogger(PlanTest.class);
 
     private int seq;
 
@@ -38,9 +39,9 @@ public class PlanTest {
             logger.debug("exec " + seq);
 
             return Work.TERMINATE;
-        }).activate();
+        }).activate().block(10);
 
-        Thread.sleep(100);
+
 
 
         assertEquals(1, seq);
@@ -56,9 +57,8 @@ public class PlanTest {
             logger.debug("exec " + seq);
 
             return Work.WAIT;
-        }).activate();
+        }).activate().block(10);
 
-        Thread.sleep(100);
 
         assertEquals(1, seq);
 
@@ -77,10 +77,9 @@ public class PlanTest {
             }
 
             return Work.LOOP;
-        }).activate();
+        }).activate().block(10);
 
 
-        Thread.sleep(100);
         assertEquals(10, seq);
 
     }

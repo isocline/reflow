@@ -6,61 +6,95 @@ import isocline.reflow.flow.func.WorkEventConsumer;
 public class Re {
 
     public static Plan flow(FlowableWork work) {
-        return FlowProcessor.core().reflow(work);
+        return FlowProcessor.core().task(work);
     }
 
     public static Plan flow(WorkFlow flow) {
         return FlowProcessor.core().reflow(flow);
     }
 
-    public static Plan play(Runnable runnable) {
-        return FlowProcessor.core().task(runnable);
-    }
 
-    public static Plan play(Class runClass) throws InstantiationException, IllegalAccessException  {
+
+    public static Plan flow(Class runClass) throws InstantiationException, IllegalAccessException  {
         return FlowProcessor.core().task(runClass);
     }
 
-    public static Plan play(WorkEventConsumer work) {
+
+    public static Plan flow(Work work) {
+
         return FlowProcessor.core().task(work);
     }
 
-    public static Plan play(Work work) {
-        return FlowProcessor.core().task(work);
-    }
 
-
-    public static Plan play(Work work, String... eventNames) {
+    public static Plan flow(Work work, String... eventNames) {
 
         return FlowProcessor.core().task(work, eventNames);
     }
 
 
-    public static Plan play(PlanDescriptor descriptor, Work work) {
+    public static Plan flow(PlanDescriptor descriptor, Work work) {
 
         return FlowProcessor.core().task(descriptor, work);
     }
 
-    public static FlowProcessor quest(WorkEvent event) {
-        return FlowProcessor.core().emit(event);
+
+    public static Plan peat(Runnable runnable) {
+        return FlowProcessor.core().task(runnable);
     }
 
-    public static WorkEvent quest(String evnetName, Object input) {
-        WorkEvent event = WorkEventFactory.createOrigin(evnetName);
-        try {
-            WorkEventConsumer consumer = e -> e.put("input", input);
+    public static Plan peat(WorkEventConsumer work) {
+        return FlowProcessor.core().task(work);
+    }
 
-            consumer.accept(event);
+
+
+    public static ResultEvent quest(WorkEvent event) {
+        FlowProcessor.core().emit(event);
+        return event;
+    }
+
+    public static ResultEvent quest(String eventName, DataChannel dataChannel) {
+        return quest(eventName, dataChannel, null);
+    }
+
+    public static ResultEvent quest(String eventName, Object input) {
+        return quest(eventName, new DataChannel(input) , null);
+    }
+
+    public static ResultEvent quest(String eventName, DataChannel dataChannel, WorkEventConsumer consumer) {
+        WorkEvent event = WorkEventFactory.createOrigin(eventName);
+        event.dataChannel(dataChannel);
+
+        int sp = eventName.indexOf("://");
+        if(sp>0) {
+            event.setFireEventName(eventName.substring(0, sp+3));
+        }
+
+        try {
+            if(consumer!=null) {
+                event.subscribe(consumer);
+            }
+
+
+            //consumer.accept(event);
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }
-        FlowProcessor.core().emit(evnetName, event);
+        FlowProcessor.core().emit(event);
 
         return event;
     }
 
+    public static ResultEvent quest(WorkEvent event, WorkEventConsumer consumer) {
 
-    public static WorkEvent quest(String eventName, WorkEventConsumer consumer) {
+        event.subscribe(consumer);
+
+        FlowProcessor.core().emit(event);
+
+        return event;
+    }
+
+    public static ResultEvent quest(String eventName, WorkEventConsumer consumer) {
         WorkEvent event = WorkEventFactory.createOrigin(eventName);
         try {
             consumer.accept(event);
@@ -72,7 +106,7 @@ public class Re {
         return event;
     }
 
-    public static WorkEvent quest(String eventName, WorkEventConsumer eventPublisher, WorkEventConsumer eventConsumer) {
+    public static ResultEvent quest(String eventName, WorkEventConsumer eventPublisher, WorkEventConsumer eventConsumer) {
         WorkEvent event = WorkEventFactory.createOrigin(eventName);
 
         event.subscribe(eventConsumer);

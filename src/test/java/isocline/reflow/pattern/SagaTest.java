@@ -1,15 +1,19 @@
 package isocline.reflow.pattern;
 
-import isocline.reflow.*;
-import isocline.reflow.log.XLogger;
+import isocline.reflow.Re;
+import isocline.reflow.TestBase;
+import isocline.reflow.WorkEvent;
+import isocline.reflow.WorkFlow;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.fail;
 
 public class SagaTest extends TestBase {
 
 
-    private XLogger logger = XLogger.getLogger(SagaTest.class);
+    private Logger logger = LoggerFactory.getLogger(SagaTest.class);
 
     public void init() {
         logger.debug("init");
@@ -53,7 +57,19 @@ public class SagaTest extends TestBase {
 
         WorkFlow flow = WorkFlow.create();
 
-        flow.next(this::init);
+        /*
+        CircuitBreaker.init(flow)
+
+        flow.apply(this::init);
+
+        flow.applyPattern(Retry)
+                .apply(worwr).end();
+
+
+        Saga.init(conf-> {
+            conf.setPrintError(false);
+        }).apply(flow)
+        */
 
         saga.apply(flow, f2 -> {
             f2.transaction(this::callSvc1, this::compensateSvc1);

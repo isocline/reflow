@@ -1,13 +1,15 @@
 package isocline.reflow;
 
-import isocline.reflow.log.XLogger;
+
 import org.junit.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class TestService extends TestBase {
 
-    private XLogger logger = XLogger.getLogger(TestService.class);
+    private Logger logger = LoggerFactory.getLogger(TestService.class);
 
 
     String extractor(WorkEvent e) {

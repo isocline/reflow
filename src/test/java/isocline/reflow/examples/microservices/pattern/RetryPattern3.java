@@ -4,15 +4,16 @@ import isocline.reflow.FlowProcessor;
 import isocline.reflow.TestUtil;
 import isocline.reflow.WorkEvent;
 import isocline.reflow.WorkFlow;
-import isocline.reflow.log.XLogger;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertEquals;
 
 public class RetryPattern3 {
 
 
-    private XLogger logger = XLogger.getLogger(RetryPattern3.class);
+    private Logger logger = LoggerFactory.getLogger(RetryPattern3.class);
 
     public void init() {
         logger.debug("init");
@@ -31,8 +32,8 @@ public class RetryPattern3 {
     public void finish(WorkEvent e) {
         logger.debug("inactive start " + Thread.currentThread().getId());
 
-        logger.debug(e.origin());
-        logger.debug(e.origin().get("result:service1"));
+        logger.debug(">"+e.origin());
+        logger.debug(">"+e.origin().get("result:service1"));
 
         String result = e.origin().get("result:service1").toString()
                 + e.origin().get("result:service2")
@@ -81,13 +82,13 @@ public class RetryPattern3 {
                 if (e.count() == 4) return false;
                 return true;
             })
-                    .next(this::callService1, WorkFlow.FINISH)
+                    .accept(this::callService1, WorkFlow.FINISH)
                     .fireEventOnError(WorkFlow.START, 2000);
 
 
-            flow.onError("*").next(this::onError);
+            flow.onError("*").accept(this::onError);
 
-            flow.onError(RuntimeException.class).next(this::onError2);
+            flow.onError(RuntimeException.class).accept(this::onError2);
 
 
         }).run();

@@ -1,15 +1,16 @@
 package isocline.reflow.flow;
 
 import isocline.reflow.*;
-import isocline.reflow.log.XLogger;
 import isocline.reflow.module.WorkEventGenerator;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class WorkFlowTest implements FlowableWork {
 
 
-    private static XLogger logger = XLogger.getLogger(WorkFlowTest.class);
+    private static Logger logger = LoggerFactory.getLogger(WorkFlowTest.class);
 
 
     public void order() {
@@ -58,25 +59,25 @@ public class WorkFlowTest implements FlowableWork {
 
     public void defineWorkFlow2(WorkFlow flow) {
 
-        flow.next(this::order).runAsync(this::sendMail,"mail").runAsync(this::sendSMS,"x1");
+        flow.run(this::order).runAsync(this::sendMail,"mail").runAsync(this::sendSMS,"x1");
 
-        flow.wait("mail").next(this::report,"x2");
+        flow.wait("mail").run(this::report,"x2");
 
         flow.waitAll("x1","x2","qq").end();
 
 
-        flow.wait("error").next(this::report);
+        flow.wait("error").run(this::report);
 
 
     }
 
     public void defineWorkFlow(WorkFlow flow) {
 
-        flow.runAsync(this::order).next(this::sendMail,"mail").next(this::sendSMS,"x1");
+        flow.runAsync(this::order).run(this::sendMail,"mail").run(this::sendSMS,"x1");
 
-        flow.wait("mail").next(this::report,"x2");
+        flow.wait("mail").run(this::report,"x2");
 
-        flow.waitAll("x1","x2").next(this::report).end();
+        flow.waitAll("x1","x2").run(this::report).end();
 
 
     }
@@ -84,9 +85,9 @@ public class WorkFlowTest implements FlowableWork {
 
     public void defineWorkFlow_XX(WorkFlow flow) {
 
-        flow.runAsync(this::order).next(this::sendMail,"mail").next(this::sendSMS,"x1");
+        flow.runAsync(this::order).run(this::sendMail,"mail").run(this::sendSMS,"x1");
 
-        flow.wait("mail").next(this::report).fireEvent("qq",2000);
+        flow.wait("mail").run(this::report).fireEvent("qq",2000);
 
 
 
@@ -97,13 +98,13 @@ public class WorkFlowTest implements FlowableWork {
 
     public void defineWorkFlow3(WorkFlow flow) {
 
-        flow.fireEvent("timeout",3000).runAsync(this::order).next(this::sendMail,"mail").next(this::sendSMS,"x1");
+        flow.fireEvent("timeout",3000).runAsync(this::order).run(this::sendMail,"mail").run(this::sendSMS,"x1");
 
-        flow.wait("mail").next(this::sendMail).fireEvent("qq",2000);
+        flow.wait("mail").run(this::sendMail).fireEvent("qq",2000);
 
-        flow.wait("timeout").next(this::timeout).end();
+        flow.wait("timeout").run(this::timeout).end();
 
-        flow.waitAll("qq").next(this::report).end();
+        flow.waitAll("qq").run(this::report).end();
 
 
     }

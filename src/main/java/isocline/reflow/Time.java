@@ -126,7 +126,7 @@ public class Time {
 
 
     /**
-     * Returns the exact next 1 second unit time from the current time.
+     * Returns the exact apply 1 second unit time from the current time.
      *
      * @return the number of milliseconds since January 1, 1970, 00:00:00 GMT for the date and time specified by the arguments.
      */
@@ -136,7 +136,7 @@ public class Time {
 
 
     /**
-     * Returns the exact next 1-minute unit time from the current time.
+     * Returns the exact apply 1-minute unit time from the current time.
      *
      * @return the number of milliseconds since January 1, 1970, 00:00:00 GMT for the date and time specified by the arguments.
      */
